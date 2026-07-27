@@ -1,0 +1,25 @@
+generated: '2026-07-19'
+method: generated
+source: >-
+  Packaged Agent Skills generated from Heron's documented REST operations
+  (docs.herondata.io) plus the conventions/errors/authentication/webhook rules
+  captured in this repo. No consolidated OpenAPI is published, so steps cite the
+  real documented HTTP method+path rather than operationIds.
+skills:
+  - file: heron-parse-and-retrieve-documents.md
+    name: Parse documents and retrieve results
+    api: Heron REST API
+    operations:
+      - POST /end_users
+      - POST /end_users/{heron_id}/files/v2
+      - POST /end_users/{heron_id}/start_workflow
+      - GET /end_users/{end_user_id_or_heron_id}/files
+  - file: heron-underwrite-end-user.md
+    name: Underwrite an end user
+    api: Heron REST API
+    operations:
+      - GET EndUser Heron Score (beta)
+      - GET EndUser scorecard
+      - GET EndUser bank statement summary
+      - GET EndUser cashflow P&L
+      - GET decline analytics for a user

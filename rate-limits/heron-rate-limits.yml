@@ -1,0 +1,45 @@
+specification: API Commons Rate Limits
+specificationVersion: '0.1'
+schema: https://raw.githubusercontent.com/api-evangelist/interface-research/main/schema/api-commons.yml#/$defs/RateLimits
+provider: Heron
+providerId: heron
+generated: '2026-07-19'
+method: searched
+created: '2026-07-19'
+modified: '2026-07-19'
+tags:
+  - Rate Limiting
+  - Financial Services
+description: >-
+  Heron enforces rate limits per API endpoint and per customer using a fixed-window
+  algorithm (flask-limiter). Every response carries x-ratelimit-* headers advertising
+  the limit, remaining requests, and reset time. The documented example limit is 100
+  requests per minute; actual limits vary per endpoint and customer.
+sources:
+  - https://docs.herondata.io/api-reference/errors
+headers:
+  limit: x-ratelimit-limit
+  remaining: x-ratelimit-remaining
+  reset: x-ratelimit-reset
+responseCodes:
+  throttled: 429
+algorithm: fixed-window
+limits:
+  - name: Default per-endpoint limit (documented example)
+    scope: endpoint+customer
+    metric: requests_per_minute
+    limit: 100
+    timeFrame: minute
+    note: >-
+      Limits are set per endpoint and per customer; 100/minute is the documented
+      example, not a global cap. Query the x-ratelimit-* response headers for the
+      live limit and remaining budget on any endpoint.
+policies:
+  - name: Header-based signaling
+    description: >-
+      Read x-ratelimit-limit / x-ratelimit-remaining / x-ratelimit-reset on every
+      response to self-throttle. reset is a Unix timestamp for the window refill.
+  - name: 429 body
+    description: >-
+      A throttled request returns {code:429, description:"<n> per <window>",
+      name:"Too Many Requests"}.

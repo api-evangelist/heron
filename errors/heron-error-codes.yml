@@ -1,0 +1,39 @@
+generated: '2026-07-19'
+method: searched
+source: https://docs.herondata.io/api-reference/errors
+docs: https://docs.herondata.io/api-reference/errors
+format: custom-json
+description: >-
+  Heron returns all application errors as a JSON object with three keys: code
+  (integer HTTP status), description (string or object with field-level detail),
+  and name (the error name). This is a bespoke envelope, not RFC 9457
+  application/problem+json.
+envelope:
+  fields:
+    code: integer — the HTTP status code
+    description: string or object — a longer description of what went wrong (object carries field-level validation detail)
+    name: string — the error name
+error_codes:
+  - status: 404
+    name: Not Found
+    description: The requested resource does not exist (e.g. "Transaction not found").
+    example: '{"code":404,"description":"Transaction not found","name":"Not Found"}'
+  - status: 422
+    name: Unprocessable Entity
+    description: >-
+      Validation failed; the description is an object keyed by input location
+      (e.g. json) then field, with a _schema list of messages.
+    example: '{"code":422,"description":{"json":{"merchant":{"_schema":["one of ''heron_id'' or ''name'' is required for merchant feedback"]}}},"name":"Unprocessable Entity"}'
+  - status: 429
+    name: Too Many Requests
+    description: >-
+      Rate limit exceeded. The description states the limit that was hit
+      (e.g. "100 per 1 minute"). See rate-limits/heron-rate-limits.yml.
+    example: '{"code":429,"description":"100 per 1 minute","name":"Too Many Requests"}'
+  - status: 500
+    name: Internal Server Error
+    description: >-
+      Unexpected server error; message directs users to email help@herondata.io
+      for persistent issues.
+    example: '{"code":500,"description":"Something went wrong - sorry about that! If you continue having issues please email help@herondata.io","name":"Internal Server Error"}'
+support_contact: help@herondata.io

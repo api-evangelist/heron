@@ -1,0 +1,50 @@
+generated: '2026-07-19'
+method: searched
+source: >-
+  https://docs.herondata.io/ — cross-cutting request/response conventions that
+  apply across Heron API endpoints (authentication, error envelope, rate-limit
+  signaling, webhooks, id scheme), assembled from the authentication, errors, and
+  webhooks reference pages plus the quickstart.
+description: >-
+  How the Heron API behaves across operations: API-key auth, the error envelope,
+  header-based rate-limit signaling, dashboard-configured webhooks, and the Heron
+  id scheme. These are developer-experience / runtime semantics.
+base_url: https://app.herondata.io/api
+api_style: REST over HTTPS, JSON responses
+authentication:
+  scheme: API key in the x-api-key header (key_ + 48 hex)
+  environments: development vs production separated at the credential level
+  docs: https://docs.herondata.io/api-reference/authentication
+  detail: authentication/heron-authentication.yml
+idempotency:
+  header_supported: false
+  notes: >-
+    Heron does not document a client-supplied idempotency-key request header.
+    Some individual operations are idempotent by design (e.g. "add a funder to
+    broker's policies" returns the existing record if it already exists; "generate
+    broker API key" errors if a key already exists), but there is no global
+    Idempotency-Key contract.
+pagination:
+  documented: unknown
+  notes: >-
+    List endpoints exist across the API; a cursor/offset pagination contract was
+    not captured on the reference pages fetched. Not asserted to avoid fabrication.
+identifiers:
+  scheme: Prefixed opaque ids
+  examples:
+    end_user: eus_ (e.g. eus_Eqio3Y4dhyNiMphrXwG58p) — the heron_id
+  notes: End users are addressable by either the customer-supplied end_user_id or the Heron-assigned heron_id.
+error_envelope:
+  shape: '{code:int, description:string|object, name:string}'
+  detail: errors/heron-error-codes.yml
+rate_limiting:
+  signaling: x-ratelimit-limit / x-ratelimit-remaining / x-ratelimit-reset response headers
+  algorithm: fixed-window (per endpoint + per customer)
+  detail: rate-limits/heron-rate-limits.yml
+webhooks:
+  configuration: Dashboard (Settings tab) or the Webhooks API
+  envelope: '{topic, created, data, meta}'
+  detail: asyncapi/heron-webhooks-asyncapi.yml
+versioning:
+  scheme: unversioned path (/api), file-upload variants suffixed (e.g. /files/v2)
+  notes: No dated/header API version scheme documented on the pages fetched.

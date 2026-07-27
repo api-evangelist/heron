@@ -1,0 +1,63 @@
+generated: '2026-07-19'
+method: derived
+source: >-
+  Derived from Heron's API reference structure (docs.herondata.io/api-reference)
+  and documented payloads. No consolidated OpenAPI is published, so relationships
+  are inferred from documented resources, path nesting, and id fields rather than
+  parsed $ref graphs.
+description: >-
+  Core Heron entities for financial-services document automation and cashflow
+  underwriting. The EndUser (a company being underwritten, id prefix eus_) is the
+  hub: files/documents are uploaded and parsed into transactions, which drive
+  calculations (Heron Score, scorecard, cashflow P&L, anomalies) and policy/rule
+  evaluations. Brokers and funders sit on top for MCA/lending submission flows.
+id_prefixes:
+  end_user: eus_
+entities:
+  - name: EndUser
+    description: A company/applicant being processed and underwritten. Addressable by heron_id (eus_) or customer end_user_id.
+    relationships:
+      - {type: has_many, target: File, via: heron_id}
+      - {type: has_many, target: Transaction, via: heron_id}
+      - {type: has_many, target: DataSource, via: heron_id}
+      - {type: has_one, target: Scorecard, via: heron_id}
+      - {type: has_one, target: HeronScore, via: heron_id}
+  - name: File
+    description: An uploaded document (bank statement, tax return, financial statement, ACORD form). Parsed into transactions.
+    relationships:
+      - {type: belongs_to, target: EndUser, via: heron_id}
+      - {type: has_many, target: Transaction, via: file}
+  - name: Transaction
+    description: A categorized/enriched transaction extracted from a document or data source.
+    relationships:
+      - {type: belongs_to, target: EndUser, via: heron_id}
+      - {type: belongs_to, target: Merchant, via: merchant}
+  - name: Merchant
+    description: A normalized counterparty/merchant that transactions are grouped under.
+  - name: DataSource
+    description: A source of transaction data for an end user (uploaded docs, integrations); has data-source accounts.
+    relationships:
+      - {type: belongs_to, target: EndUser, via: heron_id}
+      - {type: has_many, target: DataSourceAccount, via: data_source}
+  - name: Scorecard
+    description: Scorecard metrics and rule violations computed for an end user.
+    relationships:
+      - {type: belongs_to, target: EndUser, via: heron_id}
+  - name: HeronScore
+    description: Beta creditworthiness score with feature-group contribution breakdown.
+    relationships:
+      - {type: belongs_to, target: EndUser, via: heron_id}
+  - name: Broker
+    description: A broker submitting end users to funders (MCA/lending). Identified by email domain; holds funder policies.
+    relationships:
+      - {type: has_many, target: BrokerSubmission, via: broker}
+      - {type: has_many, target: Funder, via: broker_funder}
+  - name: Funder
+    description: A funder/lender a broker submits end users to; has policies and integrations.
+    relationships:
+      - {type: has_many, target: FunderPolicy, via: funder}
+  - name: BrokerSubmission
+    description: A submission of an end user's details and documents from a broker to a funder.
+    relationships:
+      - {type: belongs_to, target: Broker, via: broker}
+      - {type: belongs_to, target: EndUser, via: end_user}

@@ -1,0 +1,26 @@
+generated: '2026-07-19'
+method: searched
+probe: true
+source: https://www.herondata.io/security
+url: https://trust.herondata.io/
+security_page: https://www.herondata.io/security
+description: >-
+  Heron publishes a Trust Center (trust.herondata.io) and a security page. Data
+  security and customer privacy are described as core to the business model.
+certifications:
+  - name: SOC 2 Type 1
+    status: certified
+  - name: SOC 2 Type 2
+    status: undergoing audit
+  - name: GDPR
+    status: compliant
+  - name: CCPA
+    status: compliant
+security_contact: security@herondata.io
+evidence:
+  - source: https://www.herondata.io/security
+    keywords:
+      - soc 2 type 1
+      - soc 2 type 2
+      - trust center
+      - responsible disclosure

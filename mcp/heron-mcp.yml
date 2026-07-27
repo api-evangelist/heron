@@ -1,0 +1,45 @@
+generated: '2026-07-19'
+method: derived
+status: candidate
+source: >-
+  No official Heron MCP server was found. This is a CANDIDATE tool list derived
+  from Heron's documented REST operations (docs.herondata.io/api-reference) so an
+  MCP wrapper could be built. Not an authoritative provider artifact.
+server:
+  name: heron
+  transport: http
+  base_url: https://app.herondata.io/api
+  auth: x-api-key header
+tools:
+  - name: create_end_user
+    description: Create an end user (company) submission to process.
+    source_operation: POST /api/end_users
+    docs: https://docs.herondata.io/api-reference/endusers/
+  - name: upload_files
+    description: Upload PDF documents (bank statements, tax returns, financials) for an end user.
+    source_operation: POST /api/end_users/{heron_id}/files/v2
+    docs: https://docs.herondata.io/api-reference/enduserfiles/
+  - name: start_workflow
+    description: Start asynchronous automated processing for an end user.
+    source_operation: POST /api/end_users/{heron_id}/start_workflow
+    docs: https://docs.herondata.io/api-reference/workflows/
+  - name: get_files
+    description: Retrieve processed files and parsed results for an end user.
+    source_operation: GET /api/end_users/{end_user_id_or_heron_id}/files
+    docs: https://docs.herondata.io/api-reference/enduserfiles/
+  - name: get_heron_score
+    description: Get the Heron Score (beta) for an end user with feature-group breakdown.
+    source_operation: GET Heron Score (beta)
+    docs: https://docs.herondata.io/api-reference/endusercalculations/get-enduser-heron-score-beta.md
+  - name: get_scorecard
+    description: Get scorecard metrics and rule violations for an end user.
+    source_operation: GET EndUser scorecard
+    docs: https://docs.herondata.io/api-reference/endusercalculations/get-enduser-scorecard.md
+  - name: get_decline_analytics
+    description: Get aggregated decline analytics for end users within a date range.
+    source_operation: GET decline analytics
+    docs: https://docs.herondata.io/api-reference/analytics/get-decline-analytics-for-a-user.md
+  - name: manage_webhooks
+    description: Create, list, update, or delete webhook subscriptions.
+    source_operation: Webhooks API
+    docs: https://docs.herondata.io/api-reference/webhooks/

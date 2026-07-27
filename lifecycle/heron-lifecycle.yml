@@ -1,0 +1,27 @@
+generated: '2026-07-19'
+method: searched
+source: https://status.herondata.io/
+description: >-
+  Heron operational lifecycle: a public status page with per-component uptime, a
+  credential-level development/production separation, and per-topic webhook
+  deprecation notices. No formal dated API-versioning or published deprecation
+  policy page was found.
+versioning:
+  scheme: unversioned /api path; individual endpoints carry variant suffixes (e.g. /files/v2)
+  current: null
+status_page: https://status.herondata.io/
+status_components:
+  - {name: Dashboard, uptime: '100%'}
+  - {name: Email Ingestion, uptime: '100%'}
+  - {name: API, uptime: '99.99%'}
+  - {name: Workflows, uptime: '99.97%'}
+  - {name: Website, uptime: '100%'}
+  - {name: Documentation, uptime: '100%'}
+deprecation:
+  policy_url: null
+  notes: >-
+    No standalone deprecation-policy page found. Deprecations are announced inline
+    in the docs — e.g. the end_user.transactions_updated webhook topic and the
+    "Get Missing Accounts (beta)" endpoint are flagged in the API reference.
+deprecated_surfaces:
+  - webhook topic end_user.transactions_updated (in process of being deprecated)

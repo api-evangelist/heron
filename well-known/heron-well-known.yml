@@ -1,0 +1,26 @@
+generated: '2026-07-19'
+method: searched
+host: https://app.herondata.io
+description: >-
+  Probed the standard /.well-known/ discovery surface on the API host
+  (app.herondata.io) and the marketing host (www.herondata.io). None are
+  published — recorded here for auditability. Absence is valid data.
+documents:
+  - path: /.well-known/security.txt
+    host: https://app.herondata.io
+    status: 404
+  - path: /.well-known/openid-configuration
+    host: https://app.herondata.io
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    host: https://app.herondata.io
+    status: 404
+  - path: /.well-known/api-catalog
+    host: https://app.herondata.io
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    host: https://app.herondata.io
+    status: 404
+  - path: /.well-known/security.txt
+    host: https://www.herondata.io
+    status: 404

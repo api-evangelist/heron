@@ -1,0 +1,33 @@
+generated: '2026-07-19'
+method: derived
+source: >-
+  Derived from Heron's authentication, errors, rate-limits, and webhooks
+  reference pages, plus the security/trust page. No consolidated OpenAPI is
+  published, so standards are asserted from documented behavior, not a parsed spec.
+standards:
+  - id: oauth2
+    conforms: false
+    evidence: API-key auth only (x-api-key header); no OAuth2 flows documented.
+  - id: oidc
+    conforms: false
+  - id: rfc9457-problem-details
+    conforms: false
+    evidence: Errors use a bespoke {code,description,name} JSON envelope, not application/problem+json.
+  - id: rfc6750-bearer
+    conforms: false
+    evidence: Auth is a custom x-api-key header, not RFC 6750 Bearer.
+  - id: webhooks
+    conforms: true
+    evidence: Documented webhook catalog with {topic,created,data,meta} envelope; see asyncapi/heron-webhooks-asyncapi.yml.
+  - id: rate-limit-headers
+    conforms: true
+    evidence: x-ratelimit-limit / x-ratelimit-remaining / x-ratelimit-reset on every response.
+  - id: soc2
+    conforms: true
+    evidence: SOC 2 Type 1 certified; Type 2 in audit (https://www.herondata.io/security).
+  - id: gdpr
+    conforms: true
+    evidence: GDPR compliance stated on the company site.
+  - id: ccpa
+    conforms: true
+    evidence: CCPA compliance stated on the company site.

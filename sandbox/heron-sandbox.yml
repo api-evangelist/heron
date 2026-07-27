@@ -1,0 +1,28 @@
+generated: '2026-07-19'
+method: searched
+source: https://docs.herondata.io/api-reference/authentication
+description: >-
+  Heron separates development and production at the credential level rather than
+  via a test-mode key prefix. Trial / onboarding customers are issued a set of
+  development dashboard + API credentials; production credentials are issued
+  separately on request. Two unauthenticated/authenticated test ("hello world")
+  endpoints let you verify connectivity and key validity. As a document-automation
+  platform (not a card acquirer) Heron publishes no test card numbers.
+environments:
+  development:
+    description: Issued for trial / onboarding; used for development against real endpoints.
+    credentials: Separate development dashboard + API credentials.
+  production:
+    description: Issued separately once you are ready to go live (contact your Heron rep / hello@herondata.io).
+test_endpoints:
+  - method: GET
+    path: /api/hello_world
+    auth: none
+    purpose: Test connectivity (no authentication).
+    docs: https://docs.herondata.io/api-reference/testing/get-apihello_world.md
+  - method: GET
+    path: /api/hello_world/authenticated
+    auth: x-api-key
+    purpose: Test that an API key authenticates successfully.
+    docs: https://docs.herondata.io/api-reference/testing/get-apihello_worldauthenticated.md
+test_values: none published (document-automation API; no synthetic card/bank test data)

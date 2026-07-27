@@ -1,0 +1,120 @@
+asyncapi: 2.6.0
+info:
+  title: Heron Webhooks
+  version: '1.0.0'
+  description: >-
+    Heron sends webhook notifications about the progress of asynchronous processes
+    (end-user processing/review and PDF document parsing) to a URL you configure in
+    the Heron dashboard (Settings tab). Each webhook is a JSON object with a topic in
+    <resource>.<event> form, a created ISO-8601 UTC timestamp, a data payload for the
+    related resource, and an optional meta object. Webhook endpoints and topic
+    subscriptions are managed via the dashboard and the Webhooks API
+    (create/get/update/delete a webhook, list webhook topics).
+  contact:
+    name: Heron Data
+    url: https://www.herondata.io
+    email: hello@herondata.io
+externalDocs:
+  description: Heron Webhooks documentation
+  url: https://docs.herondata.io/api-reference/webhooks
+defaultContentType: application/json
+channels:
+  end_user.processed:
+    description: Triggered when asynchronous automated processing of an end user has finished (after the EndUser status is set to "ready").
+    subscribe:
+      operationId: onEndUserProcessed
+      message:
+        $ref: '#/components/messages/HeronWebhookEvent'
+  end_user.reviewed:
+    description: Triggered when an underwriter / Heron has manually reviewed a company and set the EndUser status to "reviewed".
+    subscribe:
+      operationId: onEndUserReviewed
+      message:
+        $ref: '#/components/messages/HeronWebhookEvent'
+  end_user.review_required:
+    description: Triggered when an end user violates a rule during processing and needs further review.
+    subscribe:
+      operationId: onEndUserReviewRequired
+      message:
+        $ref: '#/components/messages/HeronWebhookEvent'
+  end_user.transactions_updated:
+    description: DEPRECATED — in the process of being deprecated; do not subscribe to this topic.
+    deprecated: true
+    subscribe:
+      operationId: onEndUserTransactionsUpdated
+      message:
+        $ref: '#/components/messages/HeronWebhookEvent'
+  transactions.deleted:
+    description: Triggered when transactions are deleted.
+    subscribe:
+      operationId: onTransactionsDeleted
+      message:
+        $ref: '#/components/messages/HeronWebhookEvent'
+  transactions.updated:
+    description: Triggered within 10 minutes of the last change on transactions for a given end user (e.g. after category feedback or Heron manual review).
+    subscribe:
+      operationId: onTransactionsUpdated
+      message:
+        $ref: '#/components/messages/HeronWebhookEvent'
+  pdf.processed:
+    description: Triggered when Heron has successfully processed a PDF document.
+    subscribe:
+      operationId: onPdfProcessed
+      message:
+        $ref: '#/components/messages/HeronWebhookEvent'
+  pdf.checks_passed:
+    description: Triggered when the PDF reconciles and does not exceed the anomaly threshold (if fraud is enabled for your account).
+    subscribe:
+      operationId: onPdfChecksPassed
+      message:
+        $ref: '#/components/messages/HeronWebhookEvent'
+  pdf.checks_failed:
+    description: Triggered when the PDF does not reconcile and/or exceeds the anomaly threshold (if fraud is enabled for your account).
+    subscribe:
+      operationId: onPdfChecksFailed
+      message:
+        $ref: '#/components/messages/HeronWebhookEvent'
+  pdf.failed:
+    description: Triggered when Heron failed to process a PDF document (failed to extract any transactions).
+    subscribe:
+      operationId: onPdfFailed
+      message:
+        $ref: '#/components/messages/HeronWebhookEvent'
+  pdf.transactions_loaded:
+    description: Triggered when the transactions from a processed PDF have been loaded into an end_user_id.
+    subscribe:
+      operationId: onPdfTransactionsLoaded
+      message:
+        $ref: '#/components/messages/HeronWebhookEvent'
+components:
+  messages:
+    HeronWebhookEvent:
+      name: HeronWebhookEvent
+      title: Heron webhook event
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/WebhookEvent'
+  schemas:
+    WebhookEvent:
+      type: object
+      required: [topic, created, data]
+      properties:
+        topic:
+          type: string
+          description: Event topic in <resource>.<event> form.
+          example: end_user.processed
+        created:
+          type: string
+          format: date-time
+          description: UTC datetime the webhook was sent, ISO-8601.
+          example: '2021-05-20T09:23:53+00:00'
+        data:
+          type: object
+          description: Data of the resource that relates to this event.
+          example:
+            heron_id: eus_Eqio3Y4dhyNiMphrXwG58p
+            end_user_id: myenduser
+            status: processed
+        meta:
+          type: [object, 'null']
+          description: Optional further information about the event.

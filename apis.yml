@@ -1,20 +1,72 @@
 aid: heron
 name: Heron
-description: Heron is a company surfaced as a portfolio company of insight-partners and added to the API
-  Evangelist network as a stub for enrichment. This profile is a lead awaiting the enrichment pipeline.
+description: >-
+  Heron (Heron Data) is a financial-services document-automation and cashflow-underwriting
+  platform. Its API and AI platform handle document intake, classification, parsing and
+  validation, enrichment, policy/rule evaluation, and CRM sync across 50+ document types
+  (bank statements, tax returns, financial statements, ACORD forms). Lenders, MCA funders,
+  brokers, and insurers upload documents for an "end user" (company), then read back parsed
+  transactions, a Heron Score, scorecards, cashflow P&L, anomaly/fraud checks, and decline
+  analytics. The REST API authenticates with an x-api-key header, signals rate limits via
+  x-ratelimit-* headers, and pushes async progress through webhooks. Backed by Insight Partners.
 url: https://raw.githubusercontent.com/api-evangelist/heron/refs/heads/main/apis.yml
+accessModel:
+  pricing: unknown
+  onboarding: self-serve
+  trial: false
+  try_now: false
+  public: false
+  label: Self-serve signup
+  confidence: medium
+  source:
+  - authentication
+  generated: '2026-07-22'
+  method: derived
+image: https://cdn.prod.website-files.com/675862616b5e61c9450cfef0/677e4fc1e48ddcd5917c71ca_home-og-img.jpg
 x-type: company
 x-source: vc-portfolio
 x-backed-by:
 - insight-partners
-x-tier: stub
-x-tier-reason: portfolio-lead
+x-tier: profiled
+x-tier-reason: enrichment-pipeline
 specificationVersion: '0.20'
 created: '2026-07-17'
-modified: '2026-07-17'
+modified: '2026-07-19'
 tags:
 - Company
-apis: []
+- Financial Services
+- Document Automation
+- Underwriting
+- Lending
+- Cashflow Analytics
+- Fintech
+- Data Enrichment
+apis:
+- name: Heron API
+  description: >-
+    Heron's REST API for document intake, parsing, enrichment, cashflow underwriting,
+    webhooks, and broker/funder submission flows.
+  humanURL: https://docs.herondata.io/
+  baseURL: https://app.herondata.io/api
+  tags:
+  - Document Automation
+  - Underwriting
+  - Financial Services
+  properties:
+  - type: Documentation
+    url: https://docs.herondata.io/
+  - type: APIReference
+    url: https://docs.herondata.io/api-reference/authentication
+  - type: GettingStarted
+    url: https://docs.herondata.io/
+  - type: LLMsTxt
+    url: llms/heron-llms.txt
+  - type: Authentication
+    url: authentication/heron-authentication.yml
+  - type: AsyncAPI
+    url: asyncapi/heron-webhooks-asyncapi.yml
+  - type: Webhooks
+    url: asyncapi/heron-webhooks-asyncapi.yml
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
@@ -23,3 +75,66 @@ maintainers:
 common:
 - type: Website
   url: https://www.herondata.io/
+- type: DeveloperPortal
+  url: https://docs.herondata.io/
+- type: Documentation
+  url: https://docs.herondata.io/
+- type: APIReference
+  url: https://docs.herondata.io/api-reference/authentication
+- type: GettingStarted
+  url: https://docs.herondata.io/
+- type: Login
+  url: https://dashboard.herondata.io/auth/signin
+- type: Blog
+  url: https://www.herondata.io/blog
+- type: Support
+  url: mailto:hello@herondata.io
+- type: TermsOfService
+  url: https://www.herondata.io/terms
+- type: PrivacyPolicy
+  url: https://www.herondata.io/privacy-policy
+- type: StatusPage
+  url: https://status.herondata.io/
+- type: TrustCenter
+  url: security/heron-trust-center.yml
+- type: Compliance
+  url: https://www.herondata.io/security
+- type: Security
+  url: https://www.herondata.io/disclosure
+- type: VulnerabilityDisclosure
+  url: security/heron-vulnerability-disclosure.yml
+- type: DomainSecurity
+  url: security/heron-domain-security.yml
+- type: LLMsTxt
+  url: llms/heron-llms.txt
+- type: Authentication
+  url: authentication/heron-authentication.yml
+- type: ErrorCatalog
+  url: errors/heron-error-codes.yml
+- type: RateLimits
+  url: rate-limits/heron-rate-limits.yml
+- type: AsyncAPI
+  url: asyncapi/heron-webhooks-asyncapi.yml
+- type: Webhooks
+  url: asyncapi/heron-webhooks-asyncapi.yml
+- type: Conventions
+  url: conventions/heron-conventions.yml
+- type: Conformance
+  url: conformance/heron-conformance.yml
+- type: Lifecycle
+  url: lifecycle/heron-lifecycle.yml
+- type: MCPServer
+  url: mcp/heron-mcp.yml
+- type: Sandbox
+  url: sandbox/heron-sandbox.yml
+- type: DataModel
+  url: data-model/heron-data-model.yml
+- type: WellKnown
+  url: well-known/heron-well-known.yml
+- type: AgentSkill
+  url: skills/_index.yml
+x-enrichment:
+  date: '2026-07-19'
+  status: backfilled
+  pass: local-v1
+  note: backfilled from .gitignore signal + verified work evidence
