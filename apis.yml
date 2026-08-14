@@ -7,21 +7,30 @@ description: >-
   (bank statements, tax returns, financial statements, ACORD forms). Lenders, MCA funders,
   brokers, and insurers upload documents for an "end user" (company), then read back parsed
   transactions, a Heron Score, scorecards, cashflow P&L, anomaly/fraud checks, and decline
-  analytics. The REST API authenticates with an x-api-key header, signals rate limits via
-  x-ratelimit-* headers, and pushes async progress through webhooks. Backed by Insight Partners.
+  analytics. Heron publishes an OpenAPI 3.0 contract at app.herondata.io/swagger covering 226
+  paths and 272 operations, a conformant A2A agent card and a published Agent Skill on its
+  documentation host, and a live unauthenticated MCP endpoint for documentation retrieval. The
+  REST API authenticates with an x-api-key header, signals rate limits via x-ratelimit-*
+  headers, and pushes async progress through webhooks. Backed by Insight Partners.
 url: https://raw.githubusercontent.com/api-evangelist/heron/refs/heads/main/apis.yml
 accessModel:
-  pricing: unknown
-  onboarding: self-serve
-  trial: false
+  pricing: enterprise
+  onboarding: sales
+  trial: true
   try_now: false
   public: false
-  label: Self-serve signup
-  confidence: medium
+  label: Book a demo; credentials issued by Heron
+  confidence: high
+  note: >-
+    No pricing or plans page exists (both /pricing and /plans return 404) and the only
+    commercial call to action is Book a demo. Development credentials are issued for trial
+    and onboarding; production credentials are issued separately on request. Corrected from
+    the earlier derived guess of self-serve signup.
   source:
-  - authentication
-  generated: '2026-07-22'
-  method: derived
+  - plans/heron-plans-pricing.yml
+  - authentication/heron-authentication.yml
+  generated: '2026-08-14'
+  method: searched
 image: https://cdn.prod.website-files.com/675862616b5e61c9450cfef0/677e4fc1e48ddcd5917c71ca_home-og-img.jpg
 x-type: company
 x-source: vc-portfolio
@@ -31,7 +40,7 @@ x-tier: profiled
 x-tier-reason: enrichment-pipeline
 specificationVersion: '0.20'
 created: '2026-07-17'
-modified: '2026-07-19'
+modified: '2026-08-14'
 tags:
 - Company
 - Financial Services
@@ -41,6 +50,9 @@ tags:
 - Cashflow Analytics
 - Fintech
 - Data Enrichment
+- Bank Statements
+- Transaction Enrichment
+- Agent Ready
 apis:
 - name: Heron API
   description: >-
@@ -59,6 +71,10 @@ apis:
     url: https://docs.herondata.io/api-reference/authentication
   - type: GettingStarted
     url: https://docs.herondata.io/
+  - type: OpenAPI
+    url: openapi/heron-openapi.json
+  - type: Overlay
+    url: overlays/heron-openapi-overlay.yaml
   - type: LLMsTxt
     url: llms/heron-llms.txt
   - type: Authentication
@@ -105,12 +121,20 @@ common:
   url: security/heron-vulnerability-disclosure.yml
 - type: DomainSecurity
   url: security/heron-domain-security.yml
+- type: GitHubOrganization
+  url: https://github.com/heron-data
+- type: OpenAPI
+  url: openapi/heron-openapi.json
+- type: Overlay
+  url: overlays/heron-openapi-overlay.yaml
 - type: LLMsTxt
   url: llms/heron-llms.txt
 - type: Authentication
   url: authentication/heron-authentication.yml
 - type: ErrorCatalog
   url: errors/heron-error-codes.yml
+- type: ErrorCodes
+  url: errors/heron-problem-types.yml
 - type: RateLimits
   url: rate-limits/heron-rate-limits.yml
 - type: AsyncAPI
@@ -123,8 +147,22 @@ common:
   url: conformance/heron-conformance.yml
 - type: Lifecycle
   url: lifecycle/heron-lifecycle.yml
+- type: ChangeLog
+  url: changelog/heron-changelog.yml
+- type: ReleaseNotes
+  url: https://docs.herondata.io/miscellaneous/release-notes
 - type: MCPServer
   url: mcp/heron-mcp.yml
+- type: ToolCrosswalk
+  url: mcp/heron-tool-crosswalk.yml
+- type: AgentCard
+  url: a2a/heron-a2a.yml
+- type: Packages
+  url: packages/heron-packages.yml
+- type: SDKs
+  url: packages/heron-packages.yml
+- type: Plans
+  url: plans/heron-plans-pricing.yml
 - type: Sandbox
   url: sandbox/heron-sandbox.yml
 - type: DataModel
@@ -133,8 +171,16 @@ common:
   url: well-known/heron-well-known.yml
 - type: AgentSkill
   url: skills/_index.yml
+- type: AgentSkill
+  url: skills/heron-herondata-skill.md
 x-enrichment:
-  date: '2026-07-19'
-  status: backfilled
+  date: '2026-08-14'
+  status: enriched
+  artifacts_added: 10
   pass: local-v1
-  note: backfilled from .gitignore signal + verified work evidence
+  note: >-
+    Contract discovery found the real OpenAPI at https://app.herondata.io/swagger (226 paths,
+    272 operations) after the previous round recorded "no consolidated OpenAPI is published";
+    also found a conformant A2A agent card, a provider-published Agent Skill, and a live MCP
+    endpoint. The Mintlify sample spec at docs.herondata.io/api-reference/openapi.json was
+    rejected on the ownership check — it is the "OpenAPI Plant Store" demo document.
