@@ -1,0 +1,63 @@
+generated: '2026-08-14'
+method: searched
+source: >-
+  PyPI metadata endpoint https://pypi.org/pypi/heron-data/json, the npm registry, and the
+  Heron Data GitHub organization https://github.com/heron-data (2 public repositories).
+description: >-
+  Heron publishes exactly one first-party client library: heron-data on PyPI, authored by
+  Heron Data (help@herondata.io) and sourced from github.com/heron-data/client-python.
+  It is a decay signal, not a living SDK — the last release is 0.1.4 from 2022-11-11 and
+  the GitHub repository was ARCHIVED (read-only) as of its final push on 2025-07-21, while
+  the REST API it wraps is actively developed (release notes through 2025-08, 272 published
+  operations). No JavaScript/TypeScript, Java, .NET, Go, Ruby or PHP client is published:
+  the npm registry returns 404 for heron-data, herondata and @herondata/client, and a
+  registry text search for "herondata" returns zero packages.
+package_count: 1
+official_count: 1
+packages:
+  - language: python
+    name: heron-data
+    registry: pypi
+    url: https://pypi.org/project/heron-data/
+    official: true
+    version: 0.1.4
+    published: '2022-11-11'
+    release_count: 8
+    first_published: '2021-08-13'
+    license: MIT
+    requires_python: '>=3.8.*'
+    repository: https://github.com/heron-data/client-python
+    repository_archived: true
+    repository_last_push: '2025-07-21'
+    stars: 13
+    note: >-
+      First-party (PyPI author "Heron Data", author_email help@herondata.io; homepage is the
+      Heron GitHub org). Last published release predates the current API surface by more than
+      three years and the source repository is archived, so an integrator should treat the
+      REST contract in openapi/heron-openapi.json as the supported interface rather than this
+      library.
+absent_registries:
+  - registry: npm
+    checked: '2026-08-14'
+    queries: [heron-data, herondata, '@herondata/client', 'text search: herondata']
+    result: no first-party package published (404 / zero results)
+  - registry: maven-central
+    checked: '2026-08-14'
+    result: none found
+  - registry: nuget
+    checked: '2026-08-14'
+    result: none found
+  - registry: rubygems
+    checked: '2026-08-14'
+    result: none found
+related_repositories:
+  - name: heron-data/schema-tools
+    url: https://github.com/heron-data/schema-tools
+    language: TypeScript
+    homepage: https://schematools.herondata.io
+    archived: false
+    last_push: '2025-07-28'
+    note: >-
+      Public Heron repository, but a schema tooling project rather than an API client, so it
+      is not counted as an SDK.
+github_organization: https://github.com/heron-data

@@ -1,7 +1,19 @@
-generated: '2026-07-19'
+generated: '2026-08-14'
 method: searched
-source: https://docs.herondata.io/api-reference/authentication
+source: >-
+  https://docs.herondata.io/api-reference/authentication, confirmed against the published
+  contract openapi/heron-openapi.json (harvested from https://app.herondata.io/swagger), which
+  declares exactly one securityScheme — ApiKeyAuth (apiKey, in: header, name: x-api-key) —
+  applied at the root security level so it covers all 272 operations.
 docs: https://docs.herondata.io/api-reference/authentication
+openapi: openapi/heron-openapi.json
+spec_confirmation:
+  securitySchemes: 1
+  scheme: ApiKeyAuth
+  applied: root-level security (all operations)
+  oauth2_flows: 0
+  openIdConnect: false
+  mutualTLS: false
 description: >-
   Heron authenticates every API request with a customer-issued API key sent in
   the x-api-key HTTP header. Keys are managed from the dashboard (Settings ->

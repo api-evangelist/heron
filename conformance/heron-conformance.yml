@@ -1,33 +1,98 @@
-generated: '2026-07-19'
-method: derived
+generated: '2026-08-14'
+method: searched
 source: >-
-  Derived from Heron's authentication, errors, rate-limits, and webhooks
-  reference pages, plus the security/trust page. No consolidated OpenAPI is
-  published, so standards are asserted from documented behavior, not a parsed spec.
+  https://www.herondata.io/security and https://www.herondata.io/disclosure for the compliance
+  program, plus openapi/heron-openapi.json (harvested from https://app.herondata.io/swagger) for
+  the contract-level assertions. Unlike the previous round, the standards below are now asserted
+  against a parsed specification rather than inferred from prose.
+description: >-
+  What Heron does and does not conform to, split between cross-cutting API standards (measured
+  from the published OpenAPI) and organizational compliance (published on Heron's security page
+  and trust center).
 standards:
+  - id: openapi
+    conforms: true
+    evidence: >-
+      Publishes OpenAPI 3.0.0 at https://app.herondata.io/swagger — 226 paths, 272 operations,
+      554 component schemas, single production server, root-level security. Saved verbatim to
+      openapi/heron-openapi.json.
   - id: oauth2
     conforms: false
-    evidence: API-key auth only (x-api-key header); no OAuth2 flows documented.
+    evidence: API-key auth only (x-api-key header); no oauth2 securityScheme in the contract.
   - id: oidc
     conforms: false
+    evidence: >-
+      No openIdConnect securityScheme and no /.well-known/openid-configuration (404 on all four
+      hosts). Note the product added end-user SSO for dashboard login in 2025-08, but that is
+      human login, not API authentication.
   - id: rfc9457-problem-details
     conforms: false
-    evidence: Errors use a bespoke {code,description,name} JSON envelope, not application/problem+json.
+    evidence: >-
+      Errors use a bespoke {code,description,name} JSON envelope, not application/problem+json.
+      See errors/heron-problem-types.yml.
   - id: rfc6750-bearer
     conforms: false
     evidence: Auth is a custom x-api-key header, not RFC 6750 Bearer.
+  - id: rfc8594-sunset
+    conforms: false
+    evidence: >-
+      Deprecation is signalled by the OpenAPI deprecated flag on 2 operations and by prose, not
+      by Sunset/Deprecation response headers.
   - id: webhooks
     conforms: true
-    evidence: Documented webhook catalog with {topic,created,data,meta} envelope; see asyncapi/heron-webhooks-asyncapi.yml.
+    evidence: >-
+      Documented webhook catalog with {topic,created,data,meta} envelope and 11 topics; 5 REST
+      operations manage subscriptions. See asyncapi/heron-webhooks-asyncapi.yml.
+  - id: asyncapi
+    conforms: false
+    evidence: >-
+      Heron publishes no AsyncAPI document; the AsyncAPI in this repo is an API Evangelist
+      rendering of Heron's documented webhook catalog.
   - id: rate-limit-headers
     conforms: true
     evidence: x-ratelimit-limit / x-ratelimit-remaining / x-ratelimit-reset on every response.
-  - id: soc2
+  - id: pagination
+    conforms: partial
+    evidence: >-
+      page/limit page-number pagination on a minority of list operations (page on 5, limit on 7
+      of 272); no shared pagination envelope.
+  - id: idempotency
+    conforms: false
+    evidence: No Idempotency-Key header anywhere in the contract; duplicate creates return 409.
+  - id: mcp
     conforms: true
-    evidence: SOC 2 Type 1 certified; Type 2 in audit (https://www.herondata.io/security).
+    evidence: >-
+      Live remote MCP endpoint at https://docs.herondata.io/mcp answering tools/list with 3
+      tools, unauthenticated. Documentation scope only — see mcp/heron-mcp.yml.
+  - id: a2a
+    conforms: true
+    evidence: >-
+      Conformant A2A Agent Card served at https://docs.herondata.io/.well-known/agent-card.json
+      (protocolVersion 0.3). See a2a/heron-a2a.yml.
+  - id: agent-skills
+    conforms: true
+    evidence: >-
+      Publishes an Agent Skills discovery index (schemas.agentskills.io/discovery/0.2.0) at
+      /.well-known/agent-skills/index.json with one skill-md document.
+  - id: llmstxt
+    conforms: true
+    evidence: Serves https://docs.herondata.io/llms.txt (54,779 bytes, HTTP 200).
+compliance:
+  - id: soc2-type1
+    conforms: true
+    evidence: SOC 2 Type 1 certified (https://www.herondata.io/security).
+  - id: soc2-type2
+    conforms: in-audit
+    evidence: SOC 2 Type 2 described as undergoing audit (https://www.herondata.io/security).
   - id: gdpr
     conforms: true
     evidence: GDPR compliance stated on the company site.
   - id: ccpa
     conforms: true
     evidence: CCPA compliance stated on the company site.
+  - id: responsible-disclosure
+    conforms: true
+    evidence: >-
+      Responsible Disclosure Policy at https://www.herondata.io/disclosure with a
+      security@herondata.io contact.
+trust_center: https://trust.herondata.io/

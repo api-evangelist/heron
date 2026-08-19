@@ -1,14 +1,21 @@
-generated: '2026-07-19'
+generated: '2026-08-14'
 method: searched
-source: https://status.herondata.io/
+source: >-
+  https://status.herondata.io/ and https://docs.herondata.io/miscellaneous/release-notes, with
+  deprecated operations derived from openapi/heron-openapi.json (harvested from
+  https://app.herondata.io/swagger).
 description: >-
-  Heron operational lifecycle: a public status page with per-component uptime, a
-  credential-level development/production separation, and per-topic webhook
-  deprecation notices. No formal dated API-versioning or published deprecation
-  policy page was found.
+  Heron operational lifecycle: a public status page with per-component uptime, a monthly
+  product changelog started in 2025, a credential-level development/production separation, and
+  deprecations announced inline on the operations themselves. There is still no formal dated
+  API-versioning scheme and no standalone deprecation-policy page.
 versioning:
   scheme: unversioned /api path; individual endpoints carry variant suffixes (e.g. /files/v2)
-  current: null
+  current: '2021-07-19'
+  current_source: openapi/heron-openapi.json info.version
+  note: >-
+    The declared spec version is a 2021 date stamp that has not moved while the product shipped
+    monthly through 2025-08, so it cannot be used to detect contract change.
 status_page: https://status.herondata.io/
 status_components:
   - {name: Dashboard, uptime: '100%'}
@@ -17,11 +24,39 @@ status_components:
   - {name: Workflows, uptime: '99.97%'}
   - {name: Website, uptime: '100%'}
   - {name: Documentation, uptime: '100%'}
+changelog:
+  url: https://docs.herondata.io/miscellaneous/release-notes
+  scheme: monthly (YYYY-MM labels), started 2025
+  latest: '2025-08'
+  detail: changelog/heron-changelog.yml
 deprecation:
   policy_url: null
+  sunset_headers: false
+  rfc8594: false
   notes: >-
-    No standalone deprecation-policy page found. Deprecations are announced inline
-    in the docs — e.g. the end_user.transactions_updated webhook topic and the
-    "Get Missing Accounts (beta)" endpoint are flagged in the API reference.
+    No standalone deprecation-policy page and no Sunset/Deprecation response headers. Heron
+    marks deprecation in two places instead: the OpenAPI deprecated flag on the operation, and
+    inline notes in the API reference and webhook topic list.
+deprecated_operations:
+  - method: DELETE
+    path: /api/end_users/{end_user_id_or_heron_id}
+    summary: Delete EndUser by heron_id or end_user_id (sync)
+    replacement: POST /api/end_users/{end_user_id_or_heron_id}/delete (async, returns 202)
+    source: openapi deprecated:true
+  - method: POST
+    path: /api/end_users/{end_user_id_or_heron_id}/files
+    summary: Post EndUserFile
+    replacement: POST /api/end_users/{end_user_id_or_heron_id}/files/v2
+    source: openapi deprecated:true
 deprecated_surfaces:
-  - webhook topic end_user.transactions_updated (in process of being deprecated)
+  - webhook topic end_user.transactions_updated (documented as in the process of being deprecated)
+beta_surfaces:
+  - GET EndUser Heron Score (beta) — documented as subject to change
+  - Get Missing Accounts (beta) — documented as likely to change
+sla:
+  published: false
+  note: No public SLA document; uptime is published per component on the status page.
+support:
+  new_customers: hello@herondata.io
+  existing_customers: support@herondata.io
+  errors_escalation: help@herondata.io

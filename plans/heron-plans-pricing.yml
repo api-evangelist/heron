@@ -1,0 +1,47 @@
+generated: '2026-08-14'
+method: searched
+source: >-
+  https://www.herondata.io/ (homepage navigation and footer link inventory), plus direct
+  probes of https://www.herondata.io/pricing (404) and https://www.herondata.io/plans (404).
+description: >-
+  Heron publishes NO pricing. There is no pricing or plans page on the marketing site — both
+  the conventional paths return 404 — and the site navigation offers no pricing entry. The
+  only commercial call to action is "Book a demo" (https://www.herondata.io/book-a-demo,
+  backed by a Calendly product-demo link), and the documentation directs new customers to
+  hello@herondata.io. Access is therefore sales-gated: an integrator cannot learn the cost,
+  the units of consumption, or the quota attached to any tier without contacting Heron. The
+  documentation does reference account-level entitlements (high-priority enrichment is
+  "only enabled for enterprise-level accounts", the ISO application scrubbing endpoints must
+  be enabled by support, and fraud checks are conditional on the account), which confirms
+  tiers EXIST — they are simply not published.
+plan_count: 0
+pricing_model: contact sales / book a demo
+currency: null
+free_tier: false
+trial: >-
+  Trial and onboarding customers are issued separate DEVELOPMENT credentials (see
+  authentication/heron-authentication.yml); production credentials are issued on request.
+  This is an onboarding path, not a published self-serve plan.
+plans: []
+evidence:
+  - url: https://www.herondata.io/pricing
+    status: 404
+  - url: https://www.herondata.io/plans
+    status: 404
+  - url: https://www.herondata.io/
+    status: 200
+    note: navigation exposes /book-a-demo and a Calendly product-demo link; no pricing link
+sales_contact:
+  demo: https://www.herondata.io/book-a-demo
+  scheduling: https://calendly.com/d/dkg-bn4-9rc/product-demo
+  new_customers: hello@herondata.io
+  existing_customers: support@herondata.io
+entitlement_signals_from_docs:
+  - >-
+    High-priority transaction enrichment ("priority=high") is documented as enabled only for
+    enterprise-level accounts.
+  - >-
+    ISO application PDF scrubbing endpoints require support@herondata.io to enable them.
+  - >-
+    pdf.checks_passed / pdf.checks_failed webhooks fire only "if fraud is enabled for your
+    account".

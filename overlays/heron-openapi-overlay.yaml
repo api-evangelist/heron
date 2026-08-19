@@ -1,0 +1,112 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements for the Heron Data API
+  version: 1.0.0
+x-provenance:
+  generated: '2026-08-14'
+  method: generated
+  source: >-
+    Generated against openapi/heron-openapi.json (Heron Data API, info.version 2021-07-19),
+    harvested verbatim from https://app.herondata.io/swagger. This overlay records API
+    Evangelist enhancements only; the original specification is never mutated.
+  extends: openapi/heron-openapi.json
+  note: >-
+    Every action below adds documentation or metadata that the published contract omits. No
+    action invents an operation, a parameter, or a schema. The 272 operations, 226 paths and
+    554 component schemas of the original are left exactly as Heron published them.
+actions:
+  - target: $.info
+    description: Add contact and licensing context plus the documentation entry points Heron publishes.
+    update:
+      x-api-evangelist-profile: https://apis.io/provider/heron/
+      x-documentation: https://docs.herondata.io/
+      x-quickstart: https://docs.herondata.io/get-started/quickstart
+      x-error-reference: https://docs.herondata.io/api-reference/errors
+      x-release-notes: https://docs.herondata.io/miscellaneous/release-notes
+      x-status-page: https://status.herondata.io/
+  - target: $.info
+    description: >-
+      Record that info.version is a 2021 date stamp on an actively developed API, and that the
+      REST paths themselves carry no version segment.
+    update:
+      x-versioning:
+        scheme: unversioned path (/api); individual endpoints carry variant suffixes such as /files/v2
+        info_version_note: >-
+          info.version is 2021-07-19 while the product release notes run through 2025-08, so the
+          declared version does not track the contract.
+  - target: $.servers
+    description: Annotate the single production server with its authentication requirement.
+    update:
+      - url: https://app.herondata.io
+        description: Production
+        x-auth: x-api-key header (key_ + 48 hexadecimal characters)
+  - target: $.components.securitySchemes.ApiKeyAuth
+    description: >-
+      Document the key format, the second key class (broker API keys), and the rejection status,
+      none of which the published scheme carries.
+    update:
+      description: >-
+        API key issued from the Heron dashboard (Settings -> API Credentials) and sent in the
+        x-api-key header. Format is key_ followed by 48 hexadecimal characters. Development and
+        production are separated at the credential level. A second key class, the broker API key,
+        authenticates the /api/broker_submissions/* endpoints and is generated per broker-funder
+        relationship via POST /api/broker_submissions/api_keys/generate. An invalid or deactivated
+        key returns 401.
+      x-key-prefix: key_
+      x-rejected-status: 401
+      x-docs: https://docs.herondata.io/api-reference/authentication
+  - target: $
+    description: >-
+      Attach the cross-cutting runtime semantics an agent needs and the contract does not state:
+      rate-limit headers, the error envelope, the identifier scheme, pagination, and the absence
+      of an idempotency key.
+    update:
+      x-rate-limits:
+        algorithm: fixed-window per endpoint and per customer
+        headers: [x-ratelimit-limit, x-ratelimit-remaining, x-ratelimit-reset]
+        throttled_status: 429
+        note: 429 is documented in the error reference but declared on zero operations in this spec.
+      x-error-envelope:
+        media_type: application/json
+        shape: '{code: integer, description: string|object, name: string}'
+        rfc9457: false
+        detail: errors/heron-problem-types.yml
+      x-identifiers:
+        scheme: prefixed opaque ids
+        examples:
+          end_user: eus_
+          iso_application: iso_
+          broker_submission: sub_
+        note: >-
+          End users are addressable by either the customer-supplied end_user_id or the
+          Heron-assigned heron_id; 63 operations accept end_user_id_or_heron_id.
+      x-pagination:
+        style: page-number
+        parameters: [page, limit]
+        note: >-
+          Present on a minority of list operations only (page on 5, limit on 7); most list
+          operations declare no pagination parameters.
+      x-idempotency:
+        supported: false
+        note: >-
+          No Idempotency-Key request header exists anywhere in the contract. Some creates are
+          idempotent by behavior and return 409 Conflict on repeat rather than duplicating.
+      x-event-surface:
+        webhooks: asyncapi/heron-webhooks-asyncapi.yml
+        note: >-
+          Heron delivers asynchronous progress via webhooks configured in the dashboard or via
+          the /api/webhooks operations. The webhook payloads are not modelled in this OpenAPI.
+  - target: $.paths['/api/end_users/{end_user_id_or_heron_id}'].delete
+    description: Reinforce the published deprecation with the documented replacement.
+    update:
+      x-deprecation:
+        replacement: POST /api/end_users/{end_user_id_or_heron_id}/delete
+        reason: Synchronous delete is deprecated in favour of the asynchronous (202) delete.
+  - target: $.paths['/api/end_users/{end_user_id_or_heron_id}/files'].post
+    description: Reinforce the published deprecation with the documented replacement.
+    update:
+      x-deprecation:
+        replacement: POST /api/end_users/{end_user_id_or_heron_id}/files/v2
+        reason: >-
+          Post EndUserFile is deprecated; v2 uploads and asynchronously classifies the file,
+          after which /start_workflow triggers downstream processing.

@@ -1,0 +1,160 @@
+generated: '2026-08-14'
+method: derived
+source: >-
+  openapi/heron-openapi.json — every 4xx/5xx response declared across the 272 operations of
+  the Heron Data API (fetched verbatim from https://app.herondata.io/swagger), cross-checked
+  against the published error reference at https://docs.herondata.io/api-reference/errors.
+description: >-
+  Heron does NOT implement RFC 9457 problem+json. Every error is returned as
+  application/json using Heron's own three-key envelope — {code, description, name} — where
+  code repeats the HTTP status, name is the status reason phrase, and description is either a
+  human string or, for validation failures, an object keyed by input location then field. A
+  handful of operations deviate from even that envelope and return {message: ...} instead
+  (the PDF integration endpoints), which is recorded below because a client parsing the
+  documented shape will read undefined on those paths. This file complements
+  errors/heron-error-codes.yml, which carries the documented reference; this one is the
+  contract-derived census of what the spec actually declares.
+format: custom-json
+rfc9457: false
+media_type: application/json
+envelope:
+  code: integer — repeats the HTTP status code
+  description: string, or object of field-level validation detail keyed by location then field
+  name: string — the HTTP reason phrase
+envelope_deviations:
+  - shape: '{message: string}'
+    operations:
+      - GET /api/end_users/{end_user_heron_id}/pdfs/{heron_id}
+    note: >-
+      PDF integration responses declare a message key instead of description/name. Clients
+      should read description ?? message.
+status_census:
+  '400': 33
+  '401': 9
+  '403': 2
+  '404': 91
+  '409': 12
+  '413': 2
+  '422': 10
+  '429': documented in the error reference; not declared per-operation in the spec
+  '500': 1
+problem_types:
+  - status: 400
+    name: Bad Request
+    occurrences: 33
+    meaning: >-
+      The request is syntactically acceptable but rejected by business rules — a feature is
+      not configured, a job is already in progress, a state transition is not allowed, or an
+      upload contained no valid files.
+    representative_messages:
+      - User does not have analytics configured
+      - Invalid file or another job is already in progress
+      - Match already resolved or skipped
+      - All files failed validation or upload, or no files attached
+    remediation: >-
+      Read description — it names the specific rule. These are not retryable without changing
+      the request or the account configuration.
+  - status: 401
+    name: Unauthorized
+    occurrences: 9
+    meaning: The x-api-key header is missing, malformed, deactivated, or invalid.
+    representative_messages:
+      - Authentication required
+      - Missing or invalid API key
+      - Unauthorized
+    remediation: >-
+      Send a live key (key_ + 48 hex) in x-api-key. A deactivated key can be re-activated via
+      POST /api/credentials/keys/{heron_id}/activate. Never retry blindly.
+  - status: 403
+    name: Forbidden
+    occurrences: 2
+    meaning: >-
+      Authenticated, but the account is not entitled to the resource or the feature is not
+      enabled for it.
+    representative_messages:
+      - Unauthorized to delete this end user file
+      - Feature not enabled for this user
+    remediation: Contact support@herondata.io to enable the feature; do not retry.
+  - status: 404
+    name: Not Found
+    occurrences: 91
+    meaning: >-
+      The addressed resource does not exist, or exists but is not linked to the authenticated
+      user. By far the most declared error class, because nearly every operation is addressed
+      by a heron_id or an end_user_id.
+    representative_messages:
+      - Funder not found or not linked to this broker
+      - Upload job not found
+      - webhook with heron_id {heron_id} not found
+    remediation: >-
+      Verify the identifier and its ownership. Note Heron returns 404 rather than 403 when a
+      resource belongs to another user, so a 404 is not proof of non-existence.
+  - status: 409
+    name: Conflict
+    occurrences: 12
+    meaning: >-
+      The resource is already in the requested state, or a competing operation holds it. This
+      is where Heron's de-facto idempotency shows up — a second create returns 409 rather
+      than silently duplicating.
+    representative_messages:
+      - API key already exists for this broker-funder relationship
+      - Another upload job is already active
+      - Cannot remove funder due to active submission integrations
+    remediation: >-
+      Treat as a signal that the prior request succeeded or is still running; poll rather than
+      retry the create.
+  - status: 413
+    name: Payload Too Large
+    occurrences: 2
+    meaning: The request body exceeds the accepted size (bulk transactions, logo upload).
+    representative_messages:
+      - Payload Too Large
+      - File too large
+    remediation: >-
+      Batch transactions (the sync enrichment endpoint documents a maximum of 249 transactions
+      per request) or compress the asset.
+  - status: 422
+    name: Unprocessable Entity
+    occurrences: 10
+    meaning: >-
+      Schema/field validation failed. description is an OBJECT keyed by input location (e.g.
+      json) then field name, then a _schema list of messages.
+    representative_messages:
+      - Missing required parameters
+      - "Invalid file_class 'invalid_value'"
+      - Unknown tag heron_id
+    remediation: Parse description as a map and surface field-level detail to the caller.
+  - status: 429
+    name: Too Many Requests
+    occurrences: 0
+    declared_in_spec: false
+    meaning: >-
+      Rate limit exceeded. Not declared on any operation in the OpenAPI, but documented in the
+      error reference and observable via the x-ratelimit-* headers on every response.
+    representative_messages:
+      - '100 per 1 minute'
+    remediation: >-
+      Back off to x-ratelimit-reset. See rate-limits/heron-rate-limits.yml. The absence of 429
+      from the spec is a contract gap worth reporting to Heron.
+  - status: 500
+    name: Internal Server Error
+    occurrences: 1
+    meaning: Unexpected server failure.
+    representative_messages:
+      - Spreadsheet generation failed
+    remediation: >-
+      Retry with backoff; if persistent, email help@herondata.io as the documented error body
+      instructs.
+gaps:
+  - >-
+    Only 104 of 272 operations (38%) declare any 4xx/5xx response at all, so the majority of
+    the surface documents success shapes only.
+  - >-
+    429 is documented in prose but declared on zero operations.
+  - >-
+    Error bodies are not modelled as a shared component schema, so the envelope is repeated
+    inline and drifts (see envelope_deviations).
+related:
+  documented_reference: errors/heron-error-codes.yml
+  rate_limits: rate-limits/heron-rate-limits.yml
+  conventions: conventions/heron-conventions.yml

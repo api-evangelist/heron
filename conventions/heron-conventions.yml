@@ -1,50 +1,95 @@
-generated: '2026-07-19'
+generated: '2026-08-14'
 method: searched
 source: >-
-  https://docs.herondata.io/ — cross-cutting request/response conventions that
-  apply across Heron API endpoints (authentication, error envelope, rate-limit
-  signaling, webhooks, id scheme), assembled from the authentication, errors, and
-  webhooks reference pages plus the quickstart.
+  https://docs.herondata.io/ (authentication, errors, webhooks and quickstart reference pages)
+  cross-checked against the published contract openapi/heron-openapi.json, harvested verbatim
+  from https://app.herondata.io/swagger — 226 paths, 272 operations, 554 component schemas.
 description: >-
-  How the Heron API behaves across operations: API-key auth, the error envelope,
-  header-based rate-limit signaling, dashboard-configured webhooks, and the Heron
-  id scheme. These are developer-experience / runtime semantics.
+  How the Heron API behaves across operations: API-key auth, the error envelope, header-based
+  rate-limit signaling, dashboard-configured webhooks, page/limit pagination, and the Heron id
+  scheme. These are developer-experience / runtime semantics. As of this round every claim
+  below is checked against the provider's own OpenAPI, so the previously unknown items
+  (pagination) are now measured rather than left open.
 base_url: https://app.herondata.io/api
 api_style: REST over HTTPS, JSON responses
+openapi: openapi/heron-openapi.json
 authentication:
   scheme: API key in the x-api-key header (key_ + 48 hex)
+  spec_scheme: ApiKeyAuth (apiKey, in header, name x-api-key) — applied at the root security level
   environments: development vs production separated at the credential level
   docs: https://docs.herondata.io/api-reference/authentication
   detail: authentication/heron-authentication.yml
 idempotency:
   header_supported: false
+  evidence: >-
+    Zero parameters matching /idempot/ exist anywhere in the 272 published operations, and no
+    Idempotency-Key header is documented.
   notes: >-
-    Heron does not document a client-supplied idempotency-key request header.
-    Some individual operations are idempotent by design (e.g. "add a funder to
-    broker's policies" returns the existing record if it already exists; "generate
-    broker API key" errors if a key already exists), but there is no global
-    Idempotency-Key contract.
+    Heron ships no client-supplied idempotency-key contract. What it has instead is
+    conflict-on-repeat: 12 operations declare 409 for a duplicate create ("API key already
+    exists for this broker-funder relationship", "Another upload job is already active"), and a
+    few operations are idempotent by design (adding a funder to a broker's policies returns the
+    existing record unchanged). Safe retry of a create therefore requires reading 409 as
+    success-already-happened, not as a failure.
 pagination:
-  documented: unknown
-  notes: >-
-    List endpoints exist across the API; a cursor/offset pagination contract was
-    not captured on the reference pages fetched. Not asserted to avoid fabrication.
+  documented: true
+  style: page-number
+  parameters:
+    page: page number (declared on 5 operations)
+    limit: page size (declared on 7 operations)
+  coverage: >-
+    Partial. The majority of list operations declare neither parameter and return the full
+    collection, so a client cannot assume pagination is available on an arbitrary list endpoint.
+  representative:
+    - GET /api/merchants — documented as "a paginated list of merchants ... ordered by merchant
+      ID for stable pagination"
+  response_fields: not modelled as a shared envelope; collections are returned directly
 identifiers:
   scheme: Prefixed opaque ids
   examples:
     end_user: eus_ (e.g. eus_Eqio3Y4dhyNiMphrXwG58p) — the heron_id
-  notes: End users are addressable by either the customer-supplied end_user_id or the Heron-assigned heron_id.
+    iso_application: iso_
+    broker_submission: sub_
+  dual_addressing: >-
+    63 operations accept end_user_id_or_heron_id, so an end user is addressable by either the
+    customer-supplied end_user_id or the Heron-assigned heron_id.
+  notes: Most nested resources are addressed by their own heron_id (46 operations).
 error_envelope:
   shape: '{code:int, description:string|object, name:string}'
+  media_type: application/json
+  rfc9457: false
   detail: errors/heron-error-codes.yml
+  contract_census: errors/heron-problem-types.yml
+  coverage: >-
+    104 of 272 operations declare any 4xx/5xx response; 404 dominates (91 declarations).
 rate_limiting:
   signaling: x-ratelimit-limit / x-ratelimit-remaining / x-ratelimit-reset response headers
   algorithm: fixed-window (per endpoint + per customer)
+  throttled_status: 429
+  spec_gap: 429 is not declared on any operation in the published OpenAPI.
   detail: rate-limits/heron-rate-limits.yml
+async_semantics:
+  pattern: >-
+    Long-running work is accepted with 202 and completed out of band — upload a file, call
+    /start_workflow, then either poll or receive a webhook. Delete of an end user is likewise
+    async (202) with a deprecated synchronous variant.
+  poll_or_push: webhooks preferred; status endpoints exist (e.g. end user processing status)
 webhooks:
-  configuration: Dashboard (Settings tab) or the Webhooks API
+  configuration: Dashboard (Settings tab) or the Webhooks API (5 operations)
   envelope: '{topic, created, data, meta}'
   detail: asyncapi/heron-webhooks-asyncapi.yml
 versioning:
   scheme: unversioned path (/api), file-upload variants suffixed (e.g. /files/v2)
-  notes: No dated/header API version scheme documented on the pages fetched.
+  spec_version: '2021-07-19'
+  notes: >-
+    info.version is a 2021 date stamp while the product release notes run through 2025-08, so
+    the declared version does not track the contract. No dated or header API version scheme.
+  detail: lifecycle/heron-lifecycle.yml
+field_expansion:
+  supported: false
+  notes: No expand/fields sparse-fieldset parameter exists in the contract.
+request_tracing:
+  request_id: >-
+    request_id is a first-class DATA field on transaction operations (delete and get transactions
+    both accept it) rather than a correlation header. No X-Request-Id response header is
+    documented.

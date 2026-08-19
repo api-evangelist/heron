@@ -1,0 +1,93 @@
+generated: '2026-08-14'
+method: derived
+source: >-
+  Derived by binding the three live MCP tools returned by
+  POST https://docs.herondata.io/mcp (tools/list, HTTP 200) against the 272 operations in
+  openapi/heron-openapi.json (Heron Data API, fetched from https://app.herondata.io/swagger).
+description: >-
+  Heron's MCP surface and its REST surface do NOT overlap. The MCP server is a
+  documentation-retrieval server (search, read, feedback) hosted on docs.herondata.io;
+  the REST API is the product surface on app.herondata.io. Every MCP tool is therefore
+  mcp_only, and every one of the 272 REST operations is rest_only. This is the honest
+  result and it is the useful one: an agent cannot drive Heron through MCP today, and
+  the crosswalk records exactly that gap rather than inventing bindings.
+surfaces:
+  openapi:
+    path: openapi/heron-openapi.json
+    title: Heron Data API
+    version: '2021-07-19'
+    server: https://app.herondata.io
+    auth: apiKey (x-api-key header)
+    operations: 272
+    gated: false
+  mcp:
+    url: https://docs.herondata.io/mcp
+    tools: 3
+    auth: none
+    gated: false
+    scope: documentation only
+  graphql:
+    present: false
+crosswalk: []
+mcp_only:
+  - tool: search_heron
+    reason: >-
+      Documentation search over docs.herondata.io. There is no REST operation in the Heron
+      Data API that searches documentation — the nearest REST search operations
+      (/api/merchants/search, /api/funders/search) search product data, not docs, so they
+      are not a binding.
+  - tool: query_docs_filesystem_heron
+    reason: >-
+      Read-only virtual filesystem over documentation pages and specs. No REST equivalent;
+      the operation it most resembles is fetching the published spec at /swagger, which is
+      not an API operation.
+  - tool: submit_feedback
+    reason: >-
+      Submits documentation feedback to the Heron docs team. Distinct from the product
+      feedback endpoints (/api/enrichment_feedback/*), which record merchant and category
+      corrections on transactions, not documentation defects.
+rest_only_summary:
+  count: 272
+  note: >-
+    All 272 REST operations lack an MCP tool. The highest-value unmapped flows — the ones
+    an agent would need first — are listed below by tag, using operation paths from the
+    published spec.
+rest_only_highlights:
+  - tag: EndUsers
+    operations: 27
+    example_paths:
+      - POST /api/end_users
+      - GET /api/end_users/{end_user_id_or_heron_id}
+      - PUT /api/end_users/{end_user_id_or_heron_id}
+      - POST /api/end_users/{end_user_id_or_heron_id}/enrich
+  - tag: EndUserFiles
+    operations: 22
+    example_paths:
+      - POST /api/end_users/{end_user_id_or_heron_id}/files/v2
+      - GET /api/end_users/{end_user_id_or_heron_id}/files
+  - tag: Workflows
+    operations: 26
+    example_paths:
+      - POST /api/end_users/{end_user_id_or_heron_id}/start_workflow
+  - tag: EndUserCalculations
+    operations: 18
+    example_paths:
+      - GET /api/end_users/{end_user_id_or_heron_id}/scorecard
+      - GET /api/end_users/{end_user_id_or_heron_id}/bank_statement_summary
+  - tag: Webhooks
+    operations: 5
+  - tag: Transactions
+    operations: 4
+  - tag: Integrations
+    operations: 13
+coverage:
+  mcp_tools: 3
+  mcp_tools_bound_to_rest: 0
+  rest_operations: 272
+  rest_operations_with_tool: 0
+  overlap_percent: 0
+  confidence: high
+  basis: >-
+    Both surfaces were read live and unauthenticated — the MCP tool list from tools/list
+    and the REST operations from the provider's own published OpenAPI — so the zero
+    overlap is measured, not inferred.

@@ -1,11 +1,67 @@
-generated: '2026-07-19'
-method: searched
-host: https://app.herondata.io
+generated: '2026-08-14'
+method: probed
+checked: '2026-08-14'
 description: >-
-  Probed the standard /.well-known/ discovery surface on the API host
-  (app.herondata.io) and the marketing host (www.herondata.io). None are
-  published — recorded here for auditability. Absence is valid data.
+  Probed the standard /.well-known/ discovery surface on all four Heron hosts — the API host
+  (app.herondata.io), the documentation host (docs.herondata.io), the marketing host
+  (www.herondata.io) and the dashboard host (dashboard.herondata.io). One real document is
+  served: a conformant A2A Agent Card at docs.herondata.io/.well-known/agent-card.json, which
+  in turn points at a published Agent Skill document under /.well-known/agent-skills/. Every
+  other classic path 404s on every host, including all of security.txt, openid-configuration,
+  oauth-authorization-server, oauth-protected-resource, api-catalog and ai-plugin.json. Both
+  the absences and the hit are recorded; the absences are valid data.
+hit_count: 3
+hosts_probed: [app.herondata.io, docs.herondata.io, www.herondata.io, dashboard.herondata.io]
 documents:
+  - path: /.well-known/agent-card.json
+    host: https://docs.herondata.io
+    status: 200
+    content_type: application/json
+    real_document: true
+    file: ../a2a/heron-agent-card.json
+    note: Conformant A2A Agent Card. See a2a/heron-a2a.yml for the grade and deviations.
+  - path: /.well-known/agent-skills/index.json
+    host: https://docs.herondata.io
+    status: 200
+    content_type: application/json
+    real_document: true
+    note: >-
+      Agent Skills discovery index (schemas.agentskills.io/discovery/0.2.0) listing one skill-md
+      document with a sha256 digest.
+  - path: /.well-known/agent-skills/herondata/skill.md
+    host: https://docs.herondata.io
+    status: 200
+    real_document: true
+    file: ../skills/heron-herondata-skill.md
+    note: Provider-published Agent Skill, saved verbatim.
+  - path: /.well-known/agent.json
+    host: https://docs.herondata.io
+    status: 404
+    note: Legacy pre-0.3 agent card path; not served (the canonical path is).
+  - path: /.well-known/security.txt
+    host: https://docs.herondata.io
+    status: 404
+  - path: /.well-known/openid-configuration
+    host: https://docs.herondata.io
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    host: https://docs.herondata.io
+    status: 404
+  - path: /.well-known/oauth-protected-resource
+    host: https://docs.herondata.io
+    status: 404
+  - path: /.well-known/api-catalog
+    host: https://docs.herondata.io
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    host: https://docs.herondata.io
+    status: 404
+  - path: /.well-known/agent-card.json
+    host: https://app.herondata.io
+    status: 404
+  - path: /.well-known/agent.json
+    host: https://app.herondata.io
+    status: 404
   - path: /.well-known/security.txt
     host: https://app.herondata.io
     status: 404
@@ -15,12 +71,54 @@ documents:
   - path: /.well-known/oauth-authorization-server
     host: https://app.herondata.io
     status: 404
+  - path: /.well-known/oauth-protected-resource
+    host: https://app.herondata.io
+    status: 404
   - path: /.well-known/api-catalog
     host: https://app.herondata.io
     status: 404
   - path: /.well-known/ai-plugin.json
     host: https://app.herondata.io
     status: 404
+  - path: /.well-known/agent-card.json
+    host: https://www.herondata.io
+    status: 404
+  - path: /.well-known/agent.json
+    host: https://www.herondata.io
+    status: 404
   - path: /.well-known/security.txt
     host: https://www.herondata.io
     status: 404
+  - path: /.well-known/openid-configuration
+    host: https://www.herondata.io
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    host: https://www.herondata.io
+    status: 404
+  - path: /.well-known/api-catalog
+    host: https://www.herondata.io
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    host: https://www.herondata.io
+    status: 404
+  - path: /.well-known/agent-card.json
+    host: https://dashboard.herondata.io
+    status: 404
+  - path: /.well-known/agent.json
+    host: https://dashboard.herondata.io
+    status: 404
+  - path: /.well-known/security.txt
+    host: https://dashboard.herondata.io
+    status: 404
+  - path: /.well-known/openid-configuration
+    host: https://dashboard.herondata.io
+    status: 404
+  - path: /.well-known/api-catalog
+    host: https://dashboard.herondata.io
+    status: 404
+security_txt:
+  served: false
+  note: >-
+    No /.well-known/security.txt on any host. Heron does publish a responsible disclosure policy
+    at https://www.herondata.io/disclosure with a security@herondata.io contact — it is simply
+    not discoverable at the RFC 9116 location. No SecurityTxt pointer is emitted for that reason.

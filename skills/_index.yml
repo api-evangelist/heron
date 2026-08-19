@@ -1,25 +1,39 @@
-generated: '2026-07-19'
-method: generated
-source: >-
-  Packaged Agent Skills generated from Heron's documented REST operations
-  (docs.herondata.io) plus the conventions/errors/authentication/webhook rules
-  captured in this repo. No consolidated OpenAPI is published, so steps cite the
-  real documented HTTP method+path rather than operationIds.
+generated: '2026-08-14'
+method: searched
+source: Heron publishes its own Agent Skill. The discovery index at https://docs.herondata.io/.well-known/agent-skills/index.json
+  (schemas.agentskills.io discovery 0.2.0) lists one skill-md document, saved verbatim as heron-herondata-skill.md.
+  The two API Evangelist skills alongside it were generated in an earlier round from Heron's documented
+  REST operations and are now additionally grounded in the published contract openapi/heron-openapi.json.
+provider_published_index: https://docs.herondata.io/.well-known/agent-skills/index.json
 skills:
-  - file: heron-parse-and-retrieve-documents.md
-    name: Parse documents and retrieve results
-    api: Heron REST API
-    operations:
-      - POST /end_users
-      - POST /end_users/{heron_id}/files/v2
-      - POST /end_users/{heron_id}/start_workflow
-      - GET /end_users/{end_user_id_or_heron_id}/files
-  - file: heron-underwrite-end-user.md
-    name: Underwrite an end user
-    api: Heron REST API
-    operations:
-      - GET EndUser Heron Score (beta)
-      - GET EndUser scorecard
-      - GET EndUser bank statement summary
-      - GET EndUser cashflow P&L
-      - GET decline analytics for a user
+- file: heron-herondata-skill.md
+  name: Herondata
+  method: searched
+  source: https://docs.herondata.io/.well-known/agent-skills/herondata/skill.md
+  digest: sha256:e6d72b01971e82126c673ff2ff3098eaf329a39a02f8f6090b80ffb146bbeda4
+  api: Heron REST API
+  first_party: true
+  description: Heron's own packaged skill covering the full agent workflow — create an end user, upload
+    files, trigger processing, retrieve enriched results, integrate Plaid, configure webhooks, and handle
+    rate limits and validation errors. Saved verbatim; not edited.
+- file: heron-parse-and-retrieve-documents.md
+  name: Parse documents and retrieve results
+  method: generated
+  api: Heron REST API
+  first_party: false
+  operations:
+  - POST /api/end_users
+  - POST /api/end_users/{end_user_id_or_heron_id}/files/v2
+  - POST /api/end_users/{end_user_id_or_heron_id}/start_workflow
+  - GET /api/end_users/{end_user_id_or_heron_id}/files
+- file: heron-underwrite-end-user.md
+  name: Underwrite an end user
+  method: generated
+  api: Heron REST API
+  first_party: false
+  operations:
+  - GET /api/end_users/{end_user_id_or_heron_id}/heron_score
+  - GET /api/end_users/{end_user_id_or_heron_id}/scorecard
+  - GET /api/end_users/{end_user_id_or_heron_id}/bank_statement_summary
+  - GET /api/end_users/{end_user_id_or_heron_id}/profit_and_loss
+  - GET /api/analytics/decline

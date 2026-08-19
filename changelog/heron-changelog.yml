@@ -1,0 +1,85 @@
+generated: '2026-08-14'
+method: searched
+source: https://docs.herondata.io/miscellaneous/release-notes
+docs: https://docs.herondata.io/miscellaneous/release-notes
+markdown_source: https://docs.herondata.io/miscellaneous/release-notes.md
+description: >-
+  Heron maintains a "Release Notes" page in its documentation, stated on the page itself to
+  have started in 2025 ("Starting in 2025, Heron Data will maintain an ongoing changelog of
+  product updates and new features"). Entries are grouped by calendar MONTH, not by an API
+  version number, and describe product and platform changes — new enrichers, dashboard
+  features, CRM integrations, API updates — rather than versioned contract changes. No entry
+  is labelled breaking, and no dated API version scheme exists: the published OpenAPI carries
+  info.version "2021-07-19" and the REST paths are unversioned.
+scheme: monthly product release notes (YYYY-MM labels)
+versioning_scheme: none published for the API contract
+current_version: '2021-07-19'
+current_version_source: openapi/heron-openapi.json info.version
+breaking_change_policy: none published
+entry_count_captured: 7
+window: 2024-12 through 2025-08
+latest_entry: '2025-08'
+entries:
+  - version: '2025-08'
+    date: '2025-08'
+    breaking: false
+    additions:
+      - Court Search Record enricher (federal + state court data for business and owners)
+      - Web Presence Analysis enricher (online footprint, social, adverse media, directories)
+      - DataMerch lending history integration
+      - Secretary-of-State (SOS) checks across all 50 states
+      - Industry restriction lists with NAICS/SIC codes
+      - Upgraded debt candidates table with counterparty filtering and weekly frequency
+      - Dropbox link handling and zip processing in email document ingestion
+      - LendSaas CRM integration — decline reason sync, status updates, file upload
+      - Single Sign-On (SSO) support
+  - version: '2025-07'
+    date: '2025-07'
+    breaking: false
+    additions:
+      - The Nest — automation hub for document-heavy workflows
+      - Smart Review with Judge-in-the-Loop validation agent
+      - Document parsing visualisation with interactive bounding boxes
+      - Dashboard widgets for enriched data
+      - New enrichers — Business Summary Generation, Secretary-of-State, HazardHub, Cysmo, DataMerch
+  - version: '2025-05'
+    date: '2025-05'
+    breaking: false
+    additions:
+      - Customizable end user output — arbitrary policy checks, custom dashboard results, Excel export views, CRM entities
+      - CRM integrations including Google Drive and HubSpot
+  - version: '2025-03'
+    date: '2025-03'
+    breaking: false
+    additions:
+      - Restricted industry and NAICS classification
+      - Enhanced debt positions detection
+  - version: '2025-02'
+    date: '2025-02'
+    breaking: false
+    additions:
+      - End User Entities
+      - Configurable policy checks
+      - Daily CRM sync report
+  - version: '2025-01'
+    date: '2025-01'
+    breaking: false
+    additions:
+      - Upload additional files to an existing company profile via email
+      - Data integrity and coverage improvements
+      - IP whitelisting to restrict access to Heron
+      - Marking recurring transactions as MCA debits
+      - Policy feature updates
+      - Bank statement summary and balance table updates
+      - API updates
+  - version: '2024-12'
+    date: '2024-12'
+    breaking: false
+    additions:
+      - Automatic file renaming
+      - Data coverage inspection for bank transactions
+      - Improved automatic responses to email submissions
+      - Spreadsheet template population
+contacts:
+  new_customers: hello@herondata.io
+  existing_customers: support@herondata.io

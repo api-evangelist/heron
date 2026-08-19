@@ -1,4 +1,4 @@
-generated: '2026-07-19'
+generated: '2026-08-14'
 method: searched
 source: https://docs.herondata.io/api-reference/authentication
 description: >-
@@ -20,9 +20,21 @@ test_endpoints:
     auth: none
     purpose: Test connectivity (no authentication).
     docs: https://docs.herondata.io/api-reference/testing/get-apihello_world.md
+    spec: openapi/heron-openapi.json (tag Testing)
   - method: GET
     path: /api/hello_world/authenticated
     auth: x-api-key
     purpose: Test that an API key authenticates successfully.
     docs: https://docs.herondata.io/api-reference/testing/get-apihello_worldauthenticated.md
+    spec: openapi/heron-openapi.json (tag Testing)
 test_values: none published (document-automation API; no synthetic card/bank test data)
+synthetic_fixtures:
+  - name: Funder integration test submission
+    description: >-
+      Heron ships a SYNTHETIC test end user that is submitted to a selected funder environment
+      to validate a staging or production funder integration. Production saves are gated on a
+      successful staging test within the last 30 days.
+    docs: https://docs.herondata.io/api-reference/trigger-a-staging-or-production-test-submission-for-this-funder.md
+environments_note: >-
+  Confirmed against the contract: /api/auth/environments exists in openapi/heron-openapi.json,
+  which is how the development/production credential split is exposed to clients.

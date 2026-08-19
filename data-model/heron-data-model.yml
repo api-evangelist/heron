@@ -1,63 +1,230 @@
-generated: '2026-07-19'
+generated: '2026-08-14'
 method: derived
 source: >-
-  Derived from Heron's API reference structure (docs.herondata.io/api-reference)
-  and documented payloads. No consolidated OpenAPI is published, so relationships
-  are inferred from documented resources, path nesting, and id fields rather than
-  parsed $ref graphs.
+  openapi/heron-openapi.json — 554 component schemas and 226 paths from the Heron Data API,
+  harvested verbatim from https://app.herondata.io/swagger. Relationships are read from the
+  $ref graph, from path nesting, and from id-reference fields on the schemas themselves. This
+  supersedes the previous round, which had to infer the graph from the API reference structure
+  because no consolidated OpenAPI had been found.
 description: >-
-  Core Heron entities for financial-services document automation and cashflow
-  underwriting. The EndUser (a company being underwritten, id prefix eus_) is the
-  hub: files/documents are uploaded and parsed into transactions, which drive
-  calculations (Heron Score, scorecard, cashflow P&L, anomalies) and policy/rule
-  evaluations. Brokers and funders sit on top for MCA/lending submission flows.
-id_prefixes:
-  end_user: eus_
+  Core Heron entities for financial-services document automation and cashflow underwriting.
+  The EndUser (a company being underwritten, id prefix eus_) is the hub: files and data-source
+  connections feed transactions, transactions drive calculations (Heron Score, scorecard,
+  cashflow P&L, anomalies, positions) and policy/rule evaluations, and brokers/funders sit on
+  top for MCA and lending submission flows. Workflows orchestrate the whole pipeline and
+  enrichers attach third-party intelligence to the end user.
+id_scheme:
+  style: prefixed opaque ids exposed as heron_id
+  prefixes:
+    end_user: eus_
+    iso_application: iso_
+    broker_submission: sub_
+  dual_addressing: >-
+    63 operations accept end_user_id_or_heron_id — either the customer's own end_user_id or
+    Heron's heron_id resolves the same record.
+top_reference_fields:
+  end_user_id: 24
+  end_user_heron_id: 20
+  account_id: 20
+  funder_heron_id: 12
+  merchant_heron_id: 7
+  category_heron_id: 4
+  data_source_heron_id: 3
+  data_source_account_heron_id: 3
+  workflow_heron_id: 3
+most_referenced_schemas:
+  Money: 39
+  OcrolusTransaction: 23
+  TagSchema: 11
+  MetricFormula: 10
+  EndUserFileSchema: 10
+  BankStatementSummaryRow: 9
 entities:
   - name: EndUser
-    description: A company/applicant being processed and underwritten. Addressable by heron_id (eus_) or customer end_user_id.
+    schema: EndUser
+    description: >-
+      A company/applicant being processed and underwritten. The hub of the model, addressable by
+      heron_id (eus_) or the customer-supplied end_user_id. 27 operations.
     relationships:
-      - {type: has_many, target: File, via: heron_id}
-      - {type: has_many, target: Transaction, via: heron_id}
-      - {type: has_many, target: DataSource, via: heron_id}
-      - {type: has_one, target: Scorecard, via: heron_id}
-      - {type: has_one, target: HeronScore, via: heron_id}
-  - name: File
-    description: An uploaded document (bank statement, tax return, financial statement, ACORD form). Parsed into transactions.
+      - {type: has_many, target: EndUserFile, via: end_user_heron_id}
+      - {type: has_many, target: Transaction, via: end_user_id}
+      - {type: has_many, target: DataSource, via: end_user_heron_id}
+      - {type: has_many, target: EndUserEntity, via: end_user_heron_id}
+      - {type: has_many, target: Enricher, via: end_user_heron_id}
+      - {type: has_many, target: Position, via: end_user_heron_id}
+      - {type: has_many, target: Tag, via: end_user_heron_id}
+      - {type: has_one, target: Scorecard, via: end_user_id_or_heron_id}
+      - {type: has_one, target: HeronScore, via: end_user_id_or_heron_id}
+      - {type: has_many, target: PolicyEvaluation, via: end_user_heron_id}
+      - {type: has_many, target: ISOApplication, via: end_user_heron_id}
+      - {type: has_many, target: BrokerSubmission, via: end_user}
+  - name: EndUserFile
+    schema: EndUserFileSchema
+    description: >-
+      An uploaded document (bank statement, tax return, financial statement, ISO application,
+      invoice, voided check) that is classified and parsed. 22 operations.
     relationships:
-      - {type: belongs_to, target: EndUser, via: heron_id}
+      - {type: belongs_to, target: EndUser, via: end_user_heron_id}
       - {type: has_many, target: Transaction, via: file}
+      - {type: has_one, target: ParsedResult, via: heron_id}
   - name: Transaction
-    description: A categorized/enriched transaction extracted from a document or data source.
+    description: >-
+      A categorized and enriched transaction extracted from a document or data-source
+      connection. Addressable by heron_id, end_user_id or request_id.
     relationships:
-      - {type: belongs_to, target: EndUser, via: heron_id}
-      - {type: belongs_to, target: Merchant, via: merchant}
+      - {type: belongs_to, target: EndUser, via: end_user_id}
+      - {type: belongs_to, target: Merchant, via: merchant_heron_id}
+      - {type: belongs_to, target: MerchantCategory, via: category_heron_id}
+      - {type: belongs_to, target: DataSourceAccount, via: account_id}
   - name: Merchant
-    description: A normalized counterparty/merchant that transactions are grouped under.
-  - name: DataSource
-    description: A source of transaction data for an end user (uploaded docs, integrations); has data-source accounts.
+    schema: Merchant
+    description: A normalized counterparty/merchant that transactions are grouped under. 6 operations.
     relationships:
-      - {type: belongs_to, target: EndUser, via: heron_id}
-      - {type: has_many, target: DataSourceAccount, via: data_source}
+      - {type: belongs_to, target: MerchantGroup, via: group_id}
+      - {type: has_many, target: Transaction, via: merchant_heron_id}
+  - name: MerchantGroup
+    description: A grouping of merchants; supports per-user overrides and pending/custom/rejected states.
+  - name: MerchantCategory
+    schema: MerchantCategory
+    description: The category label applied to a transaction during enrichment.
+  - name: DataSource
+    description: >-
+      A source of transaction data for an end user (uploaded documents, Plaid/Finicity/Yodlee
+      integrations, DecisionLogic, Inscribe, Ocrolus imports).
+    relationships:
+      - {type: belongs_to, target: EndUser, via: end_user_heron_id}
+      - {type: has_many, target: DataSourceAccount, via: data_source_heron_id}
+  - name: DataSourceAccount
+    schema: EndUserDataSourceAccount
+    description: An individual bank account under a data source, with balances and account numbers.
+    relationships:
+      - {type: belongs_to, target: DataSource, via: data_source_heron_id}
+      - {type: has_many, target: AccountBalance, via: account_id}
+  - name: Integration
+    schema: IntegrationSchema
+    description: >-
+      A configured third-party connection (Plaid, Finicity, CRM such as Salesforce/HubSpot/
+      LendSaas). 13 operations.
+    relationships:
+      - {type: has_many, target: IntegrationLink, via: integration}
+  - name: IntegrationLink
+    schema: IntegrationLinkSchema
+    description: One customer bank connection under an integration (e.g. a Plaid Link).
+    relationships:
+      - {type: belongs_to, target: Integration, via: integration}
+      - {type: belongs_to, target: EndUser, via: end_user_heron_id}
+  - name: Workflow
+    schema: WorkflowSchema
+    description: >-
+      The configured automation pipeline run against an end user (connect, extract, enrich,
+      deliver). Versioned via WorkflowVersionSchema. 26 operations.
+    relationships:
+      - {type: has_many, target: WorkflowVersion, via: workflow_heron_id}
+      - {type: belongs_to, target: User, via: user_id}
+  - name: WorkflowVersion
+    schema: WorkflowVersionSchema
+    description: A versioned definition of a workflow, addressable by version_number.
+  - name: Enricher
+    description: >-
+      A third-party or derived intelligence provider run against an end user (background check,
+      court records, web presence, Secretary of State, DataMerch, HazardHub, Cysmo). 5 operations.
+    relationships:
+      - {type: belongs_to, target: EndUser, via: end_user_heron_id}
+      - {type: has_many, target: EnricherResult, via: enricher}
+  - name: EndUserEntity
+    description: >-
+      A user-defined entity attached to an end user with named attributes and per-attribute
+      sources, used to shape dashboard output and CRM sync. 18 operations.
+    relationships:
+      - {type: belongs_to, target: EndUser, via: end_user_heron_id}
+      - {type: has_many, target: EndUserEntityAttribute, via: entity_heron_id}
+  - name: EndUserEntityAttribute
+    description: A named attribute on an end user entity, with values supplied per source.
+    relationships:
+      - {type: belongs_to, target: EndUserEntity, via: entity_heron_id}
+      - {type: has_many, target: AttributeSource, via: attribute_heron_id}
   - name: Scorecard
     description: Scorecard metrics and rule violations computed for an end user.
     relationships:
-      - {type: belongs_to, target: EndUser, via: heron_id}
+      - {type: belongs_to, target: EndUser, via: end_user_id_or_heron_id}
+      - {type: has_many, target: Metric, via: scorecard}
   - name: HeronScore
     description: Beta creditworthiness score with feature-group contribution breakdown.
     relationships:
-      - {type: belongs_to, target: EndUser, via: heron_id}
+      - {type: belongs_to, target: EndUser, via: end_user_id_or_heron_id}
+  - name: Metric
+    schema: Metric
+    description: A named computed measure; MetricFormula defines how it is calculated.
+    relationships:
+      - {type: has_one, target: MetricFormula, via: formula}
+  - name: Rule
+    schema: Rule
+    description: >-
+      A condition over metrics that, when true, raises a review requirement and fires the
+      end_user.review_required webhook. 5 operations.
+    relationships:
+      - {type: has_many, target: CheckEvaluation, via: rule}
+  - name: Policy
+    description: A named set of checks evaluated against an end user on the fly. 3 operations.
+    relationships:
+      - {type: has_many, target: Check, via: policy}
+      - {type: has_many, target: PolicyEvaluation, via: policy}
+  - name: Check
+    schema: Check
+    description: An individual pass/fail condition inside a policy.
+    relationships:
+      - {type: has_many, target: CheckEvaluation, via: check}
+  - name: Position
+    description: >-
+      An identified funding position (investment plus repayments) detected from transactions.
+      2 operations.
+    relationships:
+      - {type: belongs_to, target: EndUser, via: end_user_heron_id}
+      - {type: has_many, target: PositionTransaction, via: position}
+  - name: ISOApplication
+    description: >-
+      An uploaded ISO/merchant application PDF that is scrubbed into structured fields with
+      data validations. 6 operations, heron_id prefixed iso_.
+    relationships:
+      - {type: belongs_to, target: EndUser, via: end_user_heron_id}
   - name: Broker
-    description: A broker submitting end users to funders (MCA/lending). Identified by email domain; holds funder policies.
+    description: >-
+      A broker submitting end users to funders (MCA/lending). Identified by email domain; holds
+      funder policies and per-relationship broker API keys.
     relationships:
-      - {type: has_many, target: BrokerSubmission, via: broker}
-      - {type: has_many, target: Funder, via: broker_funder}
+      - {type: has_many, target: BrokerSubmission, via: broker_user_id}
+      - {type: has_many, target: Funder, via: funder_heron_id}
   - name: Funder
-    description: A funder/lender a broker submits end users to; has policies and integrations.
+    description: A funder/lender a broker submits end users to; has policies and integrations. 3 operations.
     relationships:
-      - {type: has_many, target: FunderPolicy, via: funder}
+      - {type: has_many, target: FunderPolicy, via: funder_heron_id}
+      - {type: has_many, target: FunderSubmission, via: funder_heron_id}
+  - name: FunderPolicy
+    description: >-
+      The criteria a funder applies, uploaded as a spreadsheet/PDF and parsed asynchronously
+      into a policy table per broker.
   - name: BrokerSubmission
-    description: A submission of an end user's details and documents from a broker to a funder.
+    description: >-
+      A submission of an end user's details and documents from a broker to a funder, authenticated
+      with a broker API key. 6 operations, heron_id prefixed sub_.
     relationships:
-      - {type: belongs_to, target: Broker, via: broker}
+      - {type: belongs_to, target: Broker, via: broker_user_id}
       - {type: belongs_to, target: EndUser, via: end_user}
+  - name: FunderSubmission
+    description: An async submission of an end user to a single funder; polled for status.
+    relationships:
+      - {type: belongs_to, target: Funder, via: funder_heron_id}
+      - {type: belongs_to, target: EndUser, via: end_user_heron_id}
+  - name: Webhook
+    description: A subscription endpoint for topic-based event delivery. 5 operations.
+    relationships:
+      - {type: belongs_to, target: User, via: user_id}
+  - name: Tag
+    schema: TagSchema
+    description: A label applied to end users for segmentation. 9 operations.
+  - name: Money
+    schema: Money
+    description: >-
+      The shared value object for monetary amounts — the most referenced schema in the contract
+      (39 references), used by balances, summaries, positions and metrics.
+value_objects: [Money, Address, Owner, DetailLabelValue, BankStatementSummaryRow]

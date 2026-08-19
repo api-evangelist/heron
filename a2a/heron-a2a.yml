@@ -1,0 +1,69 @@
+generated: '2026-08-14'
+method: probed
+source: https://docs.herondata.io/.well-known/agent-card.json
+description: >-
+  Heron publishes a real A2A Agent Card at the canonical /.well-known/agent-card.json
+  path on its documentation host (docs.herondata.io). The card is served by Heron's
+  Mintlify-hosted developer documentation and advertises a single skill — "herondata" —
+  whose body is a published Agent Skill markdown document. The card was saved verbatim
+  to a2a/heron-agent-card.json. The API host (app.herondata.io), marketing host
+  (www.herondata.io) and dashboard host (dashboard.herondata.io) all return 404 on both
+  the canonical and the legacy path.
+discovery:
+  path: /.well-known/agent-card.json
+  canonical: true
+  host: docs.herondata.io
+x-evidence:
+  fetched: '2026-08-14'
+  url: https://docs.herondata.io/.well-known/agent-card.json
+  http_status: 200
+  content_type: application/json
+card:
+  name: Heron
+  url: https://docs.herondata.io/
+  version: '1.0.0'
+  protocolVersion: '0.3'
+  preferredTransport: HTTP+JSON
+  provider:
+    organization: Heron
+    url: https://docs.herondata.io/
+  documentationUrl: https://docs.herondata.io/
+  capabilities:
+    streaming: false
+    pushNotifications: false
+  defaultInputModes: [text/plain]
+  defaultOutputModes: [text/plain]
+  skills:
+    - id: herondata
+      name: Herondata
+      url: https://docs.herondata.io/.well-known/agent-skills/herondata/skill.md
+grade: conformant
+grade_basis: >-
+  Graded against A2A 1.0.0 hard checks: capabilities is an OBJECT (pass),
+  protocolVersion is present (pass), skills is an ARRAY (pass). The optional
+  fields preferredTransport, defaultInputModes and defaultOutputModes are all
+  present, so this is a conformant card rather than near-conformant.
+deviations:
+  - field: description
+    issue: >-
+      The root-level description field required by the AgentCard schema is absent;
+      the only human description lives on skills[0].description.
+  - field: protocolVersion
+    issue: >-
+      Declares 0.3, not 1.0.0 — the card is written against the pre-1.0 protocol
+      revision, so a 1.0 client should not assume 1.0-only fields.
+  - field: supportedInterfaces
+    issue: >-
+      Uses supportedInterfaces[]; A2A 1.0.0 names this member additionalInterfaces.
+  - field: url
+    issue: >-
+      Points at the documentation site root (https://docs.herondata.io/) rather than
+      an A2A JSON-RPC endpoint, so the card is a discovery manifest for the docs
+      agent surface rather than an addressable A2A agent. The nearest callable surface
+      it implies is the MCP endpoint at https://docs.herondata.io/mcp (see mcp/).
+  - field: skills[0].tags
+    issue: Present but empty, so the skill carries no routing tags.
+related:
+  skill_document: skills/heron-herondata-skill.md
+  skills_index: https://docs.herondata.io/.well-known/agent-skills/index.json
+  mcp: mcp/heron-mcp.yml
