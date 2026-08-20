@@ -43,6 +43,18 @@ created: '2026-07-17'
 modified: '2026-08-14'
 tags:
 - Company
+- Financial-Services
+- Document Automation
+- Underwriting
+- Lending
+- Cash Flow Analytics
+- Fintech
+- Data Enrichment
+- Bank Statements
+- Transaction Enrichment
+- Agent Ready
+tags_raw:
+- Company
 - Financial Services
 - Document Automation
 - Underwriting
@@ -61,6 +73,10 @@ apis:
   humanURL: https://docs.herondata.io/
   baseURL: https://app.herondata.io/api
   tags:
+  - Document Automation
+  - Underwriting
+  - Financial-Services
+  tags_raw:
   - Document Automation
   - Underwriting
   - Financial Services
