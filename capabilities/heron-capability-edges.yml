@@ -3,7 +3,7 @@ provider: Heron
 generated_by: planning/capability-mapping/scripts/classify_capabilities.py
 model: claude-opus-5
 frame:
-- Software & Technology
+- Banking & Capital Markets
 min_confidence: 0.7
 capability_model:
   source: https://github.com/vincentmakes/turbo-ea-capabilities
@@ -11,27 +11,61 @@ capability_model:
   attribution: Turbo EA Capabilities by Vincent Verdet — Turbo EA, https://github.com/vincentmakes/turbo-ea-capabilities,
     CC BY 4.0
   notice: NOTICE
-edge_count: 2
+edge_count: 5
 edges:
-- tag: Webhooks
-  spec_file: heron-webhooks-api-openapi.yml
-  capability_id: BC-4270.80
-  capability_id_l1: BC-4270
-  capability_name: Webhook & Event Subscription Management
-  confidence: 0.82
-  evidence: '"Create a webhook", "Get webhook topics", "Update a webhook", WebhookSchema'
-  reason: Operations manage the lifecycle of outbound webhook subscriptions and enumerate available event
-    topics, which is exactly Webhook & Event Subscription Management within the developer-platform capability.
-    Confidence held below 0.9 because such surfaces are also plain integration plumbing.
-- tag: Credentials
-  spec_file: heron-credentials-api-openapi.yml
-  capability_id: BC-4270.40
-  capability_id_l1: BC-4270
-  capability_name: Developer Identity & Credential Management
+- tag: EndUserCalculations
+  spec_file: heron-endusercalculations-api-openapi.yml
+  capability_id: BC-1320.20
+  capability_id_l1: BC-1320
+  capability_name: Credit Underwriting & Decisioning Management
   confidence: 0.75
-  evidence: GET /api/credentials/keys 'List API keys'; POST 'Create a new API key'; PUT '/keys/{heron_id}/activate'
-    ; schemas 'CreateKeySchema', 'ApiKeyWithLastUsedSchema'
-  reason: The operations are pure lifecycle management of API keys used by external integrators of Heron's
-    public API — issuance, deletion, activation/deactivation, last-used tracking. That is developer credential
-    stewardship on a developer-platform surface. Some ambiguity versus generic Identity & Access Management,
-    hence 0.75.
+  evidence: GET /api/end_users/{...}/heron_score "Get EndUser Heron Score (beta)"; "Get EndUser bank statement
+    summary"; "Get EndUser debt candidates"; "Get EndUser forecasts"
+  reason: Operations compute cashflow metrics, balances, forecasts, anomalies, debt obligations and a
+    credit score over an applicant's bank data — i.e. financial spreading and credit assessment inputs
+    used by lenders/MCA funders, which sits under credit underwriting and decisioning rather than generic
+    analytics.
+- tag: BrokerSubmissions
+  spec_file: heron-brokersubmissions-api-openapi.yml
+  capability_id: BC-1320.10
+  capability_id_l1: BC-1320
+  capability_name: Credit Origination Management
+  confidence: 0.72
+  evidence: POST /api/broker_submissions/ — Create broker submission; POST /api/broker_submissions/{submission_heron_id}/files
+    — Upload PDF files for broker submission
+  reason: Broker submits a funding application with supporting documents and applicant details — credit
+    application intake/origination workflow. Part of the surface is API-key plumbing, which tempers confidence.
+- tag: ISOApplication
+  spec_file: heron-isoapplication-api-openapi.yml
+  capability_id: BC-1320.10
+  capability_id_l1: BC-1320
+  capability_name: Credit Origination Management
+  confidence: 0.72
+  evidence: '"Upload an ISO application PDF for automated scrubbing in under 15 seconds"; "Get the scrubbed
+    results and data validations of an uploaded ISO application"'
+  reason: ISO applications are merchant cash advance / funding application forms; the API ingests them,
+    extracts fields and runs data validations. That is credit application intake and pre-screening, i.e.
+    Credit Origination Management. Some doubt remains as the mechanics are document parsing.
+- tag: Policy
+  spec_file: heron-policy-api-openapi.yml
+  capability_id: BC-1320.20
+  capability_id_l1: BC-1320
+  capability_name: Credit Underwriting & Decisioning Management
+  confidence: 0.72
+  evidence: '"Get the policy evaluations for an end user", "Get all policy definitions"; schemas PolicyEvaluationSchema,
+    CheckEvaluation, AttributeEvidence — rule/policy evaluation in a cashflow-underwriting platform for
+    "Lenders, MCA funders, brokers"'
+  reason: 'Not corporate Policy Management (BC-130.20): these operations evaluate credit-decision checks
+    against an end user''s enriched financial attributes, i.e. automated underwriting/decisioning rules
+    for lenders. Confidence held below 0.8 because the spec never names credit decisioning explicitly.'
+- tag: EndUserRules
+  spec_file: heron-enduserrules-api-openapi.yml
+  capability_id: BC-1320.20
+  capability_id_l1: BC-1320
+  capability_name: Credit Underwriting & Decisioning Management
+  confidence: 0.7
+  evidence: GET /api/end_users/{end_user_id_or_heron_id}/evaluate_rules "Evaluate all rules for an end
+    user"; schemas Rule, Metric, RuleEvaluationSchema
+  reason: Evaluates the lender's credit policy rules against an applicant's metrics — the vendor describes
+    this as "policy/rule evaluation" for lenders and MCA funders, which realises underwriting/decisioning.
+    Single-operation surface, so moderate confidence on the sub-capability.
