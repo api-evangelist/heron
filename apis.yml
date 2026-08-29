@@ -1236,6 +1236,9 @@ maintainers:
 - FN: APIs.json
   email: info@apis.io
 common:
+- type: CapabilityMap
+  url: capabilities/heron-capability-edges.yml
+  name: Heron Business Capability Map
 - type: Website
   url: https://www.herondata.io/
 - type: DeveloperPortal
