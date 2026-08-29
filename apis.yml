@@ -13,6 +13,17 @@ description: >-
   REST API authenticates with an x-api-key header, signals rate limits via x-ratelimit-*
   headers, and pushes async progress through webhooks. Backed by Insight Partners.
 url: https://raw.githubusercontent.com/api-evangelist/heron/refs/heads/main/apis.yml
+deliveryModel:
+  model: saas
+  open_source: false
+  commercial: true
+  callable_host: false
+  label: Hosted service · you call their endpoint
+  confidence: medium
+  source:
+  - pricing
+  generated: '2026-08-28'
+  method: derived
 accessModel:
   pricing: enterprise
   onboarding: sales
