@@ -1,0 +1,156 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@herondata.io
+    name: Support
+  title: Heron Data Clear API
+  version: '2021-07-19'
+servers:
+- description: Production
+  url: https://app.herondata.io
+security:
+- ApiKeyAuth:
+  - key_XXX
+tags:
+- name: Clear
+paths:
+  /api/admin/clear/report:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClearReportRequestSchema'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                properties:
+                  cache_hit:
+                    type: boolean
+                  cost:
+                    type: number
+                required:
+                - cost
+                - cache_hit
+                type: object
+          description: Full CLEAR report
+        '422':
+          description: CLEAR cannot sell a report for the record
+      summary: Pull a CLEAR report without an end user
+      tags:
+      - Clear
+      x-hidden: true
+  /api/admin/clear/search:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClearSearchRequestSchema'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  group_count:
+                    type: integer
+                  results:
+                    additionalProperties: true
+                    type: object
+                required:
+                - group_count
+                - results
+                type: object
+          description: Full CLEAR search results
+      summary: Search CLEAR without an end user
+      tags:
+      - Clear
+      x-hidden: true
+components:
+  schemas:
+    ClearSearchRequestSchema:
+      additionalProperties: false
+      properties:
+        criteria:
+          $ref: '#/components/schemas/ClearSearchCriteria'
+        subject_type:
+          enum:
+          - business
+          - person
+          type: string
+      required:
+      - criteria
+      - subject_type
+      type: object
+    ClearReportRequestSchema:
+      additionalProperties: false
+      properties:
+        entity_id:
+          minLength: 1
+          type: string
+        group_id:
+          minLength: 1
+          type: string
+        name:
+          type: string
+        subject_type:
+          enum:
+          - business
+          - person
+          type: string
+      required:
+      - entity_id
+      - group_id
+      - name
+      - subject_type
+      type: object
+    ClearSearchCriteria:
+      additionalProperties: false
+      properties:
+        business_name:
+          type: string
+        city:
+          minLength: 1
+          type: string
+        corporation_id:
+          minLength: 1
+          type: string
+        dob:
+          type: string
+        first_name:
+          type: string
+        fuzzy:
+          type: boolean
+        last_name:
+          type: string
+        middle_initial:
+          type: string
+        phone:
+          minLength: 1
+          type: string
+        secondary_last_name:
+          type: string
+        state:
+          minLength: 1
+          type: string
+        street:
+          minLength: 1
+          type: string
+        zip_code:
+          minLength: 1
+          type: string
+      type: object
+  securitySchemes:
+    ApiKeyAuth:
+      in: header
+      name: x-api-key
+      type: apiKey
+externalDocs:
+  description: Read Tutorial
+  url: https://docs.herondata.io/

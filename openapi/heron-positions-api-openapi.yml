@@ -1,0 +1,424 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@herondata.io
+    name: Support
+  title: Heron Data Positions API
+  version: '2021-07-19'
+servers:
+- description: Production
+  url: https://app.herondata.io
+security:
+- ApiKeyAuth:
+  - key_XXX
+tags:
+- name: Positions
+paths:
+  /api/end_users/{end_user_id_or_heron_id}/positions:
+    get:
+      description: Returns positions with calculated metrics for an end user, optionally filtered by account IDs
+      parameters:
+      - description: The end user ID or heron ID
+        in: path
+        name: end_user_id_or_heron_id
+        required: true
+        schema:
+          type: string
+      - description: Account IDs to filter positions by
+        in: query
+        name: account_ids
+        schema:
+          items:
+            type: string
+          type: array
+      - description: If true, include investment/repayment/reversal transactions on each position
+        in: query
+        name: include_transactions
+        schema:
+          default: false
+          type: boolean
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EndUserPositions'
+          description: Positions summary retrieved successfully
+        '404':
+          description: End user not found
+      summary: Get positions summary for end user
+      tags:
+      - Positions
+  /api/positions/{position_heron_id}/transactions:
+    get:
+      description: Returns investment and repayment transactions for a specific position
+      operationId: getPositionTransactions
+      parameters:
+      - description: The position heron ID
+        in: path
+        name: position_heron_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PositionTransactions'
+          description: Position transactions retrieved successfully
+        '404':
+          description: Position not found
+      summary: Get transactions for a specific position
+      tags:
+      - Positions
+components:
+  schemas:
+    EndUserPositions:
+      properties:
+        llm_summary:
+          type:
+          - string
+          - 'null'
+        positions:
+          items:
+            $ref: '#/components/schemas/PositionSummary'
+          type: array
+        total_holdback_percentage:
+          description: Current positions' expected monthly repayments divided by average monthly true revenue, as a percentage
+          type:
+          - number
+          - 'null'
+      type: object
+    PositionTransaction:
+      properties:
+        amount:
+          $ref: '#/components/schemas/Money'
+        description:
+          type: string
+        heron_id:
+          type: string
+        timestamp:
+          format: date-time
+          type: string
+      type: object
+    PositionSummary:
+      properties:
+        funder_holdback_percentage:
+          description: Funder expected monthly repayments divided by average monthly true revenue, as a percentage
+          type:
+          - number
+          - 'null'
+        group:
+          type:
+          - string
+          - 'null'
+        heron_id:
+          type: string
+        holdback_percentage:
+          description: Position expected monthly repayment divided by average monthly true revenue, as a percentage
+          type:
+          - number
+          - 'null'
+        inflow_metrics:
+          allOf:
+          - $ref: '#/components/schemas/PositionInflowMetrics'
+        investment_transactions:
+          description: Only populated when include_transactions=true is passed on the request
+          items:
+            $ref: '#/components/schemas/PositionTransaction'
+          type:
+          - array
+          - 'null'
+        is_active:
+          type: boolean
+        is_renewal:
+          type:
+          - boolean
+          - 'null'
+        llm_summary:
+          type:
+          - string
+          - 'null'
+        merchant:
+          type:
+          - string
+          - 'null'
+        missed_payments:
+          items:
+            format: date
+            type: string
+          type:
+          - array
+          - 'null'
+        nsf_fees:
+          items:
+            $ref: '#/components/schemas/RelatedPayment'
+          type:
+          - array
+          - 'null'
+        outflow_metrics:
+          allOf:
+          - $ref: '#/components/schemas/PositionOutflowMetrics'
+        parent_position_heron_id:
+          type:
+          - string
+          - 'null'
+        product_type:
+          enum:
+          - mca
+          - line_of_credit
+          - reverse_consolidation
+          - revenue_share
+          - null
+          type:
+          - string
+          - 'null'
+        repayment_transactions:
+          description: Only populated when include_transactions=true is passed on the request
+          items:
+            $ref: '#/components/schemas/PositionTransaction'
+          type:
+          - array
+          - 'null'
+        reversal_transactions:
+          description: Only populated when include_transactions=true is passed on the request
+          items:
+            $ref: '#/components/schemas/PositionTransaction'
+          type:
+          - array
+          - 'null'
+        reversals:
+          items:
+            $ref: '#/components/schemas/RelatedPayment'
+          type:
+          - array
+          - 'null'
+        servicing_fees:
+          items:
+            $ref: '#/components/schemas/RelatedPayment'
+          type:
+          - array
+          - 'null'
+        status:
+          enum:
+          - none
+          - active
+          - inactive
+          - defaulted
+          - potential_default
+          - renewal_active
+          - renewal_inactive
+          - new_position
+          - likely_paid_off
+          type: string
+        stop_payments:
+          items:
+            $ref: '#/components/schemas/RelatedPayment'
+          type:
+          - array
+          - 'null'
+      type: object
+    PositionInflowMetrics:
+      properties:
+        count:
+          type: integer
+        max_amount:
+          allOf:
+          - $ref: '#/components/schemas/Money'
+        max_timestamp:
+          format: date-time
+          type:
+          - string
+          - 'null'
+        min_amount:
+          allOf:
+          - $ref: '#/components/schemas/Money'
+        min_timestamp:
+          format: date-time
+          type:
+          - string
+          - 'null'
+        total_amount:
+          allOf:
+          - $ref: '#/components/schemas/Money'
+      type: object
+    PositionOutflowMetrics:
+      properties:
+        changed_in_last_90_days:
+          type: boolean
+        confidence_reasons:
+          description: Machine-readable reasons for the estimated confidence band
+          items:
+            type: string
+          type: array
+        count:
+          type: integer
+        duration_days:
+          type:
+          - integer
+          - 'null'
+        estimated_confidence:
+          description: 'Confidence band for outflow estimates: high, medium, low, or none'
+          enum:
+          - high
+          - medium
+          - low
+          - none
+          - null
+          type:
+          - string
+          - 'null'
+        estimated_monthly_amount:
+          allOf:
+          - $ref: '#/components/schemas/Money'
+        estimated_remaining_balance:
+          allOf:
+          - $ref: '#/components/schemas/Money'
+        estimated_right_to_receive_amount:
+          allOf:
+          - $ref: '#/components/schemas/Money'
+        fallback_estimated_monthly_amount:
+          allOf:
+          - $ref: '#/components/schemas/Money'
+          description: Monthly fallback amount using the latest repayment for low and medium confidence estimates
+        frequency:
+          enum:
+          - not_enough_data
+          - same_day
+          - irregular
+          - daily
+          - weekly
+          - biweekly
+          - monthly
+          - quarterly
+          - annually
+          - weekday
+          - twice_weekly
+          - null
+          type:
+          - string
+          - 'null'
+        has_repayment_modifications:
+          type: boolean
+        latest_estimated_monthly_amount:
+          allOf:
+          - $ref: '#/components/schemas/Money'
+        latest_repayment_amount:
+          allOf:
+          - $ref: '#/components/schemas/Money'
+        latest_repayment_frequency:
+          enum:
+          - not_enough_data
+          - same_day
+          - irregular
+          - daily
+          - weekly
+          - biweekly
+          - monthly
+          - quarterly
+          - annually
+          - weekday
+          - twice_weekly
+          - null
+          type:
+          - string
+          - 'null'
+        max_amount:
+          allOf:
+          - $ref: '#/components/schemas/Money'
+        max_timestamp:
+          format: date-time
+          type:
+          - string
+          - 'null'
+        mean_amount:
+          allOf:
+          - $ref: '#/components/schemas/Money'
+        mean_interval_days:
+          type:
+          - number
+          - 'null'
+        min_amount:
+          allOf:
+          - $ref: '#/components/schemas/Money'
+        min_timestamp:
+          format: date-time
+          type:
+          - string
+          - 'null'
+        mode_interval_days:
+          type:
+          - integer
+          - 'null'
+        payments_per_month:
+          type:
+          - number
+          - 'null'
+        remaining_repayment_duration_days:
+          type:
+          - integer
+          - 'null'
+        std_dev_amount:
+          allOf:
+          - $ref: '#/components/schemas/Money'
+        total_amount:
+          allOf:
+          - $ref: '#/components/schemas/Money'
+        total_expected_duration_days:
+          type:
+          - integer
+          - 'null'
+        total_expected_payments_to_date:
+          type:
+          - integer
+          - 'null'
+      type: object
+    RelatedPayment:
+      properties:
+        amount:
+          type: number
+        date:
+          format: date
+          type: string
+        merchant:
+          type:
+          - string
+          - 'null'
+      type: object
+    Money:
+      properties:
+        amount:
+          description: The amount of money
+          example: '1234.56'
+          type: number
+        currency:
+          description: The currency of the money
+          example: USD
+          type: string
+      type: object
+    PositionTransactions:
+      properties:
+        investment_transactions:
+          items:
+            $ref: '#/components/schemas/PositionTransaction'
+          type: array
+        position_heron_id:
+          type: string
+        repayment_transactions:
+          items:
+            $ref: '#/components/schemas/PositionTransaction'
+          type: array
+        reversal_transactions:
+          items:
+            $ref: '#/components/schemas/PositionTransaction'
+          type: array
+      type: object
+  securitySchemes:
+    ApiKeyAuth:
+      in: header
+      name: x-api-key
+      type: apiKey
+externalDocs:
+  description: Read Tutorial
+  url: https://docs.herondata.io/

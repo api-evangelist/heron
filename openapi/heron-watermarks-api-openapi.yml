@@ -1,0 +1,87 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@herondata.io
+    name: Support
+  title: Heron Data Watermarks API
+  version: '2021-07-19'
+servers:
+- description: Production
+  url: https://app.herondata.io
+security:
+- ApiKeyAuth:
+  - key_XXX
+tags:
+- name: Watermarks
+paths:
+  /api/watermarks/logo:
+    get:
+      description: Retrieve the logo file for the current user as raw bytes.
+      responses:
+        '200':
+          content:
+            image/*:
+              schema:
+                format: binary
+                type: string
+          description: Logo file retrieved successfully
+        '401':
+          description: Unauthorized
+        '404':
+          description: Logo not found for user
+      summary: Retrieve user logo
+      tags:
+      - Watermarks
+    post:
+      description: Upload a logo file for the current user. The file is validated for security and stored in GCS.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserLogoUploadSchema'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserLogoFileSchema'
+          description: Logo uploaded successfully
+        '400':
+          description: Invalid file format or content
+        '401':
+          description: Unauthorized
+        '413':
+          description: File too large
+      summary: Upload user logo
+      tags:
+      - Watermarks
+components:
+  schemas:
+    UserLogoFileSchema:
+      properties:
+        filename:
+          type: string
+        user_id:
+          type: string
+      type: object
+    UserLogoUploadSchema:
+      properties:
+        file_base64:
+          description: Base64 encoded file bytes
+          type: string
+        filename:
+          description: Name of file
+          type: string
+      required:
+      - file_base64
+      - filename
+      type: object
+  securitySchemes:
+    ApiKeyAuth:
+      in: header
+      name: x-api-key
+      type: apiKey
+externalDocs:
+  description: Read Tutorial
+  url: https://docs.herondata.io/

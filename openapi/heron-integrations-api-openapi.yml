@@ -1,0 +1,650 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@herondata.io
+    name: Support
+  title: Heron Data Integrations API
+  version: '2021-07-19'
+servers:
+- description: Production
+  url: https://app.herondata.io
+security:
+- ApiKeyAuth:
+  - key_XXX
+tags:
+- name: Integrations
+paths:
+  /api/end_users/{end_user_id_or_heron_id}/finicity/connect:
+    post:
+      description: 'Create a Finicity Link for an end user and send a Finicity Connect email to the end user to initiate the connection. The end user must have sufficient end user information to create the link.
+
+        '
+      parameters:
+      - in: path
+        name: end_user_id_or_heron_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Send a Finicity Connect email to an end user
+      tags:
+      - Integrations
+  /api/end_users/{end_user_id_or_heron_id}/finicity/request_cashflow_report:
+    post:
+      description: 'Request a cashflow report generation for an end user. When the report is ready it will be available as EndUserFile.
+
+        '
+      parameters:
+      - in: path
+        name: end_user_id_or_heron_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FinicityRequestCashflowReportSchema'
+        required: true
+      responses:
+        '202':
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Trigger a cashflow report generation for an end user
+      tags:
+      - Integrations
+  /api/end_users/{end_user_id_or_heron_id}/finicity/request_statement_reports:
+    post:
+      description: 'Request a Finicity statement reports generation for end user. Reports will be generated for each account available and each month going back in time between min_statement_index and max_statement_index. When the report is ready it will be available as EndUserFile.
+
+        '
+      parameters:
+      - in: path
+        name: end_user_id_or_heron_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FinicityRequestStatementReportsSchema'
+        required: true
+      responses:
+        '202':
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Trigger a statement reports generation for an end user
+      tags:
+      - Integrations
+  /api/end_users/{end_user_id_or_heron_id}/finicity/request_voe_transactions_report:
+    post:
+      description: 'Request a Finicity VOE transactions report generation for an end user. When the report is ready it will be available as an EndUserFile.
+
+        '
+      parameters:
+      - in: path
+        name: end_user_id_or_heron_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FinicityRequestVoeTransactionsReportSchema'
+        required: true
+      responses:
+        '202':
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Trigger a Finicity VOE transactions report generation for an end user
+      tags:
+      - Integrations
+  /api/integration_links/{item_id}:
+    put:
+      description: Allows refreshing the access_token of an existing Integration Link
+      parameters:
+      - in: path
+        name: item_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                end_user:
+                  $ref: '#/components/schemas/IntegrationLinkUpdateSchema'
+              type: object
+        description: IntegrationLink
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  integration_link:
+                    $ref: '#/components/schemas/IntegrationLinkSchema'
+                type: object
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Update an Integration Link
+      tags:
+      - Integrations
+  /api/integrations:
+    get:
+      description: Get a list of Integrations
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  integrations:
+                    items:
+                      $ref: '#/components/schemas/IntegrationSchema'
+                    type: array
+                type: object
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: List Integrations
+      tags:
+      - Integrations
+    post:
+      description: Create an integration e.g. with Plaid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                integration:
+                  $ref: '#/components/schemas/IntegrationSchema'
+              type: object
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                properties:
+                  integration:
+                    $ref: '#/components/schemas/IntegrationSchema'
+                type: object
+          description: Created
+      security:
+      - ApiKeyAuth: []
+      summary: Create an integration
+      tags:
+      - Integrations
+  /api/integrations/{heron_id}:
+    put:
+      description: Update an Integration
+      parameters:
+      - in: path
+        name: heron_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                integration:
+                  $ref: '#/components/schemas/IntegrationSchema'
+              type: object
+        description: Integration
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  integration:
+                    $ref: '#/components/schemas/IntegrationSchema'
+                type: object
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Update Integration
+      tags:
+      - Integrations
+  /api/integrations/{heron_id}/links:
+    delete:
+      description: Soft-deletes of an integration link (sync is disabled)
+      parameters:
+      - description: The Integration's heron_id
+        in: path
+        name: heron_id
+        required: true
+        schema:
+          type: string
+      - description: Delete that end user's IntegrationLinks
+        in: query
+        name: end_user_id_or_heron_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: (Soft-)Delete an integration link
+      tags:
+      - Integrations
+    get:
+      description: Get a list of IntegrationLinks for an Integration filtered by end user
+      parameters:
+      - description: The Integration's heron_id
+        in: path
+        name: heron_id
+        required: true
+        schema:
+          type: string
+      - description: Return only IntegrationLinks for that end user
+        in: query
+        name: end_user_id_or_heron_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  links:
+                    items:
+                      $ref: '#/components/schemas/IntegrationLinkSchema'
+                    type: array
+                type: object
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Get IntegrationLinks by Integration
+      tags:
+      - Integrations
+    post:
+      description: 'Create a Link for an active Integration every time a customer connects their bank. In Plaid, this is a Plaid Link every time a customer connects their bank. For Plaid, call this after exchanging a public token for an Item access_token.
+
+        '
+      parameters:
+      - in: path
+        name: heron_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IntegrationLinkSchema'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                properties:
+                  link:
+                    $ref: '#/components/schemas/IntegrationLinkNewSchema'
+                type: object
+          description: Created
+      security:
+      - ApiKeyAuth: []
+      summary: Create an integration Link
+      tags:
+      - Integrations
+    put:
+      description: 'Refresh assets reports for an integration and specific end user. This will trigger a refresh operation for all active Plaid assets report links associated with the integration and end user.
+
+        '
+      parameters:
+      - description: The Integration's heron_id
+        in: path
+        name: heron_id
+        required: true
+        schema:
+          type: string
+      - description: Filter to refresh only links for this specific end user
+        in: query
+        name: end_user_id_or_heron_id
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefreshAssetsReportsResponseSchema'
+          description: Assets reports refresh completed successfully
+        '404':
+          description: Integration not found or no assets reports found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefreshAssetsReportsResponseSchema'
+          description: Some assets reports failed to refresh (partial success)
+      security:
+      - ApiKeyAuth: []
+      summary: Refresh assets reports for integration links
+      tags:
+      - Integrations
+  /api/integrations/{heron_id}/links/{link_item_id}/refresh:
+    post:
+      description: Trigger a refresh operation for an IntegrationLink
+      parameters:
+      - description: The Integration's heron_id
+        in: path
+        name: heron_id
+        required: true
+        schema:
+          type: string
+      - description: The IntegrationLink's item_id
+        in: path
+        name: link_item_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  link:
+                    $ref: '#/components/schemas/IntegrationLinkSchema'
+                type: object
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Refresh an IntegrationLink
+      tags:
+      - Integrations
+components:
+  schemas:
+    IntegrationSchema:
+      properties:
+        base_url:
+          description: Base URL of the API integration. For Google Drive, use root_dir_path in client_auth instead.
+          example: https://sandbox.plaid.com
+          format: url
+          type:
+          - string
+          - 'null'
+        client_auth:
+          additionalProperties: {}
+          description: Client-specific authentication settings depending on the integration type
+          type: object
+          writeOnly: true
+        client_id:
+          description: Client ID for API access (this is encrypted in transit and at-rest with a custom key). Required for Plaid integration
+          type:
+          - string
+          - 'null'
+        client_secret:
+          description: Client Secret for API access (this is encrypted in transit and at-rest with a custom key). Required for Plaid integration
+          type:
+          - string
+          - 'null'
+        heron_id:
+          readOnly: true
+          type: string
+        name:
+          description: A name for your integration
+          example: Plaid Prod
+          type: string
+        resource:
+          description: For integrations with multiple available resources, the specific resource
+          enum:
+          - transaction
+          - assets_report
+          - end_user_application
+          - invoice_factoring_processing
+          - end_user_files
+          - funder_decision
+          type: string
+        type:
+          description: The integration type, a specific provider
+          type: string
+        webhook_url:
+          description: URL provided by you to which we'll forward all webhooks (optional)
+          example: https://your-server.yourdomain.com/hooks
+          format: url
+          type:
+          - string
+          - 'null'
+      required:
+      - name
+      - resource
+      - type
+      type: object
+    FinicityRequestStatementReportsSchema:
+      properties:
+        max_statement_index:
+          default: 24
+          type: integer
+        min_statement_index:
+          default: 1
+          type: integer
+      type: object
+    IntegrationLinkNewSchema:
+      properties:
+        access_token:
+          description: The generated token that grants access to the bank (this is encrypted in transit and at-rest with a custom key)
+          example: access-sandbox-de3ce8ef-33f8-452c-a685-8671031fc0f6
+          type: string
+          writeOnly: true
+        asset_report_token:
+          description: Optional. If you already have a Plaid asset report, pass the token to skip creating a new one.
+          type:
+          - string
+          - 'null'
+          writeOnly: true
+        created:
+          description: When the integration link was created in Heron system
+          example: '2020-01-01T00:00:00Z'
+          format: date-time
+          readOnly: true
+          type: string
+        data_source_heron_id:
+          type: string
+        end_user_id:
+          description: A unique identifier for your end user (customer) generated by you
+          example: 8432b0b7-11fa-4334-b496-5f850c35bb43
+          type: string
+          writeOnly: true
+        end_user_name:
+          description: An human readable name for this end user, like the company legal name
+          example: Acme Corp
+          type: string
+          writeOnly: true
+        item_id:
+          description: Unique identifier for each bank connection made by your end users. In Plaid this is the 'item_id'.
+          example: M5eVJqLnv3tbzdngLDp9FL5OlDNxlNhlE55op
+          type: string
+        last_successful_sync:
+          description: When the integration link was last successfully synced
+          example: '2020-01-01T00:00:00Z'
+          format: date-time
+          readOnly: true
+          type: string
+        last_updated:
+          description: When the integration link was last updated in Heron system
+          example: '2020-01-01T00:00:00Z'
+          format: date-time
+          readOnly: true
+          type: string
+        status:
+          description: The integration link status
+          enum:
+          - pending
+          - active
+          - syncing
+          - erroring
+          - sync_disabled
+          - deleted_in_plaid
+          example: active
+          readOnly: true
+          type: string
+        status_message:
+          description: A message describing the 'erroring' status of the integration link
+          example: '[ITEM_LOGIN_REQUIRED] the login details of this item have changed (credentials, MFA, or required user action) and a user login is required to update this information. use Link''s update mode to restore the item to a good state'
+          readOnly: true
+          type: string
+        type:
+          description: 'The integration link type, inherited from the integration: plaid_assets_report or plaid_integration'
+          example: plaid_assets_report
+          readOnly: true
+          type: string
+      required:
+      - access_token
+      - end_user_id
+      - item_id
+      type: object
+    IntegrationLinkSchema:
+      properties:
+        access_token:
+          description: The generated token that grants access to the bank (this is encrypted in transit and at-rest with a custom key)
+          example: access-sandbox-de3ce8ef-33f8-452c-a685-8671031fc0f6
+          type: string
+          writeOnly: true
+        asset_report_token:
+          description: Optional. If you already have a Plaid asset report, pass the token to skip creating a new one.
+          type:
+          - string
+          - 'null'
+          writeOnly: true
+        created:
+          description: When the integration link was created in Heron system
+          example: '2020-01-01T00:00:00Z'
+          format: date-time
+          readOnly: true
+          type: string
+        end_user_id:
+          description: A unique identifier for your end user (customer) generated by you
+          example: 8432b0b7-11fa-4334-b496-5f850c35bb43
+          type: string
+          writeOnly: true
+        end_user_name:
+          description: An human readable name for this end user, like the company legal name
+          example: Acme Corp
+          type: string
+          writeOnly: true
+        item_id:
+          description: Unique identifier for each bank connection made by your end users. In Plaid this is the 'item_id'.
+          example: M5eVJqLnv3tbzdngLDp9FL5OlDNxlNhlE55op
+          type: string
+        last_successful_sync:
+          description: When the integration link was last successfully synced
+          example: '2020-01-01T00:00:00Z'
+          format: date-time
+          readOnly: true
+          type: string
+        last_updated:
+          description: When the integration link was last updated in Heron system
+          example: '2020-01-01T00:00:00Z'
+          format: date-time
+          readOnly: true
+          type: string
+        status:
+          description: The integration link status
+          enum:
+          - pending
+          - active
+          - syncing
+          - erroring
+          - sync_disabled
+          - deleted_in_plaid
+          example: active
+          readOnly: true
+          type: string
+        status_message:
+          description: A message describing the 'erroring' status of the integration link
+          example: '[ITEM_LOGIN_REQUIRED] the login details of this item have changed (credentials, MFA, or required user action) and a user login is required to update this information. use Link''s update mode to restore the item to a good state'
+          readOnly: true
+          type: string
+        type:
+          description: 'The integration link type, inherited from the integration: plaid_assets_report or plaid_integration'
+          example: plaid_assets_report
+          readOnly: true
+          type: string
+      required:
+      - access_token
+      - end_user_id
+      - item_id
+      type: object
+    FinicityRequestVoeTransactionsReportSchema:
+      properties:
+        from_date:
+          format: date-time
+          type: string
+      type: object
+    FinicityRequestCashflowReportSchema:
+      properties:
+        applicant_is_personal_guarantor:
+          type: boolean
+        for_cra_purpose:
+          type: boolean
+        user_type:
+          enum:
+          - personal
+          - business
+          type: string
+      required:
+      - applicant_is_personal_guarantor
+      - for_cra_purpose
+      - user_type
+      type: object
+    RefreshAssetsReportsResponseSchema:
+      properties:
+        failed_links:
+          description: Array of item_ids that failed to refresh
+          example:
+          - item_123
+          - item_456
+          items:
+            type: string
+          type: array
+        processed_links:
+          description: Number of links processed for refresh
+          example: 2
+          type: integer
+      required:
+      - failed_links
+      - processed_links
+      type: object
+    IntegrationLinkUpdateSchema:
+      properties:
+        access_token:
+          description: The generated token that grants access to the bank (this is encrypted in transit and at-rest with a custom key)
+          example: access-sandbox-de3ce8ef-33f8-452c-a685-8671031fc0f6
+          type: string
+          writeOnly: true
+      required:
+      - access_token
+      type: object
+  securitySchemes:
+    ApiKeyAuth:
+      in: header
+      name: x-api-key
+      type: apiKey
+externalDocs:
+  description: Read Tutorial
+  url: https://docs.herondata.io/

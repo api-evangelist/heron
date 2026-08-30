@@ -1,0 +1,91 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@herondata.io
+    name: Support
+  title: Heron Data End User Financials API
+  version: '2021-07-19'
+servers:
+- description: Production
+  url: https://app.herondata.io
+security:
+- ApiKeyAuth:
+  - key_XXX
+tags:
+- name: EndUserFinancials
+paths:
+  /api/end_users/{end_user_id_or_heron_id}/combined_financials:
+    get:
+      description: Get the combined P&L & Balance Sheet data from financial documents for an EndUser
+      parameters:
+      - in: path
+        name: end_user_id_or_heron_id
+        required: true
+        schema:
+          type: string
+      - in: query
+        name: grouping
+        required: false
+        schema:
+          enum:
+          - by_month
+          - by_quarter
+          - by_year
+          - null
+          type:
+          - string
+          - 'null'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FinancialsSummarySchema'
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Get EndUser's combined financials
+      tags:
+      - EndUserFinancials
+components:
+  schemas:
+    FinancialsValue:
+      properties:
+        label:
+          type: string
+        time_period_label:
+          type: string
+        value:
+          type: number
+      type: object
+    FinancialsSummarySchema:
+      properties:
+        by_category:
+          items:
+            $ref: '#/components/schemas/FinancialsValue'
+          type: array
+        by_sub_category:
+          items:
+            $ref: '#/components/schemas/FinancialsValue'
+          type: array
+        currency:
+          type: string
+        grouping:
+          enum:
+          - by_month
+          - by_quarter
+          - by_year
+          type: string
+        metrics:
+          items:
+            $ref: '#/components/schemas/FinancialsValue'
+          type: array
+      type: object
+  securitySchemes:
+    ApiKeyAuth:
+      in: header
+      name: x-api-key
+      type: apiKey
+externalDocs:
+  description: Read Tutorial
+  url: https://docs.herondata.io/

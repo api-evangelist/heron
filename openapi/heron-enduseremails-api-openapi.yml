@@ -1,0 +1,48 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@herondata.io
+    name: Support
+  title: Heron Data End User Emails API
+  version: '2021-07-19'
+servers:
+- description: Production
+  url: https://app.herondata.io
+security:
+- ApiKeyAuth:
+  - key_XXX
+tags:
+- name: EndUserEmails
+paths:
+  /api/end_user_emails/{heron_id}/export:
+    get:
+      description: Export an end user email as an EML file. Attachments are not included.
+      parameters:
+      - description: The heron_id of the email to export
+        in: path
+        name: heron_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            message/rfc822:
+              schema:
+                format: binary
+                type: string
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Export an end user email as an EML file
+      tags:
+      - EndUserEmails
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      in: header
+      name: x-api-key
+      type: apiKey
+externalDocs:
+  description: Read Tutorial
+  url: https://docs.herondata.io/

@@ -1,0 +1,474 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@herondata.io
+    name: Support
+  title: Heron Data Enriched Transactions API
+  version: '2021-07-19'
+servers:
+- description: Production
+  url: https://app.herondata.io
+security:
+- ApiKeyAuth:
+  - key_XXX
+tags:
+- name: EnrichedTransactions
+paths:
+  /api/end_users/{end_user_id_or_heron_id}/transactions:
+    get:
+      description: 'Get all unique transactions for a single end user. Set end user status to "ready" to initiate transaction enrichment, otherwise may contain both enriched and unenriched transactions
+
+        '
+      parameters:
+      - in: path
+        name: end_user_id_or_heron_id
+        required: true
+        schema:
+          type: string
+      - description: Filter for transactions whose values were last updated in Heron systems after the specified input value, isoformat
+        in: query
+        name: last_updated_min
+        required: false
+        schema:
+          example: '2026-08-14T12:24:30.685422'
+          format: date-time
+          type:
+          - string
+          - 'null'
+      - description: Results page
+        in: query
+        name: page
+        required: false
+        schema:
+          default: 1
+          minimum: 1
+          type: integer
+      - description: Desired results per page
+        in: query
+        name: per_page
+        required: false
+        schema:
+          default: 100
+          maximum: 50000
+          minimum: 1
+          type: integer
+      - description: Account ids to include. If not provided, all accounts are included
+        explode: true
+        in: query
+        name: account_ids
+        required: false
+        schema:
+          items:
+            example: '1234'
+            type: string
+          type:
+          - array
+          - 'null'
+        style: form
+      - description: Filter by the heron_id of the category that the transaction is annotated with
+        explode: true
+        in: query
+        name: category_heron_id
+        required: false
+        schema:
+          default: []
+          example: ctg_3NnYzuyQqUuP9MSkn7CBST
+          items:
+            type: string
+          type:
+          - array
+          - 'null'
+        style: form
+      - description: What to order transactions by
+        in: query
+        name: order_by
+        required: false
+        schema:
+          default: id_asc
+          enum:
+          - amount_asc
+          - amount_desc
+          - abs_amount_asc
+          - abs_amount_desc
+          - description_asc
+          - description_desc
+          - timestamp_asc
+          - timestamp_desc
+          - id_asc
+          - id_desc
+          - confidence_asc
+          - confidence_desc
+          - created_asc
+          - created_desc
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  _meta:
+                    $ref: '#/components/schemas/Pagination'
+                  transactions_enriched:
+                    items:
+                      $ref: '#/components/schemas/TransactionEnriched'
+                    type: array
+                type: object
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Get end user transactions
+      tags:
+      - EnrichedTransactions
+  /api/transactions/{reference_id_or_heron_id}:
+    get:
+      description: Get enriched transaction
+      parameters:
+      - in: path
+        name: reference_id_or_heron_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  transaction_enriched:
+                    $ref: '#/components/schemas/TransactionEnriched'
+                type: object
+          description: OK
+        '401':
+          description: Unauthorized
+      security:
+      - ApiKeyAuth: []
+      tags:
+      - EnrichedTransactions
+components:
+  schemas:
+    Pagination:
+      properties:
+        next_url:
+          description: the URL of the next page
+          format: url
+          type:
+          - string
+          - 'null'
+        num_results:
+          description: the number of results returned
+          type: integer
+        page:
+          description: current page
+          type: integer
+        per_page:
+          description: the max number of results per page
+          type: integer
+        prev_url:
+          description: the URL of the last page
+          format: url
+          type:
+          - string
+          - 'null'
+      type: object
+    TransactionFeatures:
+      properties:
+        description_clean:
+          description: The cleaned description of the transaction
+          example: GOOGLE ADS
+          type: string
+        duplicate_of_id:
+          description: Indicates that the transaction is a duplicate and gives the heron_id of the original
+          example: txn_PW7gZSP3EkwWi9Z3a3Pg4i
+        has_matching_transaction:
+          description: Whether the transaction is a transfer; requires end_user_id and timestamp to be present
+          type: boolean
+        is_potential_duplicate:
+          description: Indicates whether the transaction has another transaction similar to it
+          readOnly: true
+          type: boolean
+        is_recurring:
+          description: Whether the transaction is recurring or not; requires end_user_id and timestamp to be present
+          type: boolean
+      type: object
+    MerchantCategory:
+      properties:
+        code:
+          example: '7311'
+          readOnly: true
+          type: string
+        description:
+          example: Advertising services
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        slug:
+          example: advertising_services
+          readOnly: true
+          type:
+          - string
+          - 'null'
+      required:
+      - code
+      type: object
+    Category1:
+      properties:
+        heron_id:
+          description: Unique ID of the category generated by Heron Data
+          example: ctg_V5U2uiGd3QgehMHJuuBMFd
+          readOnly: true
+          type: string
+        label:
+          description: The label of the category
+          example: Rent
+          type: string
+      required:
+      - label
+      type: object
+    TransactionEnriched:
+      properties:
+        account_id:
+          description: Your unique ID for account associated with transaction
+          example: checking_account_202348
+          maxLength: 400
+          type:
+          - string
+          - 'null'
+        account_number:
+          description: The account number of the data source account associated with the transaction
+          example: '1234567890'
+          type:
+          - string
+          - 'null'
+        amount:
+          description: Amount. Inflows to an account should be positive, and outflows from an account should be negative. If using Plaid, please flip the amount sign for all transactions.
+          example: -42.42
+          type: number
+        annotation:
+          allOf:
+          - $ref: '#/components/schemas/Annotation'
+          description: The category annotation associated with the transaction
+        balance:
+          description: The running balance of the account after transaction ocurred
+          example: 423.0
+          type:
+          - number
+          - 'null'
+        categories_default:
+          description: Category of transaction that you may have received from other sources
+          example: shopping
+          type:
+          - string
+          - 'null'
+          writeOnly: true
+        counterparty:
+          description: The counterparty associated with the transaction, if available
+          example: GOOGLE
+          type:
+          - string
+          - 'null'
+        currency:
+          description: ISO 4217 currency code
+          example: USD
+          maxLength: 3
+          minLength: 3
+          type:
+          - string
+          - 'null'
+        data_source_account_heron_id:
+          description: The heron ID of the data source account associated with the transaction
+          example: dsa_2tYMWNLGCf39HdYbvEVrN3
+          type:
+          - string
+          - 'null'
+        data_source_heron_id:
+          description: The heron ID of the data source associated with the transaction
+          example: dso_d4a5SyQVvAj2apCmkJaVgT
+          type:
+          - string
+          - 'null'
+        date:
+          description: The date of the transaction; 'timestamp' field takes priority over 'date'
+          example: '2020-04-27'
+          format: date
+          type:
+          - string
+          - 'null'
+          writeOnly: true
+        description:
+          description: The text description for the transaction
+          example: GOOGLE *ADS12340929 cc@google.com US
+          type: string
+        end_user_id:
+          description: Your unique ID for end user associated with transaction
+          example: my_best_customer_203948
+          maxLength: 140
+          type:
+          - string
+          - 'null'
+        features:
+          allOf:
+          - $ref: '#/components/schemas/TransactionFeatures'
+          description: Features calculated from transaction
+        heron_id:
+          description: Unique ID of transaction; generated by Heron Data
+          example: txn_Hafnew3Y97Q5Yv29VmHR4C
+          readOnly: true
+          type: string
+        last_updated:
+          description: When the transaction was last updated, either by updating its enrichments or the values of the transaction itself
+          example: '2026-08-14T12:24:38.129442+00:00'
+          format: date-time
+          type: string
+        mcc_code:
+          description: Merchant category code associated with transaction that you may have received from other sources
+          pattern: ^\d{4}$
+          type:
+          - string
+          - 'null'
+          writeOnly: true
+        merchant:
+          allOf:
+          - $ref: '#/components/schemas/Merchant'
+          description: The merchant associated with the transaction
+        order:
+          description: If sending a batch of transactions, the order in which the transaction occurs, where a higher value is equivalent to a more recent transaction
+          type:
+          - integer
+          - 'null'
+          writeOnly: true
+        reference_id:
+          description: Your unique ID for transaction
+          example: my_favourite_transaction_231098
+          maxLength: 140
+          minLength: 1
+          type:
+          - string
+          - 'null'
+        request_id:
+          description: ID associated with request, e.g., all transactions in same POST request will have same request_id
+          example: req_KpKSZcc8f9N6m4kcVMn9ZP
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        timestamp:
+          description: The ISO 8601 timezone aware timestamp of the transaction; takes precedence over 'date'
+          example: '2021-11-12T10:38:05Z'
+          format: date-time
+          type:
+          - string
+          - 'null'
+        transaction_code:
+          description: Code associated with transaction to indicate the type of transaction
+          example: card
+          maxLength: 140
+          type:
+          - string
+          - 'null'
+      required:
+      - amount
+      - description
+      type: object
+    AnnotatorPublic:
+      properties:
+        context:
+          enum:
+          - sync
+          - async_
+          - manual
+          - undetermined
+          type: string
+        priority_type:
+          enum:
+          - gold_standard
+          - client_feedback
+          - tagging_ui
+          - reconcile
+          - heuristic
+          - classifier
+          - undetermined
+          - positions_detection
+          type: string
+      required:
+      - context
+      - priority_type
+      type: object
+    Annotation:
+      properties:
+        annotator:
+          allOf:
+          - $ref: '#/components/schemas/AnnotatorPublic'
+          readOnly: true
+        category:
+          allOf:
+          - $ref: '#/components/schemas/Category1'
+          readOnly: true
+        confidence:
+          readOnly: true
+          type: number
+        model_version:
+          readOnly: true
+          type: string
+      type: object
+    Merchant:
+      properties:
+        categories:
+          items:
+            $ref: '#/components/schemas/MerchantCategory'
+          readOnly: true
+          type: array
+        group_id:
+          enum:
+          - Uber
+          - Google
+          - Intuit
+          - debt.mca_or_rbf
+          - debt.non_bank_business
+          - debt.equipment_and_auto_leasing
+          - debt.mortgage
+          - debt.personal_non_mortgage
+          - debt.collections
+          - debt.bank
+          - invoice_factoring
+          - fuel_provider
+          - gambling_and_betting
+          - null
+          type:
+          - string
+          - 'null'
+        heron_id:
+          example: mrc_RTgUcM9od9w9fwU8YG6mjH
+          readOnly: true
+          type: string
+        icon_url:
+          format: url
+          type:
+          - string
+          - 'null'
+        is_priority:
+          readOnly: true
+          type: boolean
+        logo_url:
+          format: url
+          type:
+          - string
+          - 'null'
+        name:
+          type: string
+        url:
+          format: url
+          type: string
+      required:
+      - name
+      - url
+      type: object
+  securitySchemes:
+    ApiKeyAuth:
+      in: header
+      name: x-api-key
+      type: apiKey
+externalDocs:
+  description: Read Tutorial
+  url: https://docs.herondata.io/

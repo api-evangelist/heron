@@ -1,0 +1,809 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@herondata.io
+    name: Support
+  title: Heron Data Rules API
+  version: '2021-07-19'
+servers:
+- description: Production
+  url: https://app.herondata.io
+security:
+- ApiKeyAuth:
+  - key_XXX
+tags:
+- name: Rules
+paths:
+  /api/rules/:
+    get:
+      description: Read all available rules
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  rules:
+                    items:
+                      $ref: '#/components/schemas/Rule'
+                    type: array
+                type: object
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Get rules
+      tags:
+      - Rules
+    post:
+      description: 'Create a new rule to send a ''end_user.review_required'' webhook after processing if rule condition evaluates to true
+
+        '
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                rule:
+                  $ref: '#/components/schemas/Rule'
+              type: object
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                properties:
+                  rule:
+                    $ref: '#/components/schemas/Rule'
+                type: object
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Create a single rule
+      tags:
+      - Rules
+  /api/rules/metrics:
+    get:
+      description: Read all available metrics to define rules on
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/MetricDefinitionSchema'
+                type: array
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Get metrics
+      tags:
+      - Rules
+  /api/rules/{heron_id}:
+    delete:
+      description: 'Delete a rule
+
+        '
+      parameters:
+      - in: path
+        name: heron_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          content:
+            application/json:
+              schema:
+                properties:
+                  heron_id:
+                    type: string
+                type: object
+          description: Deleted
+      security:
+      - ApiKeyAuth: []
+      summary: Delete rule by heron_id
+      tags:
+      - Rules
+    put:
+      description: 'Update a rule
+
+        '
+      parameters:
+      - in: path
+        name: heron_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                rule:
+                  $ref: '#/components/schemas/RuleUpdateSchema'
+              type: object
+        description: Rule
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  rule:
+                    $ref: '#/components/schemas/Rule'
+                type: object
+          description: Updated
+      security:
+      - ApiKeyAuth: []
+      summary: Update rule by heron_id
+      tags:
+      - Rules
+components:
+  schemas:
+    MetricDefinitionSchema:
+      properties:
+        date_range:
+          description: The date range this metric covers
+          example: last_180_days
+          type: string
+        description:
+          description: Human-readable description of the metric
+          example: Total number of unique transactions
+          type: string
+        group:
+          description: The group/category this metric belongs to
+          example: transaction_metrics
+          type: string
+        label:
+          description: The label/name of the metric
+          example: unique_transactions
+          type: string
+        unit:
+          description: The unit of measurement for this metric
+          example: count
+          type: string
+      type: object
+    RuleUpdateSchema:
+      properties:
+        condition:
+          description: Key for how to compare metric value to rule value
+          enum:
+          - equal
+          - not_equal
+          - greater_than
+          - greater_than_or_equal
+          - less_than
+          - less_than_or_equal
+          - contains
+          example: equal
+          type: string
+        created:
+          description: When the rule was created in Heron system
+          example: '2026-07-03T12:24:43.309405'
+          format: date-time
+          readOnly: true
+          type: string
+        date_range:
+          description: Date range corresponding to metric
+          enum:
+          - latest
+          - last_30_days
+          - last_90_days
+          - last_120_days
+          - last_180_days
+          - last_365_days
+          - next_30_days
+          - next_60_days
+          - next_90_days
+          - next_180_days
+          - last_1_calendar_months
+          - last_3_calendar_months
+          - last_4_calendar_months
+          - last_6_calendar_months
+          - last_12_calendar_months
+          - last_15_calendar_months
+          - last_24_calendar_months
+          - last_1_full_calendar_months
+          - last_2_full_calendar_months
+          - last_3_full_calendar_months
+          - last_6_full_calendar_months
+          - last_12_full_calendar_months
+          - last_60_days
+          - last_45_days
+          - last_2_calendar_months
+          example: last_180_days
+          type: string
+        group:
+          description: Used to display rules by the stage in the underwriting workflow to which they apply.
+          enum:
+          - data_quality_datasource
+          - data_quality_account
+          - data_quality_transaction
+          - null
+          example: data_quality_datasource
+          type:
+          - string
+          - 'null'
+        heron_id:
+          description: Unique id for rule generated by Heron
+          example: rul_gTQ7sohUMRFnQALC62Jy7D
+          readOnly: true
+          type: string
+        last_updated:
+          description: When the rule was last updated in Heron system
+          example: '2026-08-14T12:24:43.309452'
+          format: date-time
+          readOnly: true
+          type: string
+        metric_label:
+          description: Label corresponding to metric
+          enum:
+          - data_volume
+          - date_range
+          - date_range_with_data_sources
+          - data_freshness
+          - has_balance_ratio
+          - data_coverage
+          - accounts
+          - potentially_duplicated_account_pairs
+          - category_coverage
+          - inflows
+          - outflows
+          - deposit_days
+          - net_amount
+          - inflow_monthly_avg_amount
+          - inflow_amount
+          - inflow_growth_rate
+          - merchant_coverage
+          - confidence
+          - revenue_anomalies
+          - last_debt_investment
+          - last_debt_investment_days
+          - merchant_heron_ids
+          - distinct_mcas
+          - distinct_mcas_from_outflows
+          - distinct_mcas_from_inflows
+          - latest_largest_mca_funding_amount
+          - min_revenue_count_per_statement_ignoring_savings_and_loc_accounts
+          - max_negative_balance_days_per_statement
+          - min_total_revenue_per_statement
+          - max_low_balance_days_per_statement
+          - min_average_daily_balance_per_statement
+          - has_unreconciled_data
+          - revenue_daily_average
+          - cogs_daily_average
+          - opex_daily_average
+          - debt_repayment_daily_average
+          - debt_investment
+          - debt_investors
+          - nsf_fees
+          - nsf_days
+          - inflow_daily_average
+          - average_monthly_revenue_sources
+          - debt_investment_count
+          - debt_collection
+          - tax_payments
+          - tax_payment_amount
+          - unconnected_account_ratio
+          - outflow_daily_average
+          - revenue_sources
+          - atm_withdrawals
+          - revenue
+          - annualized_revenue
+          - cogs
+          - average_credit_card_spend
+          - opex
+          - revenue_profit_and_loss
+          - annualized_revenue_profit_and_loss
+          - cogs_profit_and_loss
+          - opex_profit_and_loss
+          - revenue_monthly_average
+          - number_months_revenue_less_monthly_target
+          - min_number_of_revenue_deposits
+          - debt_repayment
+          - revenue_growth_rate
+          - category_debt_repayment_count
+          - category_other_expenses_count
+          - category_revenue_count
+          - category_postage_count
+          - category_debt_investment_count
+          - category_atm_cash_outflows_count
+          - category_rent_count
+          - insurance_in_out_ratio
+          - rent_in_out_ratio
+          - taxes_in_out_ratio
+          - travel_in_out_ratio
+          - company_investments_in_out_ratio
+          - atm_cash_outflows_in_out_ratio
+          - overdraft_nsf_fees_in_out_ratio
+          - reconciled_intra_company_transfers_to_insurance_ratio
+          - insurance_to_general_payment_ratio
+          - insurance_to_advertising_ratio
+          - insurance_to_credit_card_ratio
+          - insurance_to_check_deposits_ratio
+          - insurance_to_atm_cash_inflows_ratio
+          - insurance_to_debt_repayment_ratio
+          - insurance_to_charges_fees_ratio
+          - insurance_to_travel_ratio
+          - insurance_to_inventory_ratio
+          - insurance_to_none_ratio
+          - equity_investment_to_advertising_ratio
+          - equity_investment_to_debt_repayment_ratio
+          - equity_investment_to_charges_fees_ratio
+          - equity_investment_to_unreconciled_intra_company_transfers_ratio
+          - equity_investment_to_travel_ratio
+          - equity_investment_to_company_investments_ratio
+          - general_payment_to_credit_card_ratio
+          - general_payment_to_p2p_transfers_ratio
+          - general_payment_to_company_investments_ratio
+          - general_payment_to_none_ratio
+          - debt_investment_to_overdraft_nsf_fees_ratio
+          - debt_investment_to_other_expenses_ratio
+          - debt_investment_to_none_ratio
+          - advertising_to_p2p_transfers_ratio
+          - advertising_to_other_expenses_ratio
+          - credit_card_to_check_deposits_ratio
+          - credit_card_to_charges_fees_ratio
+          - credit_card_to_travel_ratio
+          - credit_card_to_inventory_ratio
+          - credit_card_to_revenue_ratio
+          - credit_card_to_payroll_and_consultants_ratio
+          - credit_card_to_none_ratio
+          - rent_to_check_deposits_ratio
+          - rent_to_postage_ratio
+          - rent_to_special_outflows_ratio
+          - rent_to_travel_ratio
+          - rent_to_p2p_transfers_ratio
+          - rent_to_payroll_and_consultants_ratio
+          - check_deposits_to_debt_repayment_ratio
+          - check_deposits_to_postage_ratio
+          - check_deposits_to_unreconciled_intra_company_transfers_ratio
+          - check_deposits_to_revenue_ratio
+          - special_inflows_to_charges_fees_ratio
+          - special_inflows_to_utilities_ratio
+          - special_inflows_to_unreconciled_intra_company_transfers_ratio
+          - special_inflows_to_travel_ratio
+          - special_inflows_to_revenue_ratio
+          - special_inflows_to_atm_cash_outflows_ratio
+          - special_inflows_to_payroll_and_consultants_ratio
+          - refunds_to_atm_cash_inflows_ratio
+          - refunds_to_charges_fees_ratio
+          - refunds_to_utilities_ratio
+          - refunds_to_unreconciled_intra_company_transfers_ratio
+          - refunds_to_travel_ratio
+          - refunds_to_overdraft_nsf_fees_ratio
+          - refunds_to_atm_cash_outflows_ratio
+          - atm_cash_inflows_to_charges_fees_ratio
+          - atm_cash_inflows_to_utilities_ratio
+          - atm_cash_inflows_to_unreconciled_intra_company_transfers_ratio
+          - atm_cash_inflows_to_atm_cash_outflows_ratio
+          - atm_cash_inflows_to_other_expenses_ratio
+          - debt_repayment_to_taxes_ratio
+          - debt_repayment_to_postage_ratio
+          - debt_repayment_to_special_outflows_ratio
+          - debt_repayment_to_atm_cash_outflows_ratio
+          - debt_repayment_to_payroll_and_consultants_ratio
+          - check_outflows_to_charges_fees_ratio
+          - check_outflows_to_utilities_ratio
+          - check_outflows_to_travel_ratio
+          - check_outflows_to_p2p_transfers_ratio
+          - check_outflows_to_revenue_ratio
+          - check_outflows_to_other_expenses_ratio
+          - check_outflows_to_payroll_and_consultants_ratio
+          - taxes_to_travel_ratio
+          - taxes_to_p2p_transfers_ratio
+          - taxes_to_revenue_ratio
+          - taxes_to_atm_cash_outflows_ratio
+          - taxes_to_other_expenses_ratio
+          - taxes_to_payroll_and_consultants_ratio
+          - charges_fees_to_postage_ratio
+          - charges_fees_to_overdraft_nsf_fees_ratio
+          - charges_fees_to_revenue_ratio
+          - charges_fees_to_company_investments_ratio
+          - charges_fees_to_other_expenses_ratio
+          - charges_fees_to_none_ratio
+          - utilities_to_postage_ratio
+          - utilities_to_special_outflows_ratio
+          - utilities_to_travel_ratio
+          - utilities_to_overdraft_nsf_fees_ratio
+          - utilities_to_other_expenses_ratio
+          - postage_to_unreconciled_intra_company_transfers_ratio
+          - postage_to_p2p_transfers_ratio
+          - postage_to_none_ratio
+          - unreconciled_intra_company_transfers_to_travel_ratio
+          - unreconciled_intra_company_transfers_to_p2p_transfers_ratio
+          - unreconciled_intra_company_transfers_to_atm_cash_outflows_ratio
+          - unreconciled_intra_company_transfers_to_other_expenses_ratio
+          - special_outflows_to_p2p_transfers_ratio
+          - special_outflows_to_atm_cash_outflows_ratio
+          - travel_to_p2p_transfers_ratio
+          - travel_to_inventory_ratio
+          - travel_to_other_expenses_ratio
+          - travel_to_payroll_and_consultants_ratio
+          - travel_to_none_ratio
+          - p2p_transfers_to_overdraft_nsf_fees_ratio
+          - p2p_transfers_to_atm_cash_outflows_ratio
+          - inventory_to_overdraft_nsf_fees_ratio
+          - inventory_to_company_investments_ratio
+          - inventory_to_atm_cash_outflows_ratio
+          - inventory_to_other_expenses_ratio
+          - overdraft_nsf_fees_to_other_expenses_ratio
+          - revenue_to_payroll_and_consultants_ratio
+          - latest_balance
+          - balance_minimum
+          - balance_maximum
+          - balance_average
+          - change_in_balance
+          - negative_balance_days
+          - negative_balance_days_by_account
+          - mean_balance_velocity
+          - mean_abs_balance_velocity
+          - weekday_balance_average
+          - weekday_with_highest_avg
+          - weekday_with_lowest_avg
+          - gross_operating_cashflow_daily_average
+          - net_operating_cashflow_daily_average
+          - gross_operating_cashflow
+          - net_operating_cashflow
+          - gross_operating_cashflow_profit_and_loss
+          - net_operating_cashflow_profit_and_loss
+          - net_operating_cashflow_monthly_average
+          - debt_service_coverage_ratio
+          - predicted_nsf_fees
+          - predicted_balance_daily_average
+          - heron_score
+          example: unique_transactions
+          type: string
+        name:
+          description: Description of rule. Sent with webhook response, so can be used as a reference to the rule
+          example: notify_if_debt_investment_count_gt_0_last_180d
+          maxLength: 140
+          type:
+          - string
+          - 'null'
+        selector:
+          additionalProperties: {}
+          description: key-value pairs of the desired selector that should select whichend users to apply this rule. They are evaluated as an AND condition(all must be true to run this rule for an end user). Leave empty toapply to all end users.
+          example:
+            is_portfolio: true
+          type: object
+        value:
+          description: Numeric value to compare to a metric; use this when the threshold is numeric
+          example: 42.42
+          type:
+          - number
+          - 'null'
+        value_str:
+          description: String value to compare to a metric; use this when the threshold is a string
+          example: mrc_12345678ijwdd321d921
+          type:
+          - string
+          - 'null'
+      type: object
+    Rule:
+      properties:
+        condition:
+          description: Key for how to compare metric value to rule value
+          enum:
+          - equal
+          - not_equal
+          - greater_than
+          - greater_than_or_equal
+          - less_than
+          - less_than_or_equal
+          - contains
+          example: equal
+          type: string
+        created:
+          description: When the rule was created in Heron system
+          example: '2026-07-03T12:24:43.309405'
+          format: date-time
+          readOnly: true
+          type: string
+        date_range:
+          description: Date range corresponding to metric
+          enum:
+          - latest
+          - last_30_days
+          - last_90_days
+          - last_120_days
+          - last_180_days
+          - last_365_days
+          - next_30_days
+          - next_60_days
+          - next_90_days
+          - next_180_days
+          - last_1_calendar_months
+          - last_3_calendar_months
+          - last_4_calendar_months
+          - last_6_calendar_months
+          - last_12_calendar_months
+          - last_15_calendar_months
+          - last_24_calendar_months
+          - last_1_full_calendar_months
+          - last_2_full_calendar_months
+          - last_3_full_calendar_months
+          - last_6_full_calendar_months
+          - last_12_full_calendar_months
+          - last_60_days
+          - last_45_days
+          - last_2_calendar_months
+          example: last_180_days
+          type: string
+        group:
+          description: Used to display rules by the stage in the underwriting workflow to which they apply.
+          enum:
+          - data_quality_datasource
+          - data_quality_account
+          - data_quality_transaction
+          - null
+          example: data_quality_datasource
+          type:
+          - string
+          - 'null'
+        heron_id:
+          description: Unique id for rule generated by Heron
+          example: rul_gTQ7sohUMRFnQALC62Jy7D
+          readOnly: true
+          type: string
+        last_updated:
+          description: When the rule was last updated in Heron system
+          example: '2026-08-14T12:24:43.309452'
+          format: date-time
+          readOnly: true
+          type: string
+        metric_label:
+          description: Label corresponding to metric
+          enum:
+          - data_volume
+          - date_range
+          - date_range_with_data_sources
+          - data_freshness
+          - has_balance_ratio
+          - data_coverage
+          - accounts
+          - potentially_duplicated_account_pairs
+          - category_coverage
+          - inflows
+          - outflows
+          - deposit_days
+          - net_amount
+          - inflow_monthly_avg_amount
+          - inflow_amount
+          - inflow_growth_rate
+          - merchant_coverage
+          - confidence
+          - revenue_anomalies
+          - last_debt_investment
+          - last_debt_investment_days
+          - merchant_heron_ids
+          - distinct_mcas
+          - distinct_mcas_from_outflows
+          - distinct_mcas_from_inflows
+          - latest_largest_mca_funding_amount
+          - min_revenue_count_per_statement_ignoring_savings_and_loc_accounts
+          - max_negative_balance_days_per_statement
+          - min_total_revenue_per_statement
+          - max_low_balance_days_per_statement
+          - min_average_daily_balance_per_statement
+          - has_unreconciled_data
+          - revenue_daily_average
+          - cogs_daily_average
+          - opex_daily_average
+          - debt_repayment_daily_average
+          - debt_investment
+          - debt_investors
+          - nsf_fees
+          - nsf_days
+          - inflow_daily_average
+          - average_monthly_revenue_sources
+          - debt_investment_count
+          - debt_collection
+          - tax_payments
+          - tax_payment_amount
+          - unconnected_account_ratio
+          - outflow_daily_average
+          - revenue_sources
+          - atm_withdrawals
+          - revenue
+          - annualized_revenue
+          - cogs
+          - average_credit_card_spend
+          - opex
+          - revenue_profit_and_loss
+          - annualized_revenue_profit_and_loss
+          - cogs_profit_and_loss
+          - opex_profit_and_loss
+          - revenue_monthly_average
+          - number_months_revenue_less_monthly_target
+          - min_number_of_revenue_deposits
+          - debt_repayment
+          - revenue_growth_rate
+          - category_debt_repayment_count
+          - category_other_expenses_count
+          - category_revenue_count
+          - category_postage_count
+          - category_debt_investment_count
+          - category_atm_cash_outflows_count
+          - category_rent_count
+          - insurance_in_out_ratio
+          - rent_in_out_ratio
+          - taxes_in_out_ratio
+          - travel_in_out_ratio
+          - company_investments_in_out_ratio
+          - atm_cash_outflows_in_out_ratio
+          - overdraft_nsf_fees_in_out_ratio
+          - reconciled_intra_company_transfers_to_insurance_ratio
+          - insurance_to_general_payment_ratio
+          - insurance_to_advertising_ratio
+          - insurance_to_credit_card_ratio
+          - insurance_to_check_deposits_ratio
+          - insurance_to_atm_cash_inflows_ratio
+          - insurance_to_debt_repayment_ratio
+          - insurance_to_charges_fees_ratio
+          - insurance_to_travel_ratio
+          - insurance_to_inventory_ratio
+          - insurance_to_none_ratio
+          - equity_investment_to_advertising_ratio
+          - equity_investment_to_debt_repayment_ratio
+          - equity_investment_to_charges_fees_ratio
+          - equity_investment_to_unreconciled_intra_company_transfers_ratio
+          - equity_investment_to_travel_ratio
+          - equity_investment_to_company_investments_ratio
+          - general_payment_to_credit_card_ratio
+          - general_payment_to_p2p_transfers_ratio
+          - general_payment_to_company_investments_ratio
+          - general_payment_to_none_ratio
+          - debt_investment_to_overdraft_nsf_fees_ratio
+          - debt_investment_to_other_expenses_ratio
+          - debt_investment_to_none_ratio
+          - advertising_to_p2p_transfers_ratio
+          - advertising_to_other_expenses_ratio
+          - credit_card_to_check_deposits_ratio
+          - credit_card_to_charges_fees_ratio
+          - credit_card_to_travel_ratio
+          - credit_card_to_inventory_ratio
+          - credit_card_to_revenue_ratio
+          - credit_card_to_payroll_and_consultants_ratio
+          - credit_card_to_none_ratio
+          - rent_to_check_deposits_ratio
+          - rent_to_postage_ratio
+          - rent_to_special_outflows_ratio
+          - rent_to_travel_ratio
+          - rent_to_p2p_transfers_ratio
+          - rent_to_payroll_and_consultants_ratio
+          - check_deposits_to_debt_repayment_ratio
+          - check_deposits_to_postage_ratio
+          - check_deposits_to_unreconciled_intra_company_transfers_ratio
+          - check_deposits_to_revenue_ratio
+          - special_inflows_to_charges_fees_ratio
+          - special_inflows_to_utilities_ratio
+          - special_inflows_to_unreconciled_intra_company_transfers_ratio
+          - special_inflows_to_travel_ratio
+          - special_inflows_to_revenue_ratio
+          - special_inflows_to_atm_cash_outflows_ratio
+          - special_inflows_to_payroll_and_consultants_ratio
+          - refunds_to_atm_cash_inflows_ratio
+          - refunds_to_charges_fees_ratio
+          - refunds_to_utilities_ratio
+          - refunds_to_unreconciled_intra_company_transfers_ratio
+          - refunds_to_travel_ratio
+          - refunds_to_overdraft_nsf_fees_ratio
+          - refunds_to_atm_cash_outflows_ratio
+          - atm_cash_inflows_to_charges_fees_ratio
+          - atm_cash_inflows_to_utilities_ratio
+          - atm_cash_inflows_to_unreconciled_intra_company_transfers_ratio
+          - atm_cash_inflows_to_atm_cash_outflows_ratio
+          - atm_cash_inflows_to_other_expenses_ratio
+          - debt_repayment_to_taxes_ratio
+          - debt_repayment_to_postage_ratio
+          - debt_repayment_to_special_outflows_ratio
+          - debt_repayment_to_atm_cash_outflows_ratio
+          - debt_repayment_to_payroll_and_consultants_ratio
+          - check_outflows_to_charges_fees_ratio
+          - check_outflows_to_utilities_ratio
+          - check_outflows_to_travel_ratio
+          - check_outflows_to_p2p_transfers_ratio
+          - check_outflows_to_revenue_ratio
+          - check_outflows_to_other_expenses_ratio
+          - check_outflows_to_payroll_and_consultants_ratio
+          - taxes_to_travel_ratio
+          - taxes_to_p2p_transfers_ratio
+          - taxes_to_revenue_ratio
+          - taxes_to_atm_cash_outflows_ratio
+          - taxes_to_other_expenses_ratio
+          - taxes_to_payroll_and_consultants_ratio
+          - charges_fees_to_postage_ratio
+          - charges_fees_to_overdraft_nsf_fees_ratio
+          - charges_fees_to_revenue_ratio
+          - charges_fees_to_company_investments_ratio
+          - charges_fees_to_other_expenses_ratio
+          - charges_fees_to_none_ratio
+          - utilities_to_postage_ratio
+          - utilities_to_special_outflows_ratio
+          - utilities_to_travel_ratio
+          - utilities_to_overdraft_nsf_fees_ratio
+          - utilities_to_other_expenses_ratio
+          - postage_to_unreconciled_intra_company_transfers_ratio
+          - postage_to_p2p_transfers_ratio
+          - postage_to_none_ratio
+          - unreconciled_intra_company_transfers_to_travel_ratio
+          - unreconciled_intra_company_transfers_to_p2p_transfers_ratio
+          - unreconciled_intra_company_transfers_to_atm_cash_outflows_ratio
+          - unreconciled_intra_company_transfers_to_other_expenses_ratio
+          - special_outflows_to_p2p_transfers_ratio
+          - special_outflows_to_atm_cash_outflows_ratio
+          - travel_to_p2p_transfers_ratio
+          - travel_to_inventory_ratio
+          - travel_to_other_expenses_ratio
+          - travel_to_payroll_and_consultants_ratio
+          - travel_to_none_ratio
+          - p2p_transfers_to_overdraft_nsf_fees_ratio
+          - p2p_transfers_to_atm_cash_outflows_ratio
+          - inventory_to_overdraft_nsf_fees_ratio
+          - inventory_to_company_investments_ratio
+          - inventory_to_atm_cash_outflows_ratio
+          - inventory_to_other_expenses_ratio
+          - overdraft_nsf_fees_to_other_expenses_ratio
+          - revenue_to_payroll_and_consultants_ratio
+          - latest_balance
+          - balance_minimum
+          - balance_maximum
+          - balance_average
+          - change_in_balance
+          - negative_balance_days
+          - negative_balance_days_by_account
+          - mean_balance_velocity
+          - mean_abs_balance_velocity
+          - weekday_balance_average
+          - weekday_with_highest_avg
+          - weekday_with_lowest_avg
+          - gross_operating_cashflow_daily_average
+          - net_operating_cashflow_daily_average
+          - gross_operating_cashflow
+          - net_operating_cashflow
+          - gross_operating_cashflow_profit_and_loss
+          - net_operating_cashflow_profit_and_loss
+          - net_operating_cashflow_monthly_average
+          - debt_service_coverage_ratio
+          - predicted_nsf_fees
+          - predicted_balance_daily_average
+          - heron_score
+          example: unique_transactions
+          type: string
+        name:
+          description: Description of rule. Sent with webhook response, so can be used as a reference to the rule
+          example: notify_if_debt_investment_count_gt_0_last_180d
+          maxLength: 140
+          type:
+          - string
+          - 'null'
+        selector:
+          additionalProperties: {}
+          description: key-value pairs of the desired selector that should select whichend users to apply this rule. They are evaluated as an AND condition(all must be true to run this rule for an end user). Leave empty toapply to all end users.
+          example:
+            is_portfolio: true
+          type: object
+        value:
+          description: Numeric value to compare to a metric; use this when the threshold is numeric
+          example: 42.42
+          type:
+          - number
+          - 'null'
+        value_str:
+          description: String value to compare to a metric; use this when the threshold is a string
+          example: mrc_12345678ijwdd321d921
+          type:
+          - string
+          - 'null'
+      type: object
+  securitySchemes:
+    ApiKeyAuth:
+      in: header
+      name: x-api-key
+      type: apiKey
+externalDocs:
+  description: Read Tutorial
+  url: https://docs.herondata.io/

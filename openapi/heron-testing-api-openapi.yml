@@ -1,0 +1,59 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@herondata.io
+    name: Support
+  title: Heron Data Testing API
+  version: '2021-07-19'
+servers:
+- description: Production
+  url: https://app.herondata.io
+security:
+- ApiKeyAuth:
+  - key_XXX
+tags:
+- name: Testing
+paths:
+  /api/hello_world:
+    get:
+      description: Test endpoint (no authentication)
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  hello:
+                    type: string
+                type: object
+          description: url works
+      tags:
+      - Testing
+  /api/hello_world/authenticated:
+    get:
+      description: Test authentication
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  hello:
+                    type: string
+                type: object
+          description: Authentication works
+        '401':
+          description: Unauthorized
+      security:
+      - ApiKeyAuth: []
+      tags:
+      - Testing
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      in: header
+      name: x-api-key
+      type: apiKey
+externalDocs:
+  description: Read Tutorial
+  url: https://docs.herondata.io/

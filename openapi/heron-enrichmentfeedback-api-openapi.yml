@@ -1,0 +1,335 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@herondata.io
+    name: Support
+  title: Heron Data Enrichment Feedback API
+  version: '2021-07-19'
+servers:
+- description: Production
+  url: https://app.herondata.io
+security:
+- ApiKeyAuth:
+  - key_XXX
+tags:
+- name: EnrichmentFeedback
+paths:
+  /api/end_users/{end_user_id_or_heron_id}/bulk_category_feedback:
+    post:
+      description: Provide bulk feedback on Transaction Categories for a specified end user
+      parameters:
+      - in: path
+        name: end_user_id_or_heron_id
+        required: true
+        schema:
+          type: string
+      - description: Whether to process the feedback with high priority
+        in: query
+        name: high_priority
+        required: false
+        schema:
+          default: false
+          type: boolean
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EndUserBulkCategoryFeedback'
+        description: 'A list of objects containing a Transaction''s heron id and the suggested Category. If you provide a `heron_id` for Category, you don''t need to provide other fields. If `heron_id` is provided, we disregard `label`.
+
+          '
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                properties:
+                  category:
+                    description: The applied category
+                    properties:
+                      description:
+                        description: Description of the category
+                        type: string
+                      heron_id:
+                        description: Unique ID of the category
+                        type: string
+                      label:
+                        description: The label of the category
+                        type: string
+                    type: object
+                  num_annotations:
+                    description: The number of category annotations added
+                    example: 1
+                    type: integer
+                  transaction_heron_ids:
+                    description: List of affected transaction heron IDs
+                    items:
+                      type: string
+                    type: array
+                type: object
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Bulk create category feedback for an end user
+      tags:
+      - EnrichmentFeedback
+  /api/end_users/{end_user_id_or_heron_id}/merchant_feedback:
+    post:
+      description: Provide bulk feedback on Transaction Merchants for a specified end user
+      parameters:
+      - in: path
+        name: end_user_id_or_heron_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EndUserBulkMerchantFeedback'
+        description: 'Merchant feedback for transactions. Provide either a merchant_heron_id (for known merchants) or merchant_name (for unknown merchants to be logged).
+
+          '
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                properties:
+                  num_annotations:
+                    description: The number of merchant annotations added
+                    example: 1
+                    type: integer
+                  transaction_heron_ids:
+                    description: List of affected transaction heron IDs
+                    items:
+                      type: string
+                    type: array
+                type: object
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Bulk create merchant feedback for an end user
+      tags:
+      - EnrichmentFeedback
+  /api/end_users/{end_user_id_or_heron_id}/merchant_feedback/revert:
+    post:
+      description: Revert merchant feedback annotations created by the feedback_client annotator
+      parameters:
+      - in: path
+        name: end_user_id_or_heron_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EndUserMerchantFeedbackRevert'
+        description: List of transaction heron IDs to revert merchant feedback
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  reverted:
+                    description: List of transaction heron IDs that were reverted
+                    items:
+                      type: string
+                    type: array
+                  skipped:
+                    description: List of transaction heron IDs that were skipped
+                    items:
+                      type: string
+                    type: array
+                type: object
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Revert merchant feedback for an end user
+      tags:
+      - EnrichmentFeedback
+  /api/transactions/{heron_id}/feedback:
+    put:
+      description: Provide feedback on a Transaction's Categories and Merchants
+      parameters:
+      - description: Transaction `heron_id`
+        in: path
+        name: heron_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                transaction:
+                  $ref: '#/components/schemas/TransactionFeedbackSchema'
+              type: object
+        description: 'A partial Transaction object with the suggested Category and/or Merchant. If you provide a `heron_id` for Category or Merchant, you don''t need to provide other fields. If you don''t know the Merchant `heron_id` nor name, you can just send the `is_correct` boolean. If `heron_id` is provided, we disregard `name` and `label`. If `is_correct` is set to true, we disregard all other Merchant fields.
+
+          '
+        required: true
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Unauthorized
+      security:
+      - ApiKeyAuth: []
+      summary: Create category, merchant feedback
+      tags:
+      - EnrichmentFeedback
+components:
+  schemas:
+    EndUserBulkMerchantFeedback:
+      properties:
+        merchant:
+          $ref: '#/components/schemas/MerchantFeedback1'
+        transaction_heron_ids:
+          description: List of transaction heron IDs
+          items:
+            example: txn_oNMLQFGrd4gNvYCtUjqr8u
+            type: string
+          type: array
+      required:
+      - merchant
+      - transaction_heron_ids
+      type: object
+    MerchantFeedback:
+      properties:
+        heron_id:
+          description: heron_id of the correct merchant
+          example: mrc_cGt7XxoNoTY8Y2uKYp5Urp
+          type: string
+        is_correct:
+          default: false
+          example: false
+          type: boolean
+        name:
+          description: name of the correct merchant
+          example: Spotify
+          type: string
+      type: object
+    MerchantFeedback1:
+      properties:
+        merchant_group_id:
+          description: Group ID for the merchant (optional, for linking related merchants)
+          enum:
+          - Uber
+          - Google
+          - Intuit
+          - invoice_factoring
+          - debt.bank
+          - debt.mca_or_rbf
+          - debt.other
+          - debt.non_bank_business
+          - debt.equipment_and_auto_leasing
+          - debt.mortgage
+          - debt.personal_non_mortgage
+          - debt.collections
+          - fuel_provider
+          - gambling_and_betting
+          example: Uber
+          type: string
+        merchant_heron_id:
+          description: Heron ID of the merchant (if known in our database)
+          example: mrc_fUkznWDtid4bEhDbWGXBsi
+          type: string
+        merchant_name:
+          description: Name of the merchant (required if merchant_heron_id not provided)
+          example: Acme Corporation
+          maxLength: 140
+          type: string
+        merchant_url:
+          description: URL of the merchant (optional)
+          example: https://acme.com
+          maxLength: 2000
+          type: string
+      type: object
+    TransactionFeedbackSchema:
+      properties:
+        category:
+          allOf:
+          - $ref: '#/components/schemas/CategoryFeedback'
+          default: {}
+          example:
+            heron_id: ctg_9ajoQ8VmFFvvWTBcgCfK2m
+            label: Insurance
+        merchant:
+          allOf:
+          - $ref: '#/components/schemas/MerchantFeedback'
+          default: {}
+          example:
+            heron_id: mrc_dyob4Gv2NpBP46Fs5UANbL
+            is_correct: false
+            name: Spotify
+        source:
+          description: your identifier for where the feedback comes from e.g. bob_the_underwriter
+          maxLength: 120
+          type:
+          - string
+          - 'null'
+      type: object
+    EndUserMerchantFeedbackRevert:
+      properties:
+        transaction_heron_ids:
+          description: List of transaction heron IDs to revert merchant feedback
+          items:
+            example: txn_kykFaRW4AduwY9fsHE65S9
+            type: string
+          type: array
+      required:
+      - transaction_heron_ids
+      type: object
+    CategoryFeedback:
+      properties:
+        heron_id:
+          description: heron_id of the correct category
+          example: ctg_YkigC43AS8CVDy4bVbdLiF
+          type: string
+        label:
+          description: label of the correct category
+          example: Insurance
+          type: string
+      type: object
+    EndUserBulkCategoryFeedback:
+      properties:
+        category:
+          $ref: '#/components/schemas/CategoryFeedback'
+        source:
+          description: your identifier for where the feedback comes from e.g. bob_the_underwriter
+          maxLength: 120
+          type:
+          - string
+          - 'null'
+        transaction_heron_ids:
+          default: []
+          description: List of transaction heron IDs
+          items:
+            example: txn_3VTv4ULZRwijE3Yena9QxY
+            type: string
+          type: array
+        transaction_reference_ids:
+          default: []
+          description: List of transaction reference IDs
+          items:
+            example: your_reference_id
+            type: string
+          type: array
+      required:
+      - category
+      type: object
+  securitySchemes:
+    ApiKeyAuth:
+      in: header
+      name: x-api-key
+      type: apiKey
+externalDocs:
+  description: Read Tutorial
+  url: https://docs.herondata.io/

@@ -1,0 +1,226 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@herondata.io
+    name: Support
+  title: Heron Data End User Enrichers API
+  version: '2021-07-19'
+servers:
+- description: Production
+  url: https://app.herondata.io
+security:
+- ApiKeyAuth:
+  - key_XXX
+tags:
+- name: EndUserEnrichers
+paths:
+  /api/end_user_enrichers/definitions/{enricher_definition_name}/start_enrich:
+    post:
+      description: 'Dispatches an enricher task for an end user and returns immediately.
+
+        '
+      parameters:
+      - description: The name of the enricher definition to execute
+        example: industry_prediction
+        in: path
+        name: enricher_definition_name
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                end_user_heron_id:
+                  description: The Heron ID of the end user to enrich
+                  example: eun_abc123
+                  type: string
+              required:
+              - end_user_heron_id
+              type: object
+        required: true
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StartEnrichEndUserResponseSchema'
+          description: Enrichment task dispatched successfully
+        '400':
+          description: Invalid input
+        '404':
+          description: Enricher or end user not found
+        '422':
+          description: Unprocessable entity
+      security:
+      - ApiKeyAuth: []
+      summary: Start enricher execution for a specific end user asynchronously
+      tags:
+      - EndUserEnrichers
+  /api/end_user_enrichers/fields:
+    get:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/EnricherFieldsSchema'
+                type: array
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Get all fields for all enrichers for a given user
+      tags:
+      - EndUserEnrichers
+  /api/end_user_enrichers/{end_user_heron_id}/enrich:
+    post:
+      description: 'Executes a specified enricher for an end user and returns the enrichment result.
+
+        The enrichment result is automatically saved to the database.
+
+        '
+      parameters:
+      - description: The Heron ID of the end user to enrich
+        example: eus_abc123
+        in: path
+        name: end_user_heron_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                enricher_name:
+                  description: The name of the enricher to execute
+                  example: industry_prediction
+                  type: string
+              required:
+              - enricher_name
+              type: object
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnricherResultSchema'
+          description: Enricher executed successfully
+      security:
+      - ApiKeyAuth: []
+      summary: Trigger enricher execution for a specific end user
+      tags:
+      - EndUserEnrichers
+  /api/end_user_enrichers/{end_user_heron_id}/enricher_results:
+    get:
+      description: 'Get all latest enrichment results for a given end user by their Heron ID.
+
+        '
+      parameters:
+      - in: path
+        name: end_user_heron_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/EnricherResultSchema'
+                type: array
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Get enrichment results for an end user
+      tags:
+      - EndUserEnrichers
+  /api/end_user_enrichers/{end_user_heron_id}/enricher_results/{enricher_name}:
+    get:
+      description: Retrieve the latest result for a specific enricher and end user
+      parameters:
+      - description: The heron ID of the end user
+        example: eus_abc123
+        in: path
+        name: end_user_heron_id
+        required: true
+        schema:
+          type: string
+      - description: The name of the enricher
+        example: industry_prediction
+        in: path
+        name: enricher_name
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnricherResultSchema'
+          description: Successfully retrieved enricher result
+        '404':
+          description: Enricher result not found
+      security:
+      - ApiKeyAuth: []
+      summary: Get enricher result by enricher name and end user
+      tags:
+      - EndUserEnrichers
+components:
+  schemas:
+    EnricherResultSchema:
+      properties:
+        enriched_at:
+          format: date-time
+          type: string
+        enricher_name:
+          type: string
+        result:
+          additionalProperties: {}
+          type: object
+        status:
+          enum:
+          - succeeded
+          - failed
+          - processing
+          - missing_input_data
+          type: string
+      required:
+      - enriched_at
+      - enricher_name
+      - status
+      type: object
+    EnricherFieldsSchema:
+      properties:
+        enricher_type:
+          type: string
+        fields:
+          items:
+            type: string
+          type: array
+        name:
+          type: string
+      type: object
+    StartEnrichEndUserResponseSchema:
+      properties:
+        end_user_id:
+          type: integer
+        enricher_name:
+          type: string
+      required:
+      - end_user_id
+      - enricher_name
+      type: object
+  securitySchemes:
+    ApiKeyAuth:
+      in: header
+      name: x-api-key
+      type: apiKey
+externalDocs:
+  description: Read Tutorial
+  url: https://docs.herondata.io/

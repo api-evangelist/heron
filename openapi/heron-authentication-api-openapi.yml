@@ -1,0 +1,105 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@herondata.io
+    name: Support
+  title: Heron Data Authentication API
+  version: '2021-07-19'
+servers:
+- description: Production
+  url: https://app.herondata.io
+security:
+- ApiKeyAuth:
+  - key_XXX
+tags:
+- name: Authentication
+paths:
+  /api/auth/environments:
+    get:
+      description: 'Get all available environments for the current user
+
+        '
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AvailableEnvironments'
+          description: Ok
+      security:
+      - ApiKeyAuth: []
+      summary: Get available environments
+      tags:
+      - Authentication
+      x-hidden: true
+components:
+  schemas:
+    AvailableEnvironmentsEnvironment:
+      properties:
+        alias:
+          description: Alias for the environment
+          example: Development
+          type: string
+        environment:
+          description: Environment name
+          example: dev
+          type: string
+        username:
+          description: Name of the environment
+          example: dev
+          type: string
+      type: object
+    AvailableEnvironments:
+      properties:
+        default_environment:
+          description: Default environment for the user (username)
+          example: heron_data
+          type: string
+        organizations:
+          description: List of organizations available to the user
+          example:
+          - environments:
+            - alias: Development
+              environment: dev
+              username: dev
+            - alias: Staging
+              environment: staging
+              username: staging
+            name: My Organization
+            slug: my-organization
+          items:
+            allOf:
+            - $ref: '#/components/schemas/AvailableEnvironmentsOrganization'
+            description: List of organizations available to the user
+          type: array
+      type: object
+    AvailableEnvironmentsOrganization:
+      properties:
+        environments:
+          description: List of environments available to the user
+          example:
+          - dev
+          - staging
+          - prod
+          items:
+            allOf:
+            - $ref: '#/components/schemas/AvailableEnvironmentsEnvironment'
+            description: List of environments available to the user
+          type: array
+        name:
+          description: Name of the organization
+          example: My Organization
+          type: string
+        slug:
+          description: Slug of the organization
+          example: my-organization
+          type: string
+      type: object
+  securitySchemes:
+    ApiKeyAuth:
+      in: header
+      name: x-api-key
+      type: apiKey
+externalDocs:
+  description: Read Tutorial
+  url: https://docs.herondata.io/

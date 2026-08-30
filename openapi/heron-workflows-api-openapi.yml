@@ -1,0 +1,1693 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@herondata.io
+    name: Support
+  title: Heron Data Workflows API
+  version: '2021-07-19'
+servers:
+- description: Production
+  url: https://app.herondata.io
+security:
+- ApiKeyAuth:
+  - key_XXX
+tags:
+- name: Workflows
+paths:
+  /api/workflow/executions/status/{workflow_execution_heron_id}:
+    get:
+      description: Retrieve all WorkflowNodeExecution records for a given WorkflowExecution heron_id
+      parameters:
+      - description: The heron ID of the workflow execution
+        in: path
+        name: workflow_execution_heron_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowExecutionStatusSchema'
+          description: Workflow execution status
+        '404':
+          description: Workflow execution not found
+      security:
+      - ApiKeyAuth: []
+      summary: Get the status of a workflow execution (admin only)
+      tags:
+      - Workflows
+      x-hidden: true
+  /api/workflow/node/execute:
+    post:
+      description: Execute an individual node from a workflow definition for debugging/testing purposes.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SingleNodeExecuteRequestSchema'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SingleNodeExecuteResponseSchema'
+          description: Single node execution started
+        '400':
+          description: Invalid request or missing node input references
+        '404':
+          description: Workflow, end user, or node not found
+      security:
+      - HeronAdminAuth: []
+      summary: Execute a single workflow node in isolation
+      tags:
+      - Workflows
+      x-hidden: true
+  /api/workflow/node/executions/{workflow_execution_heron_id}:
+    get:
+      description: Returns the current status and result (if available) of a single node execution.
+      parameters:
+      - description: The heron ID of the workflow execution
+        in: path
+        name: workflow_execution_heron_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+          description: Single node execution status
+        '404':
+          description: Workflow execution not found or not a single-node execution
+      security:
+      - HeronAdminAuth: []
+      summary: Get single node execution status and result
+      tags:
+      - Workflows
+      x-hidden: true
+  /api/workflow/nodes:
+    get:
+      description: Get metadata for all nodes that can be used in JSONWorkflows. Requires workflow_heron_id to get user-specific schemas.
+      parameters:
+      - description: The heron ID of a workflow to customize node schemas for that workflow's user
+        in: query
+        name: workflow_heron_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/NodeMetadataSchema'
+                type: array
+          description: List of available nodes with their metadata
+        '400':
+          description: Missing workflow_heron_id parameter
+        '404':
+          description: Workflow not found
+      summary: List all available workflow nodes
+      tags:
+      - Workflows
+      x-hidden: true
+  /api/workflow/start:
+    post:
+      description: Start a workflow by heron_id for an end user, or start the default workflow if no workflow_heron_id provided
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkflowStartRequestSchema'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowStartResponseSchema'
+          description: Workflow started successfully
+        '404':
+          description: End user or workflow not found
+      security:
+      - ApiKeyAuth: []
+      summary: Start a workflow for an end user
+      tags:
+      - Workflows
+      x-hidden: true
+  /api/workflow/start_by_heron_id:
+    post:
+      description: Start a workflow by Heron ID for an end user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkflowStartByHeronIdRequestSchema'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowStartResponseSchema'
+          description: Workflow started successfully
+        '400':
+          description: Trigger ID or payload is invalid
+        '404':
+          description: End user or workflow not found
+      security:
+      - ApiKeyAuth: []
+      summary: Start a workflow by Heron ID for an end user
+      tags:
+      - Workflows
+  /api/workflow/start_by_name:
+    post:
+      description: Start a workflow by name for an end user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkflowStartByNameRequestSchema'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowStartResponseSchema'
+          description: Workflow started successfully
+        '400':
+          description: Trigger ID or payload is invalid
+        '404':
+          description: End user or workflow not found
+      security:
+      - ApiKeyAuth: []
+      summary: Start a workflow by name for an end user
+      tags:
+      - Workflows
+  /api/workflow/user/workflows:
+    get:
+      description: Returns all workflows belonging to the authenticated user.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/UserWorkflowSchema'
+                type: array
+          description: List of workflows
+      security:
+      - ApiKeyAuth: []
+      summary: List workflows for the current user
+      tags:
+      - Workflows
+  /api/workflow/users/{user_id}/workflows:
+    get:
+      parameters:
+      - description: The ID of the user
+        in: path
+        name: user_id
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/WorkflowSchema'
+                type: array
+          description: List of user workflows
+        '404':
+          description: User not found
+      security:
+      - ApiKeyAuth: []
+      summary: List all workflows for a user (admin only)
+      tags:
+      - Workflows
+      x-hidden: true
+    post:
+      parameters:
+      - description: The ID of the user
+        in: path
+        name: user_id
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkflowCreateSchema'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowSchema'
+          description: Workflow created successfully
+        '400':
+          description: Invalid workflow data
+        '404':
+          description: User not found
+        '409':
+          description: Workflow with this name already exists
+      security:
+      - ApiKeyAuth: []
+      summary: Create a new workflow for a user (admin only)
+      tags:
+      - Workflows
+      x-hidden: true
+  /api/workflow/users/{user_id}/workflows/{workflow_heron_id}:
+    get:
+      parameters:
+      - description: The ID of the user
+        in: path
+        name: user_id
+        required: true
+        schema:
+          type: integer
+      - description: The heron ID of the workflow
+        in: path
+        name: workflow_heron_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowSchema'
+          description: Workflow found
+        '404':
+          description: User or workflow not found
+      security:
+      - ApiKeyAuth: []
+      summary: Get a specific workflow for a user (admin only)
+      tags:
+      - Workflows
+      x-hidden: true
+  /api/workflow/workflows:
+    get:
+      description: Get all workflows ordered by most recently edited (based on latest version's last_updated)
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/WorkflowSummarySchema'
+                type: array
+          description: List of all workflows
+      security:
+      - ApiKeyAuth: []
+      summary: List all workflows across all users (admin only)
+      tags:
+      - Workflows
+      x-hidden: true
+  /api/workflow/{heron_id}:
+    delete:
+      parameters:
+      - description: The heron ID of the workflow
+        in: path
+        name: heron_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowSchema'
+          description: Workflow deleted successfully
+        '404':
+          description: Workflow not found
+      security:
+      - ApiKeyAuth: []
+      summary: Delete a workflow by heron ID (admin only)
+      tags:
+      - Workflows
+      x-hidden: true
+  /api/workflow/{workflow_heron_id}:
+    get:
+      parameters:
+      - description: The heron ID of the workflow
+        in: path
+        name: workflow_heron_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowSchema'
+          description: Workflow found
+        '404':
+          description: Workflow not found
+      security:
+      - ApiKeyAuth: []
+      summary: Get a workflow by heron ID (admin only)
+      tags:
+      - Workflows
+      x-hidden: true
+    patch:
+      parameters:
+      - description: The heron ID of the workflow
+        in: path
+        name: workflow_heron_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkflowUpdateSchema'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowSchema'
+          description: Workflow updated successfully
+        '400':
+          description: Invalid workflow data
+        '404':
+          description: Workflow not found
+      security:
+      - ApiKeyAuth: []
+      summary: Update a workflow by heron ID (admin only)
+      tags:
+      - Workflows
+      x-hidden: true
+  /api/workflow/{workflow_heron_id}/executions:
+    get:
+      description: Retrieve all WorkflowExecution records for a given workflow heron_id, ordered by most recent
+      parameters:
+      - description: The heron ID of the workflow (e.g., wfl_ZpWkCHwGAKkE7By2gdo5re)
+        in: path
+        name: workflow_heron_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/WorkflowExecutionSchema'
+                type: array
+          description: List of workflow executions
+      security:
+      - ApiKeyAuth: []
+      summary: Get recent workflow executions for a workflow (admin only)
+      tags:
+      - Workflows
+      x-hidden: true
+  /api/workflow/{workflow_heron_id}/executions/end_user/{end_user_heron_id}:
+    get:
+      description: Retrieve all WorkflowNodeExecution records for a given WorkflowExecution heron_id
+      parameters:
+      - description: The heron ID of the end user
+        in: path
+        name: end_user_heron_id
+        required: true
+        schema:
+          type: string
+      - description: The heron ID of the workflow
+        in: path
+        name: workflow_heron_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/WorkflowExecutionSchema'
+                type: array
+          description: Workflow execution status
+        '404':
+          description: End user not found
+      security:
+      - ApiKeyAuth: []
+      summary: Get the status of a workflow execution (admin only)
+      tags:
+      - Workflows
+      x-hidden: true
+  /api/workflow/{workflow_heron_id}/node/{node_id}/executions:
+    get:
+      description: Returns all single-node executions for a given node_id within a workflow.
+      parameters:
+      - description: The heron ID of the workflow
+        in: path
+        name: workflow_heron_id
+        required: true
+        schema:
+          type: string
+      - description: The node ID within the workflow definition
+        in: path
+        name: node_id
+        required: true
+        schema:
+          type: string
+      - description: Optional heron ID of the end user to filter by
+        in: query
+        name: end_user_heron_id
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/SingleNodeExecutionListItemSchema'
+                type: array
+          description: List of single-node executions
+        '404':
+          description: Workflow not found
+      security:
+      - HeronAdminAuth: []
+      summary: List all single-node executions for a node
+      tags:
+      - Workflows
+      x-hidden: true
+  /api/workflow/{workflow_heron_id}/versions/{version_number}:
+    delete:
+      description: Deletes the specified version. The version must be a draft and the latest version.
+      parameters:
+      - description: The heron ID of the workflow
+        in: path
+        name: workflow_heron_id
+        required: true
+        schema:
+          type: string
+      - description: The version number to delete
+        in: path
+        name: version_number
+        required: true
+        schema:
+          type: integer
+      responses:
+        '204':
+          description: Version deleted successfully
+        '400':
+          description: Version is not a draft or not the latest version
+        '404':
+          description: Workflow or version not found
+      security:
+      - ApiKeyAuth: []
+      summary: Delete a draft workflow version by heron ID (admin only)
+      tags:
+      - Workflows
+      x-hidden: true
+    get:
+      description: Get full details for a specific version of a workflow, including definition and display config
+      parameters:
+      - description: The heron ID of the workflow
+        in: path
+        name: workflow_heron_id
+        required: true
+        schema:
+          type: string
+      - description: The version number to retrieve
+        in: path
+        name: version_number
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowVersionSchema'
+          description: Workflow version details
+        '404':
+          description: Workflow or version not found
+      security:
+      - ApiKeyAuth: []
+      summary: Get workflow version details (admin only)
+      tags:
+      - Workflows
+      x-hidden: true
+    patch:
+      description: Update fields on an existing draft version. Only non-null fields are updated.
+      parameters:
+      - description: The heron ID of the workflow
+        in: path
+        name: workflow_heron_id
+        required: true
+        schema:
+          type: string
+      - description: The version number to update
+        in: path
+        name: version_number
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkflowUpdateVersionSchema'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowVersionSchema'
+          description: Draft version updated successfully
+        '400':
+          description: Invalid request
+        '404':
+          description: Workflow or version not found
+      security:
+      - ApiKeyAuth: []
+      summary: Update a draft workflow version in-place (admin only)
+      tags:
+      - Workflows
+      x-hidden: true
+  /api/workflow/{workflow_heron_id}/versions/{version_number}/approve:
+    post:
+      parameters:
+      - description: The heron ID of the workflow
+        in: path
+        name: workflow_heron_id
+        required: true
+        schema:
+          type: string
+      - description: The version number to approve
+        in: path
+        name: version_number
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkflowApproveSchema'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowVersionSchema'
+          description: Workflow version approved
+        '400':
+          description: Invalid request
+        '404':
+          description: Workflow or in-review version not found
+      security:
+      - ApiKeyAuth: []
+      summary: Approve a workflow version in review (admin only)
+      tags:
+      - Workflows
+      x-hidden: true
+  /api/workflow/{workflow_heron_id}/versions/{version_number}/copy_to_draft:
+    post:
+      description: Create a new draft version by copying workflow_definition and display_config from the specified version.
+      parameters:
+      - description: The heron ID of the workflow
+        in: path
+        name: workflow_heron_id
+        required: true
+        schema:
+          type: string
+      - description: The version number to copy from
+        in: path
+        name: version_number
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkflowCopyToDraftSchema'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowVersionSchema'
+          description: New draft version created successfully
+        '400':
+          description: Invalid request
+        '404':
+          description: Workflow or version not found
+      security:
+      - ApiKeyAuth: []
+      summary: Copy a version to a new draft (admin only)
+      tags:
+      - Workflows
+      x-hidden: true
+  /api/workflow/{workflow_heron_id}/versions/{version_number}/publish:
+    post:
+      parameters:
+      - description: The heron ID of the workflow
+        in: path
+        name: workflow_heron_id
+        required: true
+        schema:
+          type: string
+      - description: The version number to publish
+        in: path
+        name: version_number
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkflowPublishSchema'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowVersionSchema'
+          description: Workflow version published
+        '400':
+          description: Invalid request
+        '404':
+          description: Workflow or draft version not found
+      security:
+      - ApiKeyAuth: []
+      summary: Publish a workflow draft directly (admin only)
+      tags:
+      - Workflows
+      x-hidden: true
+  /api/workflow/{workflow_heron_id}/versions/{version_number}/submit_for_review:
+    post:
+      parameters:
+      - description: The heron ID of the workflow
+        in: path
+        name: workflow_heron_id
+        required: true
+        schema:
+          type: string
+      - description: The version number to submit for review
+        in: path
+        name: version_number
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkflowSubmitForReviewSchema'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowVersionSchema'
+          description: Workflow version submitted for review
+        '400':
+          description: Invalid request
+        '404':
+          description: Workflow or draft version not found
+      security:
+      - ApiKeyAuth: []
+      summary: Submit a workflow draft for review (admin only)
+      tags:
+      - Workflows
+      x-hidden: true
+  /api/workflow/{workflow_heron_id}/versions/{version_number}/withdraw:
+    post:
+      parameters:
+      - description: The heron ID of the workflow
+        in: path
+        name: workflow_heron_id
+        required: true
+        schema:
+          type: string
+      - description: The version number to withdraw
+        in: path
+        name: version_number
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowVersionSchema'
+          description: Workflow version withdrawn to draft
+        '400':
+          description: Invalid request
+        '404':
+          description: Workflow or in-review version not found
+      security:
+      - ApiKeyAuth: []
+      summary: Withdraw a workflow version from review (admin only)
+      tags:
+      - Workflows
+      x-hidden: true
+components:
+  schemas:
+    WorkflowStartByNameRequestSchema:
+      properties:
+        end_user_heron_id:
+          type: string
+        trigger_id:
+          description: Trigger node ID on the resolved workflow version.
+          type:
+          - string
+          - 'null'
+        trigger_payload:
+          additionalProperties: {}
+          description: JSON payload validated against the trigger node schema when present.
+          type: object
+        workflow_name:
+          type: string
+        workflow_parameters:
+          additionalProperties: {}
+          default: {}
+          type: object
+      required:
+      - end_user_heron_id
+      - workflow_name
+      type: object
+    WorkflowUpdateVersionSchema:
+      properties:
+        author_email:
+          type:
+          - string
+          - 'null'
+        change_description:
+          type:
+          - string
+          - 'null'
+        display_config:
+          additionalProperties: {}
+          type:
+          - object
+          - 'null'
+        workflow_definition:
+          allOf:
+          - $ref: '#/components/schemas/JSONWorkflowDefinition'
+      type: object
+    JSONWorkflowNode:
+      properties:
+        id:
+          type: string
+        is_critical:
+          default: false
+          type: boolean
+        name:
+          type: string
+        parameters:
+          additionalProperties: {}
+          type: object
+        settings:
+          $ref: '#/components/schemas/JSONWorkflowNodeSettings'
+        type:
+          type: string
+        version:
+          default: 1
+          type: integer
+      required:
+      - id
+      - name
+      - type
+      type: object
+    WorkflowSubmitForReviewSchema:
+      properties:
+        submitted_by:
+          type: string
+      required:
+      - submitted_by
+      type: object
+    WorkflowExecutionSchema:
+      properties:
+        created:
+          format: date-time
+          readOnly: true
+          type: string
+        end_user_heron_id:
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        end_user_name:
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        heron_id:
+          readOnly: true
+          type: string
+        is_silent_run:
+          readOnly: true
+          type: boolean
+        single_node_id:
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        started_at:
+          format: date-time
+          readOnly: true
+          type: string
+        status:
+          readOnly: true
+          type: string
+        workflow_version_id:
+          readOnly: true
+          type: integer
+        workflow_version_number:
+          readOnly: true
+          type: integer
+      type: object
+    WorkflowStartResponseSchema:
+      properties:
+        action:
+          readOnly: true
+          type: string
+        status:
+          readOnly: true
+          type: string
+        workflow_execution_id:
+          readOnly: true
+          type: string
+        workflow_id:
+          readOnly: true
+          type: string
+      type: object
+    WorkflowStartRequestSchema:
+      properties:
+        end_user_heron_id:
+          type: string
+        silent_run:
+          default: false
+          type: boolean
+        trigger_id:
+          description: Trigger node ID on the resolved workflow version.
+          type:
+          - string
+          - 'null'
+        trigger_payload:
+          additionalProperties: {}
+          description: JSON payload validated against the trigger node schema when present.
+          type: object
+        workflow_heron_id:
+          type:
+          - string
+          - 'null'
+        workflow_parameters:
+          additionalProperties: {}
+          default: {}
+          type: object
+        workflow_version_number:
+          type:
+          - integer
+          - 'null'
+      required:
+      - end_user_heron_id
+      type: object
+    WorkflowSummarySchema:
+      properties:
+        created:
+          format: date-time
+          readOnly: true
+          type: string
+        dashboard_trigger_enabled:
+          readOnly: true
+          type: boolean
+        dashboard_trigger_label:
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        heron_id:
+          readOnly: true
+          type: string
+        is_default:
+          readOnly: true
+          type: boolean
+        latest_version_approved_at:
+          format: date-time
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        latest_version_approved_by:
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        latest_version_approved_comment:
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        latest_version_author_email:
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        latest_version_change_description:
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        latest_version_last_edited_at:
+          format: date-time
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        latest_version_last_updated:
+          format: date-time
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        latest_version_number:
+          readOnly: true
+          type:
+          - integer
+          - 'null'
+        latest_version_published_at:
+          format: date-time
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        latest_version_published_by:
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        latest_version_status:
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        latest_version_submitted_by:
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        latest_version_submitted_for_review_at:
+          format: date-time
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        name:
+          readOnly: true
+          type: string
+        user_id:
+          readOnly: true
+          type: integer
+        user_username:
+          readOnly: true
+          type:
+          - string
+          - 'null'
+      type: object
+    WorkflowExecutionStatusSchema:
+      properties:
+        nodes:
+          additionalProperties:
+            $ref: '#/components/schemas/WorkflowNodeStatus'
+          readOnly: true
+          type: object
+        status:
+          readOnly: true
+          type: string
+      type: object
+    JSONWorkflowEdge:
+      properties:
+        from_handle_id:
+          default: default
+          type: string
+        from_node_id:
+          type: string
+        to_handle_id:
+          default: default
+          type: string
+        to_node_id:
+          type: string
+      required:
+      - from_node_id
+      - to_node_id
+      type: object
+    WorkflowSchema:
+      properties:
+        alerts_muted_until:
+          format: date-time
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        created:
+          format: date-time
+          readOnly: true
+          type: string
+        dashboard_trigger_enabled:
+          readOnly: true
+          type: boolean
+        dashboard_trigger_label:
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        heron_id:
+          readOnly: true
+          type: string
+        is_default:
+          readOnly: true
+          type: boolean
+        name:
+          readOnly: true
+          type: string
+        owners:
+          allOf:
+          - $ref: '#/components/schemas/FlowmingoWorkflowOwners'
+          readOnly: true
+        silent_run_allowed:
+          readOnly: true
+          type: boolean
+        user_id:
+          readOnly: true
+          type: string
+        user_username:
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        versions:
+          items:
+            $ref: '#/components/schemas/WorkflowVersionSummary'
+          readOnly: true
+          type: array
+      type: object
+    WorkflowApproveSchema:
+      properties:
+        approved_by:
+          type: string
+        comment:
+          type:
+          - string
+          - 'null'
+      required:
+      - approved_by
+      type: object
+    NodeMetadataSchema:
+      properties:
+        beta:
+          type: boolean
+        cache_policy:
+          $ref: '#/components/schemas/CachePolicyDefinition'
+        category:
+          type: string
+        deprecation_warning:
+          type:
+          - string
+          - 'null'
+        description:
+          type: string
+        input_field_order:
+          items:
+            type: string
+          type: array
+        input_handles:
+          items:
+            $ref: '#/components/schemas/Handle'
+          type: array
+        input_schema:
+          additionalProperties: {}
+          type: object
+        is_silent_run_safe:
+          type: boolean
+        latest_version:
+          type: integer
+        local_variables:
+          items:
+            $ref: '#/components/schemas/LocalVariable'
+          type: array
+        output_handles:
+          items:
+            $ref: '#/components/schemas/Handle'
+          type: array
+        output_schema:
+          additionalProperties: {}
+          type: object
+        subcategory:
+          type:
+          - string
+          - 'null'
+        type:
+          type: string
+        version:
+          type: integer
+      required:
+      - beta
+      - cache_policy
+      - category
+      - description
+      - input_field_order
+      - input_handles
+      - input_schema
+      - is_silent_run_safe
+      - latest_version
+      - local_variables
+      - output_handles
+      - output_schema
+      - type
+      - version
+      type: object
+    UserWorkflowSchema:
+      properties:
+        alerts_muted_until:
+          format: date-time
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        dashboard_trigger_enabled:
+          readOnly: true
+          type: boolean
+        dashboard_trigger_label:
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        heron_id:
+          readOnly: true
+          type: string
+        is_default:
+          readOnly: true
+          type: boolean
+        name:
+          readOnly: true
+          type: string
+        owners:
+          allOf:
+          - $ref: '#/components/schemas/FlowmingoWorkflowOwners'
+          readOnly: true
+      type: object
+    WorkflowCreateSchema:
+      properties:
+        display_config:
+          additionalProperties: {}
+          type:
+          - object
+          - 'null'
+        name:
+          type: string
+        set_as_default:
+          default: false
+          type: boolean
+        status:
+          default: published
+          enum:
+          - draft
+          - published
+          type: string
+        workflow_definition:
+          $ref: '#/components/schemas/JSONWorkflowDefinition'
+      required:
+      - name
+      - workflow_definition
+      type: object
+    WorkflowUpdateSchema:
+      properties:
+        dashboard_trigger_enabled:
+          type:
+          - boolean
+          - 'null'
+        dashboard_trigger_label:
+          type:
+          - string
+          - 'null'
+        mute_alerts_for_seconds:
+          minimum: 0
+          type:
+          - integer
+          - 'null'
+        name:
+          type:
+          - string
+          - 'null'
+        set_as_default:
+          default: false
+          type: boolean
+      type: object
+    WorkflowPublishSchema:
+      properties:
+        published_by:
+          type: string
+      required:
+      - published_by
+      type: object
+    SingleNodeExecuteRequestSchema:
+      properties:
+        end_user_heron_id:
+          type: string
+        explicit_node_results:
+          additionalProperties: {}
+          type:
+          - object
+          - 'null'
+        node_id:
+          type: string
+        reference_execution_heron_id:
+          type:
+          - string
+          - 'null'
+        workflow_heron_id:
+          type: string
+        workflow_parameters:
+          additionalProperties: {}
+          default: {}
+          type: object
+        workflow_version_number:
+          type:
+          - integer
+          - 'null'
+      required:
+      - end_user_heron_id
+      - node_id
+      - workflow_heron_id
+      type: object
+    JSONWorkflowDefinition:
+      properties:
+        debounce_seconds:
+          default: 0
+          minimum: 0
+          type: integer
+        default_on_failure:
+          type:
+          - string
+          - 'null'
+        edges:
+          items:
+            $ref: '#/components/schemas/JSONWorkflowEdge'
+          type: array
+        error_handling:
+          $ref: '#/components/schemas/JSONWorkflowErrorHandling'
+        nodes:
+          items:
+            $ref: '#/components/schemas/JSONWorkflowNode'
+          type: array
+        workflow_parameters:
+          additionalProperties: {}
+          type: object
+      type: object
+    SingleNodeExecuteResponseSchema:
+      properties:
+        node_id:
+          readOnly: true
+          type: string
+        status:
+          readOnly: true
+          type: string
+        workflow_execution_heron_id:
+          readOnly: true
+          type: string
+      type: object
+    Handle:
+      properties:
+        identifier:
+          type: string
+        name:
+          type: string
+      required:
+      - identifier
+      - name
+      type: object
+    WorkflowStartByHeronIdRequestSchema:
+      properties:
+        end_user_heron_id:
+          type: string
+        trigger_id:
+          description: Trigger node ID on the resolved workflow version.
+          type:
+          - string
+          - 'null'
+        trigger_payload:
+          additionalProperties: {}
+          description: JSON payload validated against the trigger node schema when present.
+          type: object
+        workflow_heron_id:
+          type: string
+        workflow_parameters:
+          additionalProperties: {}
+          default: {}
+          type: object
+      required:
+      - end_user_heron_id
+      - workflow_heron_id
+      type: object
+    WorkflowCopyToDraftSchema:
+      properties:
+        author_email:
+          type:
+          - string
+          - 'null'
+      type: object
+    WorkflowVersionSummary:
+      properties:
+        approved_at:
+          format: date-time
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        approved_by:
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        approved_comment:
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        author_email:
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        change_description:
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        created:
+          format: date-time
+          readOnly: true
+          type: string
+        last_edited_at:
+          format: date-time
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        published_at:
+          format: date-time
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        published_by:
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        status:
+          enum:
+          - draft
+          - in_review
+          - approved
+          - published
+          readOnly: true
+          type: string
+        submitted_by:
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        submitted_for_review_at:
+          format: date-time
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        version:
+          readOnly: true
+          type: integer
+      type: object
+    LocalVariable:
+      properties:
+        description:
+          type: string
+        json_schema:
+          additionalProperties: {}
+          type: object
+        name:
+          type: string
+      required:
+      - description
+      - json_schema
+      - name
+      type: object
+    SingleNodeExecutionListItemSchema:
+      properties:
+        created:
+          format: date-time
+          readOnly: true
+          type: string
+        end_user_heron_id:
+          readOnly: true
+          type: string
+        error:
+          readOnly: true
+        result:
+          readOnly: true
+        status:
+          readOnly: true
+          type: string
+        workflow_execution_heron_id:
+          readOnly: true
+          type: string
+      type: object
+    WorkflowVersionSchema:
+      properties:
+        approved_at:
+          format: date-time
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        approved_by:
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        approved_comment:
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        author_email:
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        change_description:
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        created:
+          format: date-time
+          readOnly: true
+          type: string
+        display_config:
+          additionalProperties: {}
+          readOnly: true
+          type:
+          - object
+          - 'null'
+        last_edited_at:
+          format: date-time
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        published_at:
+          format: date-time
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        published_by:
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        status:
+          enum:
+          - draft
+          - in_review
+          - approved
+          - published
+          readOnly: true
+          type: string
+        submitted_by:
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        submitted_for_review_at:
+          format: date-time
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        version:
+          readOnly: true
+          type: integer
+        workflow_definition:
+          allOf:
+          - $ref: '#/components/schemas/JSONWorkflowDefinition'
+          readOnly: true
+      type: object
+    JSONWorkflowErrorHandling:
+      properties:
+        failure_strategy:
+          default: fail_fast
+          enum:
+          - fail_fast
+          - best_effort
+          - critical
+          type: string
+        join_rule:
+          default: all_success
+          enum:
+          - all_success
+          - any_success
+          type: string
+        max_attempts_per_node:
+          default: 1
+          minimum: 1
+          type: integer
+      type: object
+    FlowmingoWorkflowOwners:
+      properties:
+        group_slack_name:
+          items:
+            type: string
+          type: array
+        user_email:
+          items:
+            format: email
+            type: string
+          type: array
+      type: object
+    CachePolicyDefinition:
+      properties:
+        enabled:
+          type: boolean
+        scope:
+          type: string
+        ttl_seconds:
+          type: integer
+      required:
+      - enabled
+      - scope
+      - ttl_seconds
+      type: object
+    WorkflowNodeStatus:
+      properties:
+        error:
+          additionalProperties: {}
+          readOnly: true
+          type: object
+        execution_heron_id:
+          readOnly: true
+          type: string
+        execution_id:
+          readOnly: true
+          type: string
+        finished_time:
+          format: date-time
+          readOnly: true
+          type: string
+        inputs:
+          additionalProperties: {}
+          readOnly: true
+          type: object
+        node_metadata:
+          additionalProperties: {}
+          readOnly: true
+          type: object
+        result:
+          readOnly: true
+        scheduled_time:
+          format: date-time
+          readOnly: true
+          type: string
+        sourced_from_cache_hit:
+          readOnly: true
+          type: boolean
+        started_time:
+          format: date-time
+          readOnly: true
+          type: string
+        status:
+          readOnly: true
+          type: string
+      type: object
+    JSONWorkflowNodeSettings:
+      properties:
+        cache:
+          $ref: '#/components/schemas/NodeCacheSettings'
+        is_disabled:
+          default: false
+          type: boolean
+        max_executions_per_end_user:
+          default: 0
+          minimum: 0
+          type: integer
+        on_disabled_output_handle_id:
+          default: default
+          type: string
+      type: object
+    NodeCacheSettings:
+      properties:
+        enabled:
+          type:
+          - boolean
+          - 'null'
+        scope:
+          type:
+          - string
+          - 'null'
+        ttl_seconds:
+          type:
+          - integer
+          - 'null'
+      type: object
+  securitySchemes:
+    ApiKeyAuth:
+      in: header
+      name: x-api-key
+      type: apiKey
+externalDocs:
+  description: Read Tutorial
+  url: https://docs.herondata.io/

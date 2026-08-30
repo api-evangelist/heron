@@ -1,0 +1,140 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@herondata.io
+    name: Support
+  title: Heron Data File Class API
+  version: '2021-07-19'
+servers:
+- description: Production
+  url: https://app.herondata.io
+security:
+- ApiKeyAuth:
+  - key_XXX
+tags:
+- name: FileClass
+paths:
+  /api/end_user_files/file_classes:
+    get:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/FileClassSchema'
+                type: array
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Get all file classes
+      tags:
+      - FileClass
+  /api/users/file_class_groups:
+    get:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  type: string
+                type: array
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Get file class groups enabled for a User
+      tags:
+      - FileClass
+  /api/users/file_classes:
+    get:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/FileClassSchema'
+                type: array
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Get current file classes used in classification
+      tags:
+      - FileClass
+  /api/users/file_classes/{file_class_name}:
+    delete:
+      parameters:
+      - in: path
+        name: file_class_name
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/FileClassSchema'
+                type: array
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Remove a FileClass from Classification for a User
+      tags:
+      - FileClass
+    post:
+      parameters:
+      - in: path
+        name: file_class_name
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/FileClassSchema'
+                type: array
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Add a FileClass to Classify for a User
+      tags:
+      - FileClass
+components:
+  schemas:
+    FileClassSchema:
+      properties:
+        description:
+          type:
+          - string
+          - 'null'
+        display_group:
+          type:
+          - string
+          - 'null'
+        display_name:
+          type:
+          - string
+          - 'null'
+        group:
+          type:
+          - string
+          - 'null'
+        name:
+          type: string
+      required:
+      - name
+      type: object
+  securitySchemes:
+    ApiKeyAuth:
+      in: header
+      name: x-api-key
+      type: apiKey
+externalDocs:
+  description: Read Tutorial
+  url: https://docs.herondata.io/

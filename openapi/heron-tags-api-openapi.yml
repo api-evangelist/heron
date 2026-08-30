@@ -1,0 +1,336 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@herondata.io
+    name: Support
+  title: Heron Data Tags API
+  version: '2021-07-19'
+servers:
+- description: Production
+  url: https://app.herondata.io
+security:
+- ApiKeyAuth:
+  - key_XXX
+tags:
+- name: Tags
+paths:
+  /api/end_users/{end_user_id_or_heron_id}/tags:
+    get:
+      description: Return the tags currently applied to the end user, ordered by name.
+      parameters:
+      - in: path
+        name: end_user_id_or_heron_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  tags:
+                    items:
+                      $ref: '#/components/schemas/TagSchema'
+                    type: array
+                type: object
+          description: OK
+        '404':
+          description: End user not found
+      security:
+      - ApiKeyAuth: []
+      summary: List an end user's tags
+      tags:
+      - Tags
+    post:
+      description: 'Add the given tags to the end user, leaving any tags already applied in place. Re-sending a tag that is already applied is a no-op, so retries are safe. Every tag heron_id must exist, otherwise none are applied.
+
+        '
+      parameters:
+      - in: path
+        name: end_user_id_or_heron_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EndUserTagsSchema'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  tags:
+                    items:
+                      $ref: '#/components/schemas/TagSchema'
+                    type: array
+                type: object
+          description: OK
+        '404':
+          description: End user not found
+        '422':
+          description: Unknown tag heron_id
+      security:
+      - ApiKeyAuth: []
+      summary: Add tags to an end user
+      tags:
+      - Tags
+    put:
+      description: 'Set the end user''s tags to exactly the tags given, adding and removing as needed. Send an empty list to clear every tag. Every tag heron_id must exist, otherwise nothing changes.
+
+        '
+      parameters:
+      - in: path
+        name: end_user_id_or_heron_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EndUserTagsSchema'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  tags:
+                    items:
+                      $ref: '#/components/schemas/TagSchema'
+                    type: array
+                type: object
+          description: OK
+        '404':
+          description: End user not found
+        '422':
+          description: Unknown tag heron_id
+      security:
+      - ApiKeyAuth: []
+      summary: Replace an end user's tags
+      tags:
+      - Tags
+  /api/end_users/{end_user_id_or_heron_id}/tags/{tag_heron_id}:
+    delete:
+      description: 'Remove one tag from the end user. Removing a tag that is not applied succeeds, so retries are safe. The tag itself is not deleted.
+
+        '
+      parameters:
+      - in: path
+        name: end_user_id_or_heron_id
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: tag_heron_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: No Content
+        '404':
+          description: End user not found
+        '422':
+          description: Unknown tag heron_id
+      security:
+      - ApiKeyAuth: []
+      summary: Remove a tag from an end user
+      tags:
+      - Tags
+  /api/tags:
+    get:
+      description: Return every tag on your account, excluding deleted ones.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  tags:
+                    items:
+                      $ref: '#/components/schemas/TagSchema'
+                    type: array
+                type: object
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: List tags
+      tags:
+      - Tags
+    post:
+      description: 'Create a tag. Names are normalized to lowercase. They must contain 1-140 alphanumeric characters plus _ - : and are unique to your account (case-insensitive).
+
+        '
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TagSchema'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                properties:
+                  tag:
+                    $ref: '#/components/schemas/TagSchema'
+                type: object
+          description: OK
+        '400':
+          description: Invalid request body
+        '422':
+          description: Tag name already exists
+      security:
+      - ApiKeyAuth: []
+      summary: Create a tag
+      tags:
+      - Tags
+  /api/tags/{heron_id}:
+    delete:
+      description: 'Delete a tag. It is removed from everything it is currently applied to and no longer appears in tag lists.
+
+        '
+      parameters:
+      - in: path
+        name: heron_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: No Content
+        '404':
+          description: Tag not found
+      security:
+      - ApiKeyAuth: []
+      summary: Delete a tag
+      tags:
+      - Tags
+    get:
+      description: Return a single tag by its heron_id. Deleted tags return 404.
+      parameters:
+      - in: path
+        name: heron_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  tag:
+                    $ref: '#/components/schemas/TagSchema'
+                type: object
+          description: OK
+        '404':
+          description: Tag not found
+      security:
+      - ApiKeyAuth: []
+      summary: Get a tag
+      tags:
+      - Tags
+    patch:
+      description: 'Update a tag''s name, description, or color. Only the fields you send are changed; send null to clear the description or color.
+
+        '
+      parameters:
+      - in: path
+        name: heron_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TagPatchSchema'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  tag:
+                    $ref: '#/components/schemas/TagSchema'
+                type: object
+          description: OK
+        '400':
+          description: Invalid request body
+        '404':
+          description: Tag not found
+        '422':
+          description: Tag name already exists
+      security:
+      - ApiKeyAuth: []
+      summary: Update a tag
+      tags:
+      - Tags
+components:
+  schemas:
+    TagPatchSchema:
+      properties:
+        color:
+          description: 'Optional display color as a six-digit hex code such as #1a2b3c. Pass null to clear.'
+          type:
+          - string
+          - 'null'
+        description:
+          description: Optional human-readable description of the tag. Pass null to clear.
+          type:
+          - string
+          - 'null'
+        name:
+          description: 'Identifier normalized to lowercase: alphanumeric plus ''_'', ''-'', '':'', up to 140 chars. Unique to your account (case-insensitive).'
+          type: string
+      type: object
+    EndUserTagsSchema:
+      properties:
+        tags:
+          description: Heron IDs of the tags to apply to this end user.
+          items:
+            type: string
+          type: array
+      required:
+      - tags
+      type: object
+    TagSchema:
+      properties:
+        color:
+          description: 'Optional display color as a six-digit hex code such as #1a2b3c, normalized to lowercase.'
+          type:
+          - string
+          - 'null'
+        description:
+          description: Optional human-readable description of the tag.
+          type:
+          - string
+          - 'null'
+        heron_id:
+          description: Unique identifier for the tag
+          readOnly: true
+          type: string
+        name:
+          description: 'Identifier normalized to lowercase: alphanumeric plus ''_'', ''-'', '':'', up to 140 chars. Unique to your account (case-insensitive).'
+          type: string
+      required:
+      - name
+      type: object
+  securitySchemes:
+    ApiKeyAuth:
+      in: header
+      name: x-api-key
+      type: apiKey
+externalDocs:
+  description: Read Tutorial
+  url: https://docs.herondata.io/

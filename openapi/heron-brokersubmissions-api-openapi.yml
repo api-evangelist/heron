@@ -1,0 +1,636 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@herondata.io
+    name: Support
+  title: Heron Data Broker Submissions API
+  version: '2021-07-19'
+servers:
+- description: Production
+  url: https://app.herondata.io
+security:
+- ApiKeyAuth:
+  - key_XXX
+tags:
+- name: BrokerSubmissions
+paths:
+  /api/broker_submissions/:
+    post:
+      description: 'Create a new broker submission with end user details.
+
+        **Authentication**: Requires a broker API key in the `x-api-key` header. Generate keys using the `/api/broker_submissions/api_keys/generate` endpoint.
+
+        '
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateBrokerSubmissionSchema'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  heron_id:
+                    description: Heron ID of the created submission
+                    type: string
+                type: object
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Create broker submission
+      tags:
+      - BrokerSubmissions
+  /api/broker_submissions/api_keys:
+    get:
+      description: 'Retrieve all Broker API keys associated with the authenticated user''s funder account. Returns a list of broker-funder relationships with their corresponding API keys.
+
+        '
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  properties:
+                    broker:
+                      description: The broker's name
+                      type: string
+                    broker_funder_api_key_heron_id:
+                      description: The API key's unique identifier
+                      type: string
+                    broker_funder_api_key_token:
+                      description: The API key token
+                      type: string
+                  type: object
+                type: array
+          description: OK
+        '404':
+          description: Funder account not found for the authenticated user
+      summary: List broker API keys for a given user.
+      tags:
+      - BrokerSubmissions
+  /api/broker_submissions/api_keys/generate:
+    post:
+      description: 'Create a new API key for a broker-funder relationship. The broker is identified by email domain. If the funder account or broker-funder relationship doesn''t exist, they will be created automatically. Returns an error if an API key already exists for this relationship.
+
+        '
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateBrokerFunderApiKeySchema'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  broker_funder_token:
+                    description: The generated API key token
+                    type: string
+                type: object
+          description: OK
+        '404':
+          description: Broker with the specified email domain does not exist
+        '409':
+          description: API key already exists for this broker-funder relationship
+      summary: Generate broker API key
+      tags:
+      - BrokerSubmissions
+  /api/broker_submissions/api_keys/{broker_funder_api_key_heron_id}:
+    delete:
+      description: 'Delete an existing API key for a broker-funder relationship. The authenticated user must own the funder account associated with the API key.
+
+        '
+      parameters:
+      - description: The unique identifier of the API key to delete
+        in: path
+        name: broker_funder_api_key_heron_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: API key successfully deleted
+        '404':
+          description: API key not found
+      summary: Delete broker API key
+      tags:
+      - BrokerSubmissions
+  /api/broker_submissions/{submission_heron_id}/files:
+    post:
+      description: 'Upload one or more PDF files for a specified broker submission.
+
+        Authenticate by passing a broker API key in the `x-api-key` header. Generate keys via the `/api/broker_submissions/api_keys/generate` endpoint.
+
+        '
+      parameters:
+      - description: The unique identifier for the broker submission to upload files to
+        in: path
+        name: submission_heron_id
+        required: true
+        schema:
+          example: sub_1a2b3c4d5e6f
+          type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            examples:
+              multiple_files:
+                summary: Upload multiple files
+                value:
+                  files:
+                  - january.pdf
+                  - february.pdf
+                  - march.pdf
+              single_file:
+                summary: Upload single file
+                value:
+                  files:
+                  - file_q4.pdf
+              with_file_class:
+                summary: Upload with explicit file class
+                value:
+                  file_class: iso_application_form
+                  files:
+                  - iso_app.pdf
+              without_downstream_processing:
+                summary: Upload without triggering downstream processing
+                value:
+                  downstream_processing: false
+                  files:
+                  - statement.pdf
+            schema:
+              properties:
+                downstream_processing:
+                  default: true
+                  description: '(Optional) Whether to trigger downstream processing (classification, parsing, Flowmingo workflow start, etc.) after the files are uploaded. Defaults to true to preserve existing behaviour. Set to false to upload files without triggering downstream processing — useful when uploading multiple files in sequence and you only want the workflow to start after the final upload.
+
+                    '
+                  example: true
+                  type: boolean
+                file_class:
+                  description: '(Optional) The type of document being uploaded. Applies to all files in this request. If omitted, Heron''s file classifier will automatically determine the file type. Common values: bank_statement, iso_application_form, debt_summary, void_check, invoice, pnl_statement, balance_sheet, tax_return.
+
+                    '
+                  example: bank_statement
+                  type: string
+                files:
+                  description: Array of PDF files to upload.
+                  items:
+                    format: binary
+                    type: string
+                  maxItems: 12
+                  minItems: 1
+                  type: array
+              required:
+              - files
+              type: object
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                items:
+                  properties:
+                    file:
+                      description: Name of the uploaded file
+                      example: statement_q4.pdf
+                      type: string
+                    status:
+                      description: Status of the file upload
+                      enum:
+                      - uploaded
+                      example: uploaded
+                      type: string
+                  type: object
+                type: array
+          description: All files uploaded successfully
+        '207':
+          content:
+            application/json:
+              schema:
+                items:
+                  properties:
+                    file:
+                      description: Name of the file
+                      example: statement.pdf
+                      type: string
+                    reason:
+                      description: Error reason (only present when status is "error")
+                      example: Duplicate file
+                      type: string
+                    status:
+                      description: Status of the file upload
+                      enum:
+                      - uploaded
+                      - error
+                      example: uploaded
+                      type: string
+                  type: object
+                type: array
+          description: Partial success - some files uploaded, others failed
+        '400':
+          content:
+            application/json:
+              schema:
+                items:
+                  properties:
+                    file:
+                      description: Name of the file
+                      example: invalid.pdf
+                      type: string
+                    reason:
+                      description: Reason for failure
+                      example: 'File type application/msword not allowed. Allowed: application/pdf'
+                      type: string
+                    status:
+                      description: Status of the file upload
+                      enum:
+                      - error
+                      example: error
+                      type: string
+                  type: object
+                type: array
+          description: All files failed validation or upload, or no files attached
+        '401':
+          content:
+            application/json:
+              schema:
+                properties:
+                  description:
+                    example: Unauthorized
+                    type: string
+                type: object
+          description: Missing or invalid API key
+        '404':
+          content:
+            application/json:
+              schema:
+                properties:
+                  description:
+                    example: Broker submission sub_1a2b3c4d5e6f not found
+                    type: string
+                type: object
+          description: Broker submission not found, or does not belong to the authenticated broker
+        '422':
+          content:
+            application/json:
+              schema:
+                properties:
+                  description:
+                    example: Invalid file_class 'invalid_value'. Must be a valid file class name.
+                    type: string
+                type: object
+          description: Request payload failed validation (e.g. invalid file_class, file too large, wrong mime type, too few or too many files)
+      security:
+      - ApiKeyAuth: []
+      summary: Upload PDF files for broker submission
+      tags:
+      - BrokerSubmissions
+  /api/broker_submissions/{submission_heron_id}/update_information:
+    post:
+      description: 'Add company and owner details to existing broker submission.
+
+        **Authentication**: Requires a broker API key in the `x-api-key` header. Generate keys using the `/api/broker_submissions/api_keys/generate` endpoint.
+
+        '
+      parameters:
+      - in: path
+        name: submission_heron_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EndUserInformationPatchSchema'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EndUserInformationSchema'
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Add details to broker submission
+      tags:
+      - BrokerSubmissions
+components:
+  schemas:
+    EndUserInformationPatchSchema:
+      properties:
+        amount_requested:
+          type:
+          - number
+          - 'null'
+        annual_revenue:
+          type:
+          - number
+          - 'null'
+        business_start_date:
+          format: date
+          type:
+          - string
+          - 'null'
+        company_billing_address:
+          $ref: '#/components/schemas/Address'
+        company_email:
+          type:
+          - string
+          - 'null'
+        company_legal_business_name:
+          type:
+          - string
+          - 'null'
+        company_phone_number:
+          type:
+          - string
+          - 'null'
+        company_physical_address:
+          $ref: '#/components/schemas/Address'
+        company_website:
+          type:
+          - string
+          - 'null'
+        dba:
+          description: Doing business as
+          type:
+          - string
+          - 'null'
+        federal_tax_id:
+          type:
+          - string
+          - 'null'
+        industry_type:
+          type:
+          - string
+          - 'null'
+        loan_purpose:
+          type:
+          - string
+          - 'null'
+        monthly_revenue:
+          type:
+          - number
+          - 'null'
+        naics:
+          type:
+          - string
+          - 'null'
+        owner_1:
+          $ref: '#/components/schemas/Owner'
+        owner_2:
+          $ref: '#/components/schemas/Owner'
+        predicted_industry_probability:
+          type:
+          - number
+          - 'null'
+        source_email_address:
+          type:
+          - string
+          - 'null'
+        source_name:
+          type:
+          - string
+          - 'null'
+        source_notes:
+          type:
+          - string
+          - 'null'
+        state_of_incorporation:
+          type:
+          - string
+          - 'null'
+        type_of_business_entity:
+          type:
+          - string
+          - 'null'
+      type: object
+    Owner:
+      properties:
+        credit_score:
+          type:
+          - integer
+          - 'null'
+        date_of_birth:
+          example: '1990-01-01'
+          format: date
+          type:
+          - string
+          - 'null'
+        email_address:
+          type:
+          - string
+          - 'null'
+        first_name:
+          type:
+          - string
+          - 'null'
+        has_signed:
+          type:
+          - boolean
+          - 'null'
+        home_address:
+          $ref: '#/components/schemas/Address'
+        home_phone:
+          type:
+          - string
+          - 'null'
+        last_name:
+          type:
+          - string
+          - 'null'
+        middle_name:
+          type:
+          - string
+          - 'null'
+        mobile_phone:
+          type:
+          - string
+          - 'null'
+        ownership_percentage:
+          description: Percentage of ownership
+          example: 100
+          type:
+          - number
+          - 'null'
+        prefix:
+          description: Name prefix
+          example: Mr
+          type:
+          - string
+          - 'null'
+        signed_date:
+          format: date
+          type:
+          - string
+          - 'null'
+        social_security_number:
+          type:
+          - string
+          - 'null'
+        suffix:
+          description: Generational or professional suffix
+          example: Jr
+          type:
+          - string
+          - 'null'
+      type: object
+    CreateBrokerSubmissionSchema:
+      properties:
+        name:
+          description: The name of the submission being made, this is purely for user reference.
+          minLength: 10
+          type: string
+      required:
+      - name
+      type: object
+    CreateBrokerFunderApiKeySchema:
+      properties:
+        email:
+          description: Broker email address
+          format: email
+          type: string
+      required:
+      - email
+      type: object
+    EndUserInformationSchema:
+      properties:
+        amount_requested:
+          type:
+          - number
+          - 'null'
+        annual_revenue:
+          type:
+          - number
+          - 'null'
+        business_start_date:
+          format: date
+          type:
+          - string
+          - 'null'
+        company_billing_address:
+          $ref: '#/components/schemas/Address'
+        company_email:
+          type:
+          - string
+          - 'null'
+        company_legal_business_name:
+          type:
+          - string
+          - 'null'
+        company_phone_number:
+          type:
+          - string
+          - 'null'
+        company_physical_address:
+          $ref: '#/components/schemas/Address'
+        company_website:
+          type:
+          - string
+          - 'null'
+        dba:
+          description: Doing business as
+          type:
+          - string
+          - 'null'
+        federal_tax_id:
+          type:
+          - string
+          - 'null'
+        industry_type:
+          type:
+          - string
+          - 'null'
+        loan_purpose:
+          type:
+          - string
+          - 'null'
+        monthly_revenue:
+          type:
+          - number
+          - 'null'
+        naics:
+          type:
+          - string
+          - 'null'
+        owner_1:
+          $ref: '#/components/schemas/Owner'
+        owner_2:
+          $ref: '#/components/schemas/Owner'
+        predicted_industry_probability:
+          type:
+          - number
+          - 'null'
+        source_email_address:
+          type:
+          - string
+          - 'null'
+        source_name:
+          type:
+          - string
+          - 'null'
+        source_notes:
+          type:
+          - string
+          - 'null'
+        source_type:
+          description: Source of the end user information
+          enum:
+          - api
+          - iso_application_form
+          - heron_industry_classifier
+          - rel6_industry_classifier
+          - email
+          - end_user_entities
+          example: iso_application_form
+          type: string
+        state_of_incorporation:
+          type:
+          - string
+          - 'null'
+        type_of_business_entity:
+          type:
+          - string
+          - 'null'
+      type: object
+    Address:
+      properties:
+        city:
+          type:
+          - string
+          - 'null'
+        line_1:
+          type:
+          - string
+          - 'null'
+        line_2:
+          type:
+          - string
+          - 'null'
+        state:
+          type:
+          - string
+          - 'null'
+        zip:
+          type:
+          - string
+          - 'null'
+      type: object
+  securitySchemes:
+    ApiKeyAuth:
+      in: header
+      name: x-api-key
+      type: apiKey
+externalDocs:
+  description: Read Tutorial
+  url: https://docs.herondata.io/

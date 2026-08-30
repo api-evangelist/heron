@@ -1,0 +1,1108 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@herondata.io
+    name: Support
+  title: Heron Data End User Files API
+  version: '2021-07-19'
+servers:
+- description: Production
+  url: https://app.herondata.io
+security:
+- ApiKeyAuth:
+  - key_XXX
+tags:
+- name: EndUserFiles
+paths:
+  /api/end_user_files:
+    get:
+      description: Get all files uploaded to Heron by your users, not including parsed results from files
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/EndUserFileSchema'
+                type: array
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: All EndUserFiles
+      tags:
+      - EndUserFiles
+  /api/end_user_files/process_standalone:
+    post:
+      description: 'Process a file for classification and parsing without storing it as an EndUserFile. Results are delivered via webhook to subscribed endpoints.
+
+        '
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StandaloneProcessFileSchema'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  reference_id:
+                    description: The reference ID provided in the request
+                    type: string
+                type: object
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Process file without creating EndUserFile record
+      tags:
+      - EndUserFiles
+  /api/end_user_files/recent_by_file_class:
+    get:
+      description: Retrieve the most recent files for the specified file class.
+      parameters:
+      - description: The file class to filter by.
+        in: query
+        name: file_class
+        required: true
+        schema:
+          type: string
+      - description: The maximum number of files to return, defaults to 20
+        in: query
+        name: limit
+        required: false
+        schema:
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/EndUserFileSchema'
+                type: array
+          description: A list of recent files.
+      security:
+      - ApiKeyAuth: []
+      summary: Get recent files by file class
+      tags:
+      - EndUserFiles
+  /api/end_user_files/rename_rules:
+    get:
+      description: Retrieve all file rename rules for the current user.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/GetFileRenameRulesSchema'
+                type: array
+          description: A list of file rename rules
+      security:
+      - ApiKeyAuth: []
+      summary: Get file rename rules
+      tags:
+      - EndUserFiles
+    post:
+      description: Add a new rename rule for files.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateFileRenameRuleSchema'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetFileRenameRulesSchema'
+          description: The created file rename rule
+      security:
+      - ApiKeyAuth: []
+      summary: Create a file rename rule
+      tags:
+      - EndUserFiles
+  /api/end_user_files/rename_rules/slugs:
+    get:
+      description: Retrieve all file rename rules slugs for the current user.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  type: string
+                type: array
+          description: A list of file rename rule slugs
+      security:
+      - ApiKeyAuth: []
+      summary: Get file rename rule variable slugs
+      tags:
+      - EndUserFiles
+  /api/end_user_files/rename_rules/{heron_id}:
+    patch:
+      description: Update an existing rename rule identified by its `heron_id`.
+      parameters:
+      - description: The unique identifier of the rename rule.
+        in: path
+        name: heron_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateFileRenameRuleSchema'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetFileRenameRulesSchema'
+          description: The updated file rename rule
+      security:
+      - ApiKeyAuth: []
+      summary: Update a file rename rule
+      tags:
+      - EndUserFiles
+  /api/end_user_files/{heron_id}:
+    delete:
+      parameters:
+      - description: The Heron ID of the end user file to delete
+        in: path
+        name: heron_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    type: boolean
+                type: object
+          description: OK
+        '403':
+          description: Unauthorized to delete this end user file
+        '404':
+          description: End user file not found
+      security:
+      - ApiKeyAuth: []
+      summary: Delete an EndUserFile
+      tags:
+      - EndUserFiles
+    get:
+      description: 'Retrieve a single end user file by its Heron ID. Returns file metadata including filename, file class, parsed results (if any), and related info. Use this endpoint when you have an end user file Heron ID and need its details without listing or filtering all files.
+
+        '
+      parameters:
+      - description: The Heron ID of the end user file (e.g. euf_...)
+        in: path
+        name: heron_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EndUserFileSchema'
+          description: The end user file
+        '404':
+          description: End user file not found
+      security:
+      - ApiKeyAuth: []
+      summary: Get a single end user file by Heron ID
+      tags:
+      - EndUserFiles
+    patch:
+      description: 'Use this endpoint to change the end user file''s class. The file will be reprocessed as the new type.
+
+        '
+      parameters:
+      - in: path
+        name: heron_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EndUserFileUpdateSchema'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EndUserFileSchema'
+          description: Ok
+      security:
+      - ApiKeyAuth: []
+      summary: Update the end user file's class
+      tags:
+      - EndUserFiles
+  /api/end_user_files/{heron_id}/file:
+    get:
+      description: Get the base64 string representation of an end user file
+      parameters:
+      - description: The heron_id of the end user file
+        in: path
+        name: heron_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EndUserFileBase64Schema'
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Get EndUserFile as a base64 string
+      tags:
+      - EndUserFiles
+  /api/end_user_files/{heron_id}/parse_file:
+    post:
+      parameters:
+      - description: The file's heron_id
+        in: path
+        name: heron_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ParseFileSchema'
+        required: true
+      responses:
+        '200':
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Trigger async parsing of an end user file
+      tags:
+      - EndUserFiles
+  /api/end_user_files/{heron_id}/parsed_results:
+    get:
+      parameters:
+      - description: The file's heron_id - beginning with 'euf_'
+        in: path
+        name: heron_id
+        required: true
+        schema:
+          type: string
+      - in: query
+        name: parser_id
+        required: false
+        schema:
+          type:
+          - string
+          - 'null'
+      - in: query
+        name: version_number
+        required: false
+        schema:
+          type:
+          - integer
+          - 'null'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ParsedEndUserFileSchema'
+                type: array
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Get parsed results from uploaded files
+      tags:
+      - EndUserFiles
+  /api/end_user_files/{heron_id}/trigger_rename:
+    post:
+      parameters:
+      - description: The file's heron_id - starting with euf_
+        in: path
+        name: heron_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EndUserFileSchema'
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Trigger file's rename rule
+      tags:
+      - EndUserFiles
+  /api/end_user_files/{heron_id}/trigger_split:
+    post:
+      parameters:
+      - description: The file's heron_id
+        in: path
+        name: heron_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/EndUserFileSchema'
+                type: array
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Trigger splitting a combined end user file into its child files based on its page_classes
+      tags:
+      - EndUserFiles
+  /api/end_user_files/{parsed_end_user_file_id}/parsed_results:
+    patch:
+      parameters:
+      - description: The ID of the parsed end user file
+        in: path
+        name: parsed_end_user_file_id
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                parsed_result:
+                  additionalProperties: true
+                  type: object
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParsedEndUserFileSchema'
+          description: OK
+        '404':
+          description: Parsed end user file not found
+      security:
+      - ApiKeyAuth: []
+      summary: Update Parsed Results
+      tags:
+      - EndUserFiles
+  /api/end_users/{end_user_id_or_heron_id}/files:
+    get:
+      description: Get all files for an end user
+      parameters:
+      - in: path
+        name: end_user_id_or_heron_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/EndUserFileSchema'
+                type: array
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Get EndUserFiles
+      tags:
+      - EndUserFiles
+    post:
+      deprecated: true
+      description: Deprecated — use [Post EndUserFile V2](/api-reference/enduserfiles/post-enduserfile-v2) instead.
+      parameters:
+      - in: path
+        name: end_user_id_or_heron_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EndUserFileUploadSchema'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EndUserFileSchema'
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Post EndUserFile
+      tags:
+      - EndUserFiles
+  /api/end_users/{end_user_id_or_heron_id}/files/download:
+    get:
+      description: Download all files for an end user as a zip
+      parameters:
+      - in: path
+        name: end_user_id_or_heron_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/zip:
+              schema:
+                format: binary
+                type: string
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Download EndUserFiles
+      tags:
+      - EndUserFiles
+  /api/end_users/{end_user_id_or_heron_id}/files/parsed_results/xlsx:
+    get:
+      parameters:
+      - in: path
+        name: end_user_id_or_heron_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                format: binary
+                type: string
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Download xlsx of parsed results from uploaded files
+      tags:
+      - EndUserFiles
+  /api/end_users/{end_user_id_or_heron_id}/files/v2:
+    post:
+      description: 'Upload file to an end user & asynchronously classify its type. After uploading, call the `/start_workflow` endpoint to trigger downstream processing (parsing, bank statement extraction, etc.).
+
+        '
+      parameters:
+      - in: path
+        name: end_user_id_or_heron_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              properties:
+                file:
+                  description: The file to upload
+                  format: binary
+                  type: string
+                file_class:
+                  description: '(Optional) - The type of file. Common values: bank_statement, iso_application_form, debt_summary, void_check, invoice, pnl_statement, balance_sheet, tax_return, money_market_statement. Contact Heron support for the full list of file classes available for your account.'
+                  type: string
+                reference_id:
+                  description: Your reference id for the file
+                  type: string
+              required:
+              - file
+              type: object
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EndUserFileSchema'
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Post EndUserFile V2
+      tags:
+      - EndUserFiles
+  /api/end_users/{end_user_id_or_heron_id}/start_workflow:
+    post:
+      description: Starts your configured Heron workflow for an end user
+      parameters:
+      - description: The end user's ID or heron_id
+        in: path
+        name: end_user_id_or_heron_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    type: boolean
+                type: object
+          description: Heron workflow triggered successfully
+        '404':
+          description: End user not found
+      security:
+      - ApiKeyAuth: []
+      summary: Start Workflow
+      tags:
+      - EndUserFiles
+components:
+  schemas:
+    DataSourceNested:
+      properties:
+        heron_id:
+          description: Heron ID of the data source
+          type: string
+        is_enabled:
+          description: Whether this data source is enabled
+          type: boolean
+      type: object
+    CreateFileRenameRuleSchema:
+      properties:
+        end_user_file_class:
+          type: string
+        file_name_template:
+          type: string
+        is_enabled:
+          type: boolean
+        variables:
+          items:
+            $ref: '#/components/schemas/VariableDefinition'
+          type: array
+      required:
+      - end_user_file_class
+      - file_name_template
+      - is_enabled
+      type: object
+    EndUserFileSchema:
+      properties:
+        bank_statement:
+          allOf:
+          - $ref: '#/components/schemas/PdfGet'
+          example: null
+          readOnly: true
+        created:
+          format: date-time
+          type: string
+        email:
+          allOf:
+          - $ref: '#/components/schemas/EndUserEmailSchema'
+          example: null
+          readOnly: true
+        file_class:
+          type: string
+        file_source_metadata:
+          additionalProperties: {}
+          readOnly: true
+          type:
+          - object
+          - 'null'
+        filename:
+          type: string
+        heron_id:
+          type: string
+        iso_application:
+          allOf:
+          - $ref: '#/components/schemas/GetIsoApplication'
+          readOnly: true
+        num_pages:
+          type: integer
+        page_classes:
+          additionalProperties:
+            $ref: '#/components/schemas/EndUserFilePageClasses'
+          type:
+          - object
+          - 'null'
+        parent_heron_id:
+          type:
+          - string
+          - 'null'
+        parsed_results:
+          default: []
+          items:
+            $ref: '#/components/schemas/ParsedEndUserFile'
+          readOnly: true
+          type: array
+        processing_error:
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        reference_id:
+          type: string
+        renamed_filename:
+          type: string
+      type: object
+    GetFileRenameRulesSchema:
+      properties:
+        end_user_file_class:
+          type: string
+        file_name_template:
+          type: string
+        heron_id:
+          type: string
+        is_enabled:
+          type: boolean
+        variables:
+          items:
+            $ref: '#/components/schemas/VariableDefinition'
+          type: array
+      required:
+      - end_user_file_class
+      - file_name_template
+      - is_enabled
+      type: object
+    ParsedEndUserFile:
+      properties:
+        attribute_values:
+          items:
+            additionalProperties: {}
+            type: object
+          type: array
+        bounding_boxes:
+          items:
+            $ref: '#/components/schemas/ParsedEndUserFileBoundingBox'
+          type:
+          - array
+          - 'null'
+        created:
+          format: date-time
+          type: string
+        field_validations:
+          items:
+            $ref: '#/components/schemas/FieldValidation'
+          type: array
+        heron_id:
+          description: Unique identifier of the end user file
+          type: string
+        id:
+          description: '[DEPRECATED] Unique identifier for the parsed file'
+          type: integer
+        layout_bounding_boxes:
+          items:
+            $ref: '#/components/schemas/ParsedEndUserFileBoundingBox'
+          type:
+          - array
+          - 'null'
+        parser_display_name:
+          type: string
+        parser_id:
+          type: string
+        parsing_status:
+          enum:
+          - succeeded
+          - failed
+          - processing
+          type: string
+        patches:
+          items:
+            $ref: '#/components/schemas/ParsedEndUserFilePatch'
+          type: array
+        result:
+          additionalProperties: {}
+          description: Final output result after applying patches
+          type:
+          - object
+          - 'null'
+        result_schema:
+          additionalProperties: {}
+          description: The output JSON schema the results conform to
+          type: object
+        validation_summary:
+          description: Summary of validation results
+          type: string
+      required:
+      - created
+      - heron_id
+      - parser_id
+      - parsing_status
+      type: object
+    EndUserFilePageClasses:
+      properties:
+        confidence:
+          default: 1.0
+          type: number
+        file_class:
+          type: string
+      type: object
+    VariableDefinition:
+      properties:
+        description:
+          type: string
+        examples:
+          items:
+            type: string
+          type: array
+        key:
+          type: string
+        name:
+          type: string
+      required:
+      - description
+      - examples
+      - key
+      - name
+      type: object
+    EndUserFileUpdateSchema:
+      properties:
+        file_class:
+          type: string
+        page_classes:
+          additionalProperties:
+            $ref: '#/components/schemas/EndUserFilePageClasses'
+          type:
+          - object
+          - 'null'
+        parent_heron_id:
+          type:
+          - string
+          - 'null'
+        reference_id:
+          type: string
+      type: object
+    StandaloneProcessFileSchema:
+      properties:
+        expected_file_class:
+          description: Expected file classification (e.g., 'bank_statement')
+          type:
+          - string
+          - 'null'
+        file_content_base64:
+          description: Base64 encoded file content
+          type: string
+        filename:
+          description: Original filename (helps with MIME type detection)
+          type: string
+        reference_id:
+          description: Reference ID for tracking
+          type: string
+      required:
+      - file_content_base64
+      - filename
+      - reference_id
+      type: object
+    PdfGet:
+      properties:
+        data_source:
+          allOf:
+          - $ref: '#/components/schemas/DataSourceNested'
+          description: The data source for this PDF. Only available after parsing and enrichment has completed, otherwise null.
+        heron_id:
+          description: ID generated by Heron Data
+          example: pdf_TdpNDuBWbCK82yDs4CqSAT
+          type: string
+        status:
+          description: Status of PDF
+          enum:
+          - new
+          - parsing
+          - parsed
+          - processed
+          - human_reviewing
+          - approved
+          - rejected
+          - failed
+          - transactions_loaded
+          - transactions_unloaded
+          example: processed
+          type: string
+      type: object
+    UpdateFileRenameRuleSchema:
+      properties:
+        file_name_template:
+          type: string
+        is_enabled:
+          type: boolean
+        variables:
+          default: []
+          items:
+            $ref: '#/components/schemas/VariableDefinition'
+          type: array
+      required:
+      - file_name_template
+      - is_enabled
+      type: object
+    EndUserFileUploadSchema:
+      properties:
+        file_base64:
+          description: Base64 encoded file bytes
+          type: string
+        file_class:
+          description: The type of file, e.g., bank_statement
+          type:
+          - string
+          - 'null'
+        filename:
+          description: Name of file
+          type: string
+        parent_file_heron_id:
+          description: The Heron ID of the parent file, if this file is a part of another file
+          type:
+          - string
+          - 'null'
+        reference_id:
+          description: Your reference id for file
+          type:
+          - string
+          - 'null'
+        trigger_downstream_processing:
+          default: true
+          description: Whether to trigger downstream processing (file classification, parsing, etc.) upon upload
+          type: boolean
+      required:
+      - file_base64
+      - filename
+      type: object
+    GetIsoApplication:
+      properties:
+        heron_id:
+          description: The ISO application's heron_id
+          example: iso_6hBjQT9k6KP2rLCXwjUJff
+          type: string
+        processing_status:
+          description: The processing status of the file.
+          enum:
+          - new
+          - processing
+          - processed
+          - failed
+          example: processed
+          type: string
+      required:
+      - heron_id
+      - processing_status
+      type: object
+    EndUserFileBase64Schema:
+      properties:
+        file_b64:
+          type: string
+        mime_type:
+          type: string
+      type: object
+    ParseFileSchema:
+      properties:
+        parser_id:
+          type:
+          - string
+          - 'null'
+      type: object
+    ParsedEndUserFilePatch:
+      properties:
+        correction_reason:
+          type:
+          - string
+          - 'null'
+        enabled:
+          type:
+          - boolean
+          - 'null'
+        op:
+          type: string
+        original_value: {}
+        path:
+          type: string
+        source:
+          type:
+          - string
+          - 'null'
+        value: {}
+      required:
+      - op
+      - path
+      type: object
+    EndUserEmailSchema:
+      properties:
+        cc_addresses:
+          items:
+            type: string
+          type: array
+        created:
+          format: date-time
+          type: string
+        date_sent:
+          format: date-time
+          type: string
+        date_sent_string:
+          type: string
+        from_address:
+          type: string
+        from_address_domain:
+          type: string
+        from_name:
+          type: string
+        heron_id:
+          type: string
+        html_body:
+          type: string
+        html_or_text_body:
+          type: string
+        is_reply:
+          type: boolean
+        processing_status:
+          enum:
+          - new
+          - processing
+          - processed
+          - failed
+          type: string
+        reply_to:
+          type:
+          - string
+          - 'null'
+        subject:
+          type: string
+        subject_cleaned:
+          type: string
+        text_body:
+          type: string
+        to_addresses:
+          items:
+            type: string
+          type: array
+        viewer_url:
+          description: a temporary, secure URL for viewing the email contents
+          type: string
+      type: object
+    ParsedEndUserFileSchema:
+      properties:
+        attribute_values:
+          items:
+            additionalProperties: {}
+            type: object
+          type: array
+        bounding_boxes:
+          items:
+            $ref: '#/components/schemas/ParsedEndUserFileBoundingBox'
+          type:
+          - array
+          - 'null'
+        created:
+          format: date-time
+          type: string
+        field_validations:
+          items:
+            $ref: '#/components/schemas/FieldValidation'
+          type: array
+        heron_id:
+          description: Unique identifier of the end user file
+          type: string
+        id:
+          description: '[DEPRECATED] Unique identifier for the parsed file'
+          type: integer
+        layout_bounding_boxes:
+          items:
+            $ref: '#/components/schemas/ParsedEndUserFileBoundingBox'
+          type:
+          - array
+          - 'null'
+        parser_display_name:
+          type: string
+        parser_id:
+          type: string
+        parsing_status:
+          enum:
+          - succeeded
+          - failed
+          - processing
+          type: string
+        patches:
+          items:
+            $ref: '#/components/schemas/ParsedEndUserFilePatch'
+          type: array
+        result:
+          additionalProperties: {}
+          description: Final output result after applying patches
+          type:
+          - object
+          - 'null'
+        result_schema:
+          additionalProperties: {}
+          description: The output JSON schema the results conform to
+          type: object
+        validation_summary:
+          description: Summary of validation results
+          type: string
+      required:
+      - created
+      - heron_id
+      - parser_id
+      - parsing_status
+      type: object
+    FieldValidation:
+      properties:
+        failure_reason:
+          type:
+          - string
+          - 'null'
+        field_name:
+          type: string
+        result:
+          enum:
+          - pass
+          - fail
+          - not_applicable
+          example: pass
+          type: string
+        validation_type:
+          type: string
+      required:
+      - failure_reason
+      - field_name
+      - result
+      - validation_type
+      type: object
+    ParsedEndUserFileBoundingBox:
+      properties:
+        bounding_box:
+          description: Bounding box coordinates in the format 'y1,x1,y2,x2'
+          items:
+            type: number
+          type: array
+        json_pointer:
+          description: JSON pointer to the field in the parsed result
+          type: string
+        page_num:
+          description: Page number where the bounding box is located
+          type: integer
+        value:
+          description: The actual value of the field within the bounding box
+          type: string
+      required:
+      - bounding_box
+      - json_pointer
+      - page_num
+      - value
+      type: object
+  securitySchemes:
+    ApiKeyAuth:
+      in: header
+      name: x-api-key
+      type: apiKey
+externalDocs:
+  description: Read Tutorial
+  url: https://docs.herondata.io/

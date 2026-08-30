@@ -1,0 +1,85 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@herondata.io
+    name: Support
+  title: Heron Data Interaction Logs API
+  version: '2021-07-19'
+servers:
+- description: Production
+  url: https://app.herondata.io
+security:
+- ApiKeyAuth:
+  - key_XXX
+tags:
+- name: Interaction Logs
+paths:
+  /api/interaction_logs:
+    post:
+      description: Log a user interaction from the frontend.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateInteractionLogSchema'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InteractionLogResponseSchema'
+          description: Interaction log created
+        '404':
+          description: End user not found
+      summary: Create an interaction log
+      tags:
+      - Interaction Logs
+      x-hidden: true
+components:
+  schemas:
+    InteractionLogResponseSchema:
+      properties:
+        created:
+          format: date-time
+          readOnly: true
+          type: string
+        heron_id:
+          readOnly: true
+          type: string
+      type: object
+    CreateInteractionLogSchema:
+      properties:
+        attributes:
+          additionalProperties: {}
+          description: Arbitrary JSON attributes
+          type:
+          - object
+          - 'null'
+        end_user_heron_id:
+          description: Heron ID of the end user
+          type:
+          - string
+          - 'null'
+        name:
+          description: Interaction name/type
+          maxLength: 256
+          minLength: 1
+          type: string
+        session_uuid:
+          description: PostHog session UUID
+          maxLength: 36
+          minLength: 1
+          type: string
+      required:
+      - name
+      - session_uuid
+      type: object
+  securitySchemes:
+    ApiKeyAuth:
+      in: header
+      name: x-api-key
+      type: apiKey
+externalDocs:
+  description: Read Tutorial
+  url: https://docs.herondata.io/

@@ -1,0 +1,452 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@herondata.io
+    name: Support
+  title: Heron Data CRM Integrations API
+  version: '2021-07-19'
+servers:
+- description: Production
+  url: https://app.herondata.io
+security:
+- ApiKeyAuth:
+  - key_XXX
+tags:
+- name: CrmIntegrations
+paths:
+  /api/crm_integrations:
+    get:
+      description: Get a list of CRM Integrations
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  crm_integrations:
+                    items:
+                      $ref: '#/components/schemas/CrmIntegrationSchema'
+                    type: array
+                type: object
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: List CRM Integrations
+      tags:
+      - CrmIntegrations
+    post:
+      description: Create a CRM integration, e.g., with Salesforce
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CrmIntegrationSchema'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                properties:
+                  crm_integration:
+                    $ref: '#/components/schemas/CrmIntegrationSchema'
+                type: object
+          description: Created
+      security:
+      - ApiKeyAuth: []
+      summary: Create a CRM integration
+      tags:
+      - CrmIntegrations
+  /api/crm_integrations/{heron_id}:
+    patch:
+      description: patch a CRM integration
+      parameters:
+      - in: path
+        name: heron_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CrmIntegrationPatchSchema'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CrmIntegrationSchema'
+          description: Ok
+      security:
+      - ApiKeyAuth: []
+      summary: Patch a CRM integration
+      tags:
+      - CrmIntegrations
+components:
+  schemas:
+    CrmFieldMapping:
+      properties:
+        external_lookup_field_name:
+          description: Override field name to use for external lookup instead of the field_name
+          type:
+          - string
+          - 'null'
+        external_object_name_for_id:
+          description: The external object whose id we want to use populate the field value
+          example: Account
+          type:
+          - string
+          - 'null'
+        field_name:
+          description: The name of the field in the CRM
+          example: Name
+          type: string
+        heron_company_attribute_label:
+          description: The label of the company attribute in Heron
+          example: owner_1_first_name
+          type:
+          - string
+          - 'null'
+        max_length:
+          description: The max length of the crm field this should be mapped to. Used for string fields. If set, the string will be truncated.
+          example: 255
+          type:
+          - integer
+          - 'null'
+        overwrite_on_update:
+          default: true
+          description: Whether the field should be overwritten on update. True by default. When False, the field will only be set on creation
+          example: true
+          type: boolean
+        regex_remove:
+          description: Any pattern that should be removed from the company attribute value
+          example: pattern
+          type:
+          - string
+          - 'null'
+        required:
+          default: false
+          description: Whether the field is required
+          example: true
+          type: boolean
+        static_value:
+          description: A static value for the field
+          example: static value
+          type:
+          - string
+          - 'null'
+        static_value_key:
+          description: The value key of the static data
+          enum:
+          - date_today
+          - null
+          type:
+          - string
+          - 'null'
+        value_mapping_name:
+          description: Name of the value mapping to use for the field
+          example: state
+          type:
+          - string
+          - 'null'
+        value_type:
+          description: The crm type of the field
+          example: Text
+          type:
+          - string
+          - 'null'
+      required:
+      - field_name
+      type: object
+    CrmStaticData:
+      properties:
+        key:
+          description: The key of the static data
+          example: status
+          type: string
+        value:
+          description: The value of the static data
+          example: active
+      required:
+      - key
+      - value
+      type: object
+    CrmValueMapping:
+      properties:
+        default_value:
+          description: The default value to use when no match is found
+          example: Default
+          type:
+          - string
+          - 'null'
+        description:
+          description: A human-readable description of the value mapping
+          example: The status of the company
+          type:
+          - string
+          - 'null'
+        mapping:
+          additionalProperties: {}
+          description: The mapping of values
+          example:
+            CA: California
+            NY: New York
+          type: object
+        name:
+          description: The name of the value mapping
+          example: Status
+          type: string
+        use_partial_match:
+          default: false
+          description: Whether to use partial match when mapping values
+          type: boolean
+      required:
+      - mapping
+      - name
+      type: object
+    CrmObjectConfig:
+      properties:
+        description:
+          description: Human-readable description of the object
+          example: A company or person
+          type:
+          - string
+          - 'null'
+        external_lookup_config:
+          allOf:
+          - $ref: '#/components/schemas/CrmExternalLookupConfig'
+          description: Configuration for external lookup
+        external_name:
+          description: The exact name of the object in the CRM
+          example: Account
+          type: string
+        field_mappings:
+          description: Mapping for Heron fields to object fields in CRM
+          items:
+            $ref: '#/components/schemas/CrmFieldMapping'
+          type: array
+        is_optional:
+          default: false
+          description: Whether the object is optional. Optional means that if object fails it will not stop execution of CRM sync
+          type: boolean
+        key:
+          description: key should be unique among objects within an integration
+          example: Account
+          type: string
+        required_ids:
+          description: List of object ids that new object needs
+          items:
+            $ref: '#/components/schemas/CrmObjectId'
+          type: array
+        static_data:
+          description: Stores static data used by the integration, for example status fields
+          items:
+            $ref: '#/components/schemas/CrmStaticData'
+          type: array
+      required:
+      - external_name
+      - key
+      type: object
+    CrmConfig:
+      properties:
+        child_file_filtering_enabled:
+          default: true
+          description: Whether to filter out child files (files that have a parent file)
+          type: boolean
+        data_source_accounts_config:
+          allOf:
+          - $ref: '#/components/schemas/CrmObjectConfig'
+          description: The data source accounts configuration for the CRM integration
+        default_id:
+          allOf:
+          - $ref: '#/components/schemas/CrmObjectId'
+          description: The default object id for the CRM integration
+        download_legacy_attachments:
+          default: false
+          description: Whether to download legacy Salesforce Attachment records
+          type: boolean
+        object_configs:
+          default: []
+          description: The object configurations for the CRM integration
+          items:
+            $ref: '#/components/schemas/CrmObjectConfig'
+          type: array
+        policy_evaluation_config:
+          allOf:
+          - $ref: '#/components/schemas/CrmPolicyEvaluationConfig'
+          description: The policy evaluation configuration for the CRM integration
+        small_file_filtering_enabled:
+          default: false
+          description: Whether to filter out files smaller than 400 bytes
+          type: boolean
+        sync_file_classes:
+          additionalProperties:
+            type: boolean
+          default: {}
+          description: Whether to sync files of a given class, including emails
+          type: object
+        value_mappings:
+          default: []
+          description: A list of value mappings for the CRM integration
+          items:
+            $ref: '#/components/schemas/CrmValueMapping'
+          type: array
+      type: object
+    CrmIntegrationSchema:
+      additionalProperties: true
+      properties:
+        auth:
+          additionalProperties: {}
+          description: Authentication details for the CRM integration
+          type: object
+          writeOnly: true
+        config:
+          allOf:
+          - $ref: '#/components/schemas/CrmConfig'
+          description: The configuration for the CRM integration
+        failure_notification_channel:
+          description: The channel to send failure notifications to
+          type:
+          - string
+          - 'null'
+        heron_id:
+          readOnly: true
+          type: string
+        instance_url:
+          description: Base URL of the CRM integration
+          example: https://sandbox.salesforce.com
+          format: url
+          type: string
+        is_enabled:
+          default: true
+          description: Whether the integration is enabled
+          example: true
+          type: boolean
+        is_live:
+          default: true
+          description: Whether the integration is live
+          example: true
+          type: boolean
+        provider:
+          description: The CRM provider
+          type: string
+        secret:
+          description: A secret key for the CRM integration
+          type: string
+          writeOnly: true
+      required:
+      - auth
+      - config
+      - instance_url
+      - provider
+      - secret
+      type: object
+    CrmObjectId:
+      properties:
+        alias:
+          description: An alias for the object in the CRM
+          example: Company
+          type:
+          - string
+          - 'null'
+        external_name:
+          description: The exact name of the object in the CRM
+          example: Account
+          type: string
+      required:
+      - external_name
+      type: object
+    CrmExternalLookupConfig:
+      properties:
+        external_lookup_fields_and:
+          description: External lookup fields are what is used to try match potential new objects to existing objects in the CRM (i.e., for deduplication). Used in the and condition.
+          items:
+            type: string
+          type: array
+        external_lookup_fields_or:
+          description: External lookup fields are what is used to try match potential new objects to existing objects in the CRM (i.e., for deduplication). Used in the or condition.
+          items:
+            type: string
+          type: array
+        sort_field_name:
+          default: CreatedDate
+          description: The field name to sort by when doing the external lookup
+          example: CreatedDate
+          type: string
+        sort_order:
+          description: The sort order when doing the external lookup
+          enum:
+          - ASC
+          - DESC
+          type: string
+      type: object
+    CrmIntegrationPatchSchema:
+      additionalProperties: true
+      properties:
+        auth:
+          additionalProperties: {}
+          description: Authentication details for the CRM integration
+          type: object
+          writeOnly: true
+        config:
+          allOf:
+          - $ref: '#/components/schemas/CrmConfig'
+          description: The configuration for the CRM integration
+        failure_notification_channel:
+          description: The channel to send failure notifications to
+          type:
+          - string
+          - 'null'
+        heron_id:
+          readOnly: true
+          type: string
+        instance_url:
+          description: Base URL of the CRM integration
+          example: https://sandbox.salesforce.com
+          format: url
+          type: string
+        is_enabled:
+          default: true
+          description: Whether the integration is enabled
+          example: true
+          type: boolean
+        is_live:
+          default: true
+          description: Whether the integration is live
+          example: true
+          type: boolean
+        provider:
+          description: The CRM provider
+          type: string
+        secret:
+          description: A secret key for the CRM integration
+          type: string
+          writeOnly: true
+      type: object
+    CrmPolicyEvaluationConfig:
+      properties:
+        external_object_name:
+          description: The object to write policy evaluation results to
+          example: Opportunity
+          type: string
+        failure_reason_external_name:
+          description: The field to write policy evaluation failure reason to
+          example: Failure_Reason__c
+          type: string
+        result_external_name:
+          description: The field to write policy evaluation results
+          example: Submission_Result_from_Heron__c
+          type: string
+      required:
+      - external_object_name
+      type: object
+  securitySchemes:
+    ApiKeyAuth:
+      in: header
+      name: x-api-key
+      type: apiKey
+externalDocs:
+  description: Read Tutorial
+  url: https://docs.herondata.io/

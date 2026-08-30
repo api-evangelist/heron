@@ -1,0 +1,177 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@herondata.io
+    name: Support
+  title: Heron Data Funder Submissions API
+  version: '2021-07-19'
+servers:
+- description: Production
+  url: https://app.herondata.io
+security:
+- ApiKeyAuth:
+  - key_XXX
+tags:
+- name: Funder Submissions
+paths:
+  /api/funder_submissions/:
+    post:
+      description: 'Find or create a funder submission for the given end user and funder pair. Returns the existing submission if one already exists (unique per end_user + funder).
+
+        '
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpsertFunderSubmissionRequestSchema'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FunderSubmissionSchema'
+          description: Funder submission found or created
+        '404':
+          description: End user or funder not found
+      security:
+      - ApiKeyAuth: []
+      summary: Upsert a funder submission
+      tags:
+      - Funder Submissions
+  /api/funder_submissions/{submission_heron_id}/:
+    get:
+      description: Returns the status and details of a funder submission. Use this to poll after triggering a submission.
+      parameters:
+      - description: The Heron ID of the funder submission
+        in: path
+        name: submission_heron_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FunderSubmissionSchema'
+          description: Funder submission details
+        '404':
+          description: Funder submission not found
+      security:
+      - ApiKeyAuth: []
+      summary: Get funder submission status
+      tags:
+      - Funder Submissions
+  /api/funder_submissions/{submission_heron_id}/trigger/:
+    post:
+      description: 'Triggers an async submission to a funder. Returns 202 immediately; poll via GET /funder_submissions/{submission_heron_id}/ to check progress.
+
+        '
+      parameters:
+      - description: The Heron ID of the funder submission
+        in: path
+        name: submission_heron_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubmitFunderSubmissionRequestSchema'
+        required: true
+      responses:
+        '202':
+          description: Submission accepted and queued for processing
+        '400':
+          description: Submission has a non-submittable status
+        '404':
+          description: Funder submission not found
+        '409':
+          description: Submission is already in progress
+      security:
+      - ApiKeyAuth: []
+      summary: Trigger a funder submission
+      tags:
+      - Funder Submissions
+components:
+  schemas:
+    Funder1:
+      additionalProperties: false
+      properties:
+        heron_id:
+          readOnly: true
+          type: string
+        name:
+          readOnly: true
+          type: string
+      type: object
+    FunderSubmissionSchema:
+      additionalProperties: false
+      properties:
+        created:
+          format: date-time
+          readOnly: true
+          type: string
+        end_user_heron_id:
+          readOnly: true
+          type: string
+        funder:
+          allOf:
+          - $ref: '#/components/schemas/Funder1'
+          readOnly: true
+        heron_id:
+          readOnly: true
+          type: string
+        status:
+          enum:
+          - pending
+          - in_progress
+          - submitted_to_funder
+          - invalid_data_for_funder
+          - submission_failed
+          - approved
+          - declined
+          - null
+          readOnly: true
+        submission_result:
+          additionalProperties: {}
+          readOnly: true
+          type:
+          - object
+          - 'null'
+        submitted_at:
+          format: date-time
+          readOnly: true
+          type:
+          - string
+          - 'null'
+      type: object
+    SubmitFunderSubmissionRequestSchema:
+      additionalProperties: false
+      properties:
+        use_sandbox:
+          type: boolean
+      required:
+      - use_sandbox
+      type: object
+    UpsertFunderSubmissionRequestSchema:
+      additionalProperties: false
+      properties:
+        end_user_heron_id:
+          type: string
+        funder_heron_id:
+          type: string
+      required:
+      - end_user_heron_id
+      - funder_heron_id
+      type: object
+  securitySchemes:
+    ApiKeyAuth:
+      in: header
+      name: x-api-key
+      type: apiKey
+externalDocs:
+  description: Read Tutorial
+  url: https://docs.herondata.io/

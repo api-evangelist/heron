@@ -1,0 +1,76 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@herondata.io
+    name: Support
+  title: Heron Data User Merchant Groups API
+  version: '2021-07-19'
+servers:
+- description: Production
+  url: https://app.herondata.io
+security:
+- ApiKeyAuth:
+  - key_XXX
+tags:
+- name: UserMerchantGroups
+paths:
+  /api/user_merchant_groups:
+    get:
+      parameters:
+      - description: The group_id of the merchant
+        in: query
+        name: group_id
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserMerchantGroupsSchema'
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: This endpoint returns merchant groups categorized as pending, custom, or rejected.
+      tags:
+      - UserMerchantGroups
+components:
+  schemas:
+    UserMerchantGroupSchema:
+      properties:
+        group_id:
+          type: string
+        merchant_heron_id:
+          type: string
+        merchant_name:
+          type: string
+      required:
+      - merchant_heron_id
+      - merchant_name
+      type: object
+    UserMerchantGroupsSchema:
+      properties:
+        custom_merchants:
+          default: []
+          items:
+            $ref: '#/components/schemas/UserMerchantGroupSchema'
+          type: array
+        pending_merchants:
+          default: []
+          items:
+            $ref: '#/components/schemas/UserMerchantGroupSchema'
+          type: array
+        rejected_merchants:
+          default: []
+          items:
+            $ref: '#/components/schemas/UserMerchantGroupSchema'
+          type: array
+      type: object
+  securitySchemes:
+    ApiKeyAuth:
+      in: header
+      name: x-api-key
+      type: apiKey
+externalDocs:
+  description: Read Tutorial
+  url: https://docs.herondata.io/

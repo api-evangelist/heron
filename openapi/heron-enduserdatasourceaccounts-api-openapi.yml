@@ -1,0 +1,264 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@herondata.io
+    name: Support
+  title: Heron Data End User Data Source Accounts API
+  version: '2021-07-19'
+servers:
+- description: Production
+  url: https://app.herondata.io
+security:
+- ApiKeyAuth:
+  - key_XXX
+tags:
+- name: EndUserDataSourceAccounts
+paths:
+  /api/data_source_accounts/{dsa_heron_id_to_update}/update_number:
+    post:
+      description: 'Update a data source account''s account number
+
+        '
+      parameters:
+      - in: path
+        name: dsa_heron_id_to_update
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DataSourceAccountUpdateNumberSchema'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EndUserDataSourceAccount'
+          description: Ok
+      security:
+      - ApiKeyAuth: []
+      summary: Update a data source account's account number
+      tags:
+      - EndUserDataSourceAccounts
+  /api/data_source_accounts/{heron_id}:
+    put:
+      description: 'Update a data source account
+
+        '
+      parameters:
+      - in: path
+        name: heron_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EndUserDataSourceAccountUpdateSchema'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EndUserDataSourceAccount'
+          description: Ok
+      security:
+      - ApiKeyAuth: []
+      summary: Update a data source account
+      tags:
+      - EndUserDataSourceAccounts
+  /api/end_users/{end_user_id_or_heron_id}/data_source_accounts/disable_duplicates:
+    post:
+      parameters:
+      - in: path
+        name: end_user_id_or_heron_id
+        required: true
+        schema:
+          type: string
+      - in: query
+        name: start_date
+        required: false
+        schema:
+          format: date
+          type:
+          - string
+          - 'null'
+      - in: query
+        name: end_date
+        required: false
+        schema:
+          format: date
+          type:
+          - string
+          - 'null'
+      responses:
+        '200':
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Disable duplicate data source accounts for an end user
+      tags:
+      - EndUserDataSourceAccounts
+components:
+  schemas:
+    AccountBalance:
+      properties:
+        closing_amount:
+          allOf:
+          - $ref: '#/components/schemas/Money'
+          description: The closing balance for the day
+          example: 25000.45
+        currency:
+          description: Currency of the balance
+          example: USD
+          type: string
+        date:
+          description: Date of the balance
+          example: '2022-01-01'
+          format: date
+          type: string
+      required:
+      - closing_amount
+      type: object
+    DataSourceAccountUpdateNumberSchema:
+      properties:
+        source_dsa_heron_id:
+          description: The Heron ID of the data source account containing the number we want to update to
+          example: dsa_8w6V5CuRESc7G5yx3mXF54
+          type: string
+      required:
+      - source_dsa_heron_id
+      type: object
+    EndUserDataSourceAccount:
+      properties:
+        account_id:
+          description: Unique account id associated with the data source account
+          example: '202348'
+          type: string
+        anomaly_reasons:
+          description: Reasons associated with anomaly_score for pdf bank statement account sources
+          example:
+          - Statement metadata changed
+          - Manual review flagged suspicious edits
+          items:
+            type: string
+          type:
+          - array
+          - 'null'
+        anomaly_score:
+          description: For pdf bank statement account sources, where the value is between 0 and 1000, with 1000 being the most anomalous
+          example: 200
+          type: integer
+        balances:
+          description: List of balances associated with the account
+          example:
+          - closing_amount: 25000.45
+            currency: USD
+            date: '2022-01-01'
+          items:
+            $ref: '#/components/schemas/AccountBalance'
+          type: array
+        currency:
+          description: Currency of the account
+          example: USD
+          type: string
+        display_account_id:
+          description: 'Human-readable account label for display: the last four digits of the account number (falling back to the account title). Not unique and not a key; use account_id to join.'
+          example: '7505'
+          type:
+          - string
+          - 'null'
+        end_date:
+          description: End date of the account
+          example: '2022-01-31'
+          format: date
+          type: string
+        heron_id:
+          description: Unique ID for data source generated by Heron
+          example: dso_bSTsiBKd9gS5GtAzg7dSAb
+          type: string
+        institution_name:
+          description: Name of the institution
+          example: Chase
+          type: string
+        is_enabled:
+          description: Whether or not the account is enabled. If disabled, hides related transactions from analytics
+          example: true
+          type: boolean
+        max_date:
+          description: Latest date of transactions associated with the data source account
+          example: '2022-01-31'
+          format: date
+          type: string
+        min_date:
+          description: Earliest date of transactions associated with the data source account
+          example: '2022-01-01'
+          format: date
+          type: string
+        name:
+          description: Name of the account
+          example: Checking Account
+          type: string
+        num_transactions:
+          description: Number of transactions associated with the data source account
+          example: 120
+          type: integer
+        number:
+          description: Number of the account
+          example: '123456789'
+          type: string
+        owner_name:
+          description: Name of the account owner
+          example: John Doe
+          type: string
+        reference_id:
+          description: This is the account ID provided as part of the transaction
+          example: account-202348
+          type: string
+        start_date:
+          description: Start date of the account
+          example: '2022-01-01'
+          format: date
+          type: string
+        transactions_match_balances:
+          description: For pdf bank statements, represents whether all transactions extracted match the balances extracted
+          example: true
+          type: boolean
+        type:
+          description: Type of the account
+          example: Checking
+          type: string
+      required:
+      - is_enabled
+      type: object
+    Money:
+      properties:
+        amount:
+          description: The amount of money
+          example: '1234.56'
+          type: number
+        currency:
+          description: The currency of the money
+          example: USD
+          type: string
+      type: object
+    EndUserDataSourceAccountUpdateSchema:
+      properties:
+        is_enabled:
+          description: Whether or not the account is enabled. If disabled, hides related transactions from analytics
+          example: true
+          type: boolean
+      type: object
+  securitySchemes:
+    ApiKeyAuth:
+      in: header
+      name: x-api-key
+      type: apiKey
+externalDocs:
+  description: Read Tutorial
+  url: https://docs.herondata.io/

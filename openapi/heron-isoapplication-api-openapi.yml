@@ -1,0 +1,679 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@herondata.io
+    name: Support
+  title: Heron Data ISO Application API
+  version: '2021-07-19'
+servers:
+- description: Production
+  url: https://app.herondata.io
+security:
+- ApiKeyAuth:
+  - key_XXX
+tags:
+- name: ISOApplication
+paths:
+  /api/end_users/{end_user_id_or_heron_id}/iso_application_form:
+    post:
+      description: 'Use this endpoint to upload an ISO application PDF. Once uploaded, the file will be automatically scrubbed asynchronously. You can use the returned iso_application heron_id (prefixed "iso_") to fetch the scrubbing results. Please contact support@herondata.io to enable this endpoint.
+
+        '
+      parameters:
+      - in: path
+        name: end_user_id_or_heron_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              properties:
+                file:
+                  format: binary
+                  type: string
+              type: object
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EndUserFileSchema'
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Upload an ISO application PDF for for an end user
+      tags:
+      - ISOApplication
+  /api/end_users/{end_user_id_or_heron_id}/iso_applications:
+    get:
+      description: Get all ISO applications for an end user
+      parameters:
+      - in: path
+        name: end_user_id_or_heron_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/GetIsoApplicationSchema'
+                type: array
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Get EndUser ISO Applications
+      tags:
+      - ISOApplication
+  /api/iso_applications/:
+    post:
+      description: 'Use this endpoint to upload an ISO application PDF. Once uploaded, the file will be automatically scrubbed asynchronously. You can use the returned heron_id (prefixed "iso_") to fetch the scrubbing results from the GET endpoint below. Please contact support@herondata.io to enable this endpoint.
+
+        '
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              properties:
+                file:
+                  format: binary
+                  type: string
+              type: object
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  heron_id:
+                    description: e.g. iso_
+                    type: string
+                  status:
+                    enum:
+                    - processing
+                    type: string
+                type: object
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Upload an ISO application PDF for automated scrubbing in under 15 seconds
+      tags:
+      - ISOApplication
+  /api/iso_applications/base64:
+    post:
+      description: 'This endpoint is for uploading ISO application PDFs in base64 format.
+
+        '
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostIsoApplicationBase64Schema'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  heron_id:
+                    description: e.g. iso_
+                    type: string
+                  status:
+                    enum:
+                    - processing
+                    type: string
+                type: object
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Upload an ISO application PDF for automated scrubbing in under 15 seconds (base64)
+      tags:
+      - ISOApplication
+  /api/iso_applications/reprocess/{heron_id}:
+    post:
+      description: 'Use this endpoint to trigger reprocessing of a specific ISO application. This will re-run the parsing and validation process for the specified application.
+
+        '
+      parameters:
+      - description: The heron_id of the ISO application to reprocess
+        in: path
+        name: heron_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  failed:
+                    description: List of heron_ids that failed to reprocess
+                    items:
+                      type: string
+                    type: array
+                  succeeded:
+                    description: List of heron_ids that were successfully queued for reprocessing
+                    items:
+                      type: string
+                    type: array
+                type: object
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Reprocess a single ISO application
+      tags:
+      - ISOApplication
+  /api/iso_applications/{heron_id}:
+    get:
+      description: 'Use this endpoint to retrieve the scrubbed results and data validations of an uploaded ISO application PDF once it has finished processing. If processing is still underway, the processing_status field will be "processing".
+
+        '
+      parameters:
+      - in: path
+        name: heron_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetIsoApplicationSchema'
+          description: Ok
+      security:
+      - ApiKeyAuth: []
+      summary: Get the scrubbed results and data validations of an uploaded ISO application by its heron_id (prefixed "iso_")
+      tags:
+      - ISOApplication
+components:
+  schemas:
+    ParsedEndUserFilePatch:
+      properties:
+        correction_reason:
+          type:
+          - string
+          - 'null'
+        enabled:
+          type:
+          - boolean
+          - 'null'
+        op:
+          type: string
+        original_value: {}
+        path:
+          type: string
+        source:
+          type:
+          - string
+          - 'null'
+        value: {}
+      required:
+      - op
+      - path
+      type: object
+    GetIsoApplicationSchema:
+      properties:
+        created:
+          format: date-time
+          readOnly: true
+          type: string
+        end_user_heron_id:
+          description: The heron_id of the end_user associated with the iso application, if available
+          readOnly: true
+          type: string
+        end_user_id:
+          description: The end_user_id of the end_user associated with the iso application, if available
+          readOnly: true
+          type: string
+        field_validations:
+          items:
+            $ref: '#/components/schemas/IsoApplicationFieldValidation'
+          type: array
+        filename:
+          description: The original filename of the ISO application form
+          example: iso_app.pdf
+          type: string
+        heron_id:
+          description: The ISO application's heron_id
+          example: iso_6hBjQT9k6KP2rLCXwjUJff
+          type: string
+        processing_status:
+          description: The processing status of the file.
+          enum:
+          - new
+          - processing
+          - processed
+          - failed
+          example: processed
+          type: string
+        quality_status:
+          description: The overall field validation results. 'fully_matched' indicated all field validations have passed. 'review_required' indicates one or more field validations failed.
+          enum:
+          - fully_matched
+          - review_required
+          - null
+          example: fully_matched
+          type:
+          - string
+          - 'null'
+        result:
+          additionalProperties:
+            $ref: '#/components/schemas/IsoApplicationFieldResult'
+          description: The extracted keys/values from the form, normalised to Heron's field schema. Keys will only be present in results if they are found in the original file. For a full list of fields, see the documentation.
+          type: object
+        source_email:
+          allOf:
+          - $ref: '#/components/schemas/EndUserEmail'
+          description: Original email that contained ISO application, if applicable
+          readOnly: true
+      required:
+      - filename
+      - heron_id
+      - processing_status
+      - quality_status
+      type: object
+    DataSourceNested:
+      properties:
+        heron_id:
+          description: Heron ID of the data source
+          type: string
+        is_enabled:
+          description: Whether this data source is enabled
+          type: boolean
+      type: object
+    EndUserEmailSchema:
+      properties:
+        cc_addresses:
+          items:
+            type: string
+          type: array
+        created:
+          format: date-time
+          type: string
+        date_sent:
+          format: date-time
+          type: string
+        date_sent_string:
+          type: string
+        from_address:
+          type: string
+        from_address_domain:
+          type: string
+        from_name:
+          type: string
+        heron_id:
+          type: string
+        html_body:
+          type: string
+        html_or_text_body:
+          type: string
+        is_reply:
+          type: boolean
+        processing_status:
+          enum:
+          - new
+          - processing
+          - processed
+          - failed
+          type: string
+        reply_to:
+          type:
+          - string
+          - 'null'
+        subject:
+          type: string
+        subject_cleaned:
+          type: string
+        text_body:
+          type: string
+        to_addresses:
+          items:
+            type: string
+          type: array
+        viewer_url:
+          description: a temporary, secure URL for viewing the email contents
+          type: string
+      type: object
+    PostIsoApplicationBase64Schema:
+      properties:
+        file_base64:
+          description: The base64 encoded string of the file
+          example: base64_encoded_string
+          pattern: ^data\:\w+\/\w+\;base64\,
+          type: string
+        filename:
+          description: The original filename of the ISO application form
+          example: iso_app.pdf
+          type: string
+        reference_id:
+          description: A reference id for the file
+          example: your-file-id
+          type:
+          - string
+          - 'null'
+      required:
+      - file_base64
+      - filename
+      type: object
+    IsoApplicationFieldResult:
+      properties:
+        document_field_name:
+          description: The field's original name in the source document
+          example: Company Legal Name
+          type: string
+        is_empty:
+          description: Whether the value is empty
+          example: false
+          type: boolean
+        value:
+          description: The value extracted from the document for the current field
+          example: Heron Data Ltd
+          type: string
+        value_confidence:
+          description: OCR confidence of the extracted value
+          example: 0.99
+          type:
+          - number
+          - 'null'
+      required:
+      - document_field_name
+      - is_empty
+      - value
+      - value_confidence
+      type: object
+    EndUserEmail:
+      properties:
+        cc_addresses:
+          items:
+            type: string
+          type: array
+        date_sent:
+          format: date-time
+          type: string
+        date_sent_string:
+          type: string
+        from_address:
+          type: string
+        from_address_domain:
+          type: string
+        from_name:
+          type: string
+        html_body:
+          type: string
+        html_or_text_body:
+          type: string
+        reply_to:
+          type:
+          - string
+          - 'null'
+        subject:
+          type: string
+        text_body:
+          type: string
+        to_addresses:
+          items:
+            type: string
+          type: array
+      type: object
+    EndUserFileSchema:
+      properties:
+        bank_statement:
+          allOf:
+          - $ref: '#/components/schemas/PdfGet'
+          example: null
+          readOnly: true
+        created:
+          format: date-time
+          type: string
+        email:
+          allOf:
+          - $ref: '#/components/schemas/EndUserEmailSchema'
+          example: null
+          readOnly: true
+        file_class:
+          type: string
+        file_source_metadata:
+          additionalProperties: {}
+          readOnly: true
+          type:
+          - object
+          - 'null'
+        filename:
+          type: string
+        heron_id:
+          type: string
+        iso_application:
+          allOf:
+          - $ref: '#/components/schemas/GetIsoApplication'
+          readOnly: true
+        num_pages:
+          type: integer
+        page_classes:
+          additionalProperties:
+            $ref: '#/components/schemas/EndUserFilePageClasses'
+          type:
+          - object
+          - 'null'
+        parent_heron_id:
+          type:
+          - string
+          - 'null'
+        parsed_results:
+          default: []
+          items:
+            $ref: '#/components/schemas/ParsedEndUserFile'
+          readOnly: true
+          type: array
+        processing_error:
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        reference_id:
+          type: string
+        renamed_filename:
+          type: string
+      type: object
+    GetIsoApplication:
+      properties:
+        heron_id:
+          description: The ISO application's heron_id
+          example: iso_6hBjQT9k6KP2rLCXwjUJff
+          type: string
+        processing_status:
+          description: The processing status of the file.
+          enum:
+          - new
+          - processing
+          - processed
+          - failed
+          example: processed
+          type: string
+      required:
+      - heron_id
+      - processing_status
+      type: object
+    ParsedEndUserFile:
+      properties:
+        attribute_values:
+          items:
+            additionalProperties: {}
+            type: object
+          type: array
+        bounding_boxes:
+          items:
+            $ref: '#/components/schemas/ParsedEndUserFileBoundingBox'
+          type:
+          - array
+          - 'null'
+        created:
+          format: date-time
+          type: string
+        field_validations:
+          items:
+            $ref: '#/components/schemas/FieldValidation'
+          type: array
+        heron_id:
+          description: Unique identifier of the end user file
+          type: string
+        id:
+          description: '[DEPRECATED] Unique identifier for the parsed file'
+          type: integer
+        layout_bounding_boxes:
+          items:
+            $ref: '#/components/schemas/ParsedEndUserFileBoundingBox'
+          type:
+          - array
+          - 'null'
+        parser_display_name:
+          type: string
+        parser_id:
+          type: string
+        parsing_status:
+          enum:
+          - succeeded
+          - failed
+          - processing
+          type: string
+        patches:
+          items:
+            $ref: '#/components/schemas/ParsedEndUserFilePatch'
+          type: array
+        result:
+          additionalProperties: {}
+          description: Final output result after applying patches
+          type:
+          - object
+          - 'null'
+        result_schema:
+          additionalProperties: {}
+          description: The output JSON schema the results conform to
+          type: object
+        validation_summary:
+          description: Summary of validation results
+          type: string
+      required:
+      - created
+      - heron_id
+      - parser_id
+      - parsing_status
+      type: object
+    FieldValidation:
+      properties:
+        failure_reason:
+          type:
+          - string
+          - 'null'
+        field_name:
+          type: string
+        result:
+          enum:
+          - pass
+          - fail
+          - not_applicable
+          example: pass
+          type: string
+        validation_type:
+          type: string
+      required:
+      - failure_reason
+      - field_name
+      - result
+      - validation_type
+      type: object
+    PdfGet:
+      properties:
+        data_source:
+          allOf:
+          - $ref: '#/components/schemas/DataSourceNested'
+          description: The data source for this PDF. Only available after parsing and enrichment has completed, otherwise null.
+        heron_id:
+          description: ID generated by Heron Data
+          example: pdf_TdpNDuBWbCK82yDs4CqSAT
+          type: string
+        status:
+          description: Status of PDF
+          enum:
+          - new
+          - parsing
+          - parsed
+          - processed
+          - human_reviewing
+          - approved
+          - rejected
+          - failed
+          - transactions_loaded
+          - transactions_unloaded
+          example: processed
+          type: string
+      type: object
+    ParsedEndUserFileBoundingBox:
+      properties:
+        bounding_box:
+          description: Bounding box coordinates in the format 'y1,x1,y2,x2'
+          items:
+            type: number
+          type: array
+        json_pointer:
+          description: JSON pointer to the field in the parsed result
+          type: string
+        page_num:
+          description: Page number where the bounding box is located
+          type: integer
+        value:
+          description: The actual value of the field within the bounding box
+          type: string
+      required:
+      - bounding_box
+      - json_pointer
+      - page_num
+      - value
+      type: object
+    IsoApplicationFieldValidation:
+      properties:
+        failure_reason:
+          type:
+          - string
+          - 'null'
+        field_name:
+          type: string
+        result:
+          enum:
+          - passed
+          - failed
+          - not_applicable
+          example: passed
+          type: string
+        validation_type:
+          type: string
+      required:
+      - failure_reason
+      - field_name
+      - result
+      - validation_type
+      type: object
+    EndUserFilePageClasses:
+      properties:
+        confidence:
+          default: 1.0
+          type: number
+        file_class:
+          type: string
+      type: object
+  securitySchemes:
+    ApiKeyAuth:
+      in: header
+      name: x-api-key
+      type: apiKey
+externalDocs:
+  description: Read Tutorial
+  url: https://docs.herondata.io/

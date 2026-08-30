@@ -1,0 +1,588 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@herondata.io
+    name: Support
+  title: Heron Data Policy API
+  version: '2021-07-19'
+servers:
+- description: Production
+  url: https://app.herondata.io
+security:
+- ApiKeyAuth:
+  - key_XXX
+tags:
+- name: Policy
+paths:
+  /api/end_users/{end_user_id_or_heron_id}/policy_evaluations:
+    get:
+      description: 'Evaluates the user''s policies against end user on-the-fly
+
+        '
+      parameters:
+      - in: path
+        name: end_user_id_or_heron_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/PolicyEvaluationSchema'
+                type: array
+          description: Ok
+      security:
+      - ApiKeyAuth: []
+      summary: Get the policy evaluations for an end user
+      tags:
+      - Policy
+  /api/policies:
+    get:
+      description: 'Gets all policy definitions set up for a user
+
+        '
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/PolicySchema'
+                type: array
+          description: Ok
+      security:
+      - ApiKeyAuth: []
+      summary: Get all policy definitions
+      tags:
+      - Policy
+  /api/policies/progress:
+    post:
+      description: 'Triggers the policy progression workflow for a specific end user
+
+        '
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProgressPolicySchema'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  ok:
+                    example: true
+                    type: boolean
+                type: object
+          description: Ok
+        '404':
+          description: End user not found
+      security:
+      - ApiKeyAuth: []
+      summary: Progress policies for an end user
+      tags:
+      - Policy
+components:
+  schemas:
+    BooleanCheck:
+      properties:
+        auto_decline:
+          default: false
+          type: boolean
+        decline_description:
+          type:
+          - string
+          - 'null'
+        email_template_name:
+          type:
+          - string
+          - 'null'
+        ignore_metric_availability:
+          default: false
+          type: boolean
+        is_mandatory:
+          default: false
+          type: boolean
+        on_failure:
+          default: fail
+          enum:
+          - fail
+          - review_required
+        pass_description:
+          type:
+          - string
+          - 'null'
+        value:
+          type: boolean
+      type: object
+    SQLCheck:
+      properties:
+        auto_decline:
+          default: false
+          type: boolean
+        column_name:
+          type: string
+        decline_description:
+          type:
+          - string
+          - 'null'
+        email_template_name:
+          type:
+          - string
+          - 'null'
+        ignore_metric_availability:
+          default: false
+          type: boolean
+        is_mandatory:
+          default: false
+          type: boolean
+        on_failure:
+          default: fail
+          enum:
+          - fail
+          - review_required
+        pass_description:
+          type:
+          - string
+          - 'null'
+        query_name:
+          type: string
+      required:
+      - column_name
+      - query_name
+      type: object
+    Check:
+      properties:
+        attribute_label:
+          type:
+          - string
+          - 'null'
+        boolean_check:
+          allOf:
+          - $ref: '#/components/schemas/BooleanCheck'
+        composite_check:
+          allOf:
+          - $ref: '#/components/schemas/CompositeCheck'
+        date_check:
+          allOf:
+          - $ref: '#/components/schemas/DateCheck'
+        date_delta_to_now_check:
+          allOf:
+          - $ref: '#/components/schemas/DateDeltaToNowCheck'
+        enhanced_sql_check:
+          allOf:
+          - $ref: '#/components/schemas/EnhancedSQLCheck'
+        group:
+          type:
+          - string
+          - 'null'
+        name:
+          type:
+          - string
+          - 'null'
+        numeric_check:
+          allOf:
+          - $ref: '#/components/schemas/NumericCheck'
+        sql_check:
+          allOf:
+          - $ref: '#/components/schemas/SQLCheck'
+        string_check:
+          allOf:
+          - $ref: '#/components/schemas/StringCheck'
+      type: object
+    PolicyEvaluationSchema:
+      properties:
+        failed_checks:
+          items:
+            $ref: '#/components/schemas/CheckEvaluation'
+          type: array
+        missing_data_checks:
+          items:
+            $ref: '#/components/schemas/CheckEvaluation'
+          type: array
+        passed_checks:
+          items:
+            $ref: '#/components/schemas/CheckEvaluation'
+          type: array
+        policy:
+          $ref: '#/components/schemas/Policy'
+        result:
+          enum:
+          - passed
+          - failed
+          - review_required
+          - missing_data
+      type: object
+    CompositeCheck:
+      properties:
+        auto_decline:
+          default: false
+          type: boolean
+        checks:
+          items:
+            $ref: '#/components/schemas/Check'
+          type: array
+        decline_description:
+          type:
+          - string
+          - 'null'
+        email_template_name:
+          type:
+          - string
+          - 'null'
+        ignore_metric_availability:
+          default: false
+          type: boolean
+        is_mandatory:
+          default: false
+          type: boolean
+        on_failure:
+          default: fail
+          enum:
+          - fail
+          - review_required
+        pass_description:
+          type:
+          - string
+          - 'null'
+        type:
+          enum:
+          - AND
+          - OR
+      type: object
+    AttributeEvidence:
+      properties:
+        record_indices:
+          items:
+            type: integer
+          type:
+          - array
+          - 'null'
+        section:
+          type:
+          - string
+          - 'null'
+        source_id:
+          type:
+          - string
+          - 'null'
+        source_type:
+          type: string
+      type: object
+    Policy:
+      properties:
+        checks:
+          items:
+            $ref: '#/components/schemas/Check'
+          type: array
+        display_order:
+          type:
+          - integer
+          - 'null'
+        heron_id:
+          type: string
+        name:
+          type: string
+        use_case:
+          enum:
+          - background_check
+          - cashflow
+      required:
+      - heron_id
+      - name
+      type: object
+    DateCheck:
+      properties:
+        auto_decline:
+          default: false
+          type: boolean
+        decline_description:
+          type:
+          - string
+          - 'null'
+        email_template_name:
+          type:
+          - string
+          - 'null'
+        ignore_metric_availability:
+          default: false
+          type: boolean
+        is_mandatory:
+          default: false
+          type: boolean
+        on_failure:
+          default: fail
+          enum:
+          - fail
+          - review_required
+        pass_description:
+          type:
+          - string
+          - 'null'
+        type:
+          enum:
+          - equal
+          - not_equal
+          - before
+          - before_or_on
+          - after
+          - after_or_on
+        value:
+          format: date
+          type: string
+      type: object
+    NumericCheck:
+      properties:
+        auto_decline:
+          default: false
+          type: boolean
+        decline_description:
+          type:
+          - string
+          - 'null'
+        email_template_name:
+          type:
+          - string
+          - 'null'
+        ignore_metric_availability:
+          default: false
+          type: boolean
+        is_mandatory:
+          default: false
+          type: boolean
+        on_failure:
+          default: fail
+          enum:
+          - fail
+          - review_required
+        pass_description:
+          type:
+          - string
+          - 'null'
+        type:
+          enum:
+          - equal
+          - not_equal
+          - greater_than
+          - greater_than_or_equal
+          - less_than
+          - less_than_or_equal
+        value:
+          type: string
+      type: object
+    PolicySchema:
+      properties:
+        checks:
+          items:
+            $ref: '#/components/schemas/Check'
+          type: array
+        display_order:
+          type:
+          - integer
+          - 'null'
+        heron_id:
+          type: string
+        name:
+          type: string
+        use_case:
+          enum:
+          - background_check
+          - cashflow
+      required:
+      - heron_id
+      - name
+      type: object
+    CheckEvaluation:
+      properties:
+        attribute_value:
+          allOf:
+          - $ref: '#/components/schemas/CompanyAttributeValue'
+        check:
+          allOf:
+          - $ref: '#/components/schemas/Check'
+        evaluations:
+          items:
+            $ref: '#/components/schemas/CheckEvaluation'
+          type:
+          - array
+          - 'null'
+        result:
+          enum:
+          - pass
+          - failed
+          - review_required
+          - missing_data
+      type: object
+    DateDeltaToNowCheck:
+      properties:
+        auto_decline:
+          default: false
+          type: boolean
+        decline_description:
+          type:
+          - string
+          - 'null'
+        email_template_name:
+          type:
+          - string
+          - 'null'
+        ignore_metric_availability:
+          default: false
+          type: boolean
+        is_mandatory:
+          default: false
+          type: boolean
+        on_failure:
+          default: fail
+          enum:
+          - fail
+          - review_required
+        pass_description:
+          type:
+          - string
+          - 'null'
+        pass_if_value_missing:
+          default: false
+          type: boolean
+        type:
+          enum:
+          - greater_than
+          - less_than
+        value:
+          additionalProperties: {}
+          type:
+          - object
+          - 'null'
+      type: object
+    ProgressPolicySchema:
+      properties:
+        end_user_heron_id:
+          type: string
+      required:
+      - end_user_heron_id
+      type: object
+    CompanyAttributeValue:
+      properties:
+        attribute_label:
+          type: string
+        evidence:
+          allOf:
+          - $ref: '#/components/schemas/AttributeEvidence'
+        value:
+          type: string
+      type: object
+    EnhancedSQLCheck:
+      properties:
+        auto_decline:
+          default: false
+          type: boolean
+        check_type:
+          enum:
+          - equal
+          - not_equal
+          - greater_than
+          - greater_than_or_equal
+          - less_than
+          - less_than_or_equal
+          - before
+          - before_or_on
+          - after
+          - after_or_on
+          - is_in
+          - is_not_in
+        column_name:
+          type: string
+        comparison_value: {}
+        data_type:
+          enum:
+          - numeric
+          - date
+          - string
+        decline_description:
+          type:
+          - string
+          - 'null'
+        email_template_name:
+          type:
+          - string
+          - 'null'
+        ignore_metric_availability:
+          default: false
+          type: boolean
+        is_mandatory:
+          default: false
+          type: boolean
+        on_failure:
+          default: fail
+          enum:
+          - fail
+          - review_required
+        pass_description:
+          type:
+          - string
+          - 'null'
+        query_name:
+          type: string
+      required:
+      - check_type
+      - column_name
+      - comparison_value
+      - data_type
+      - query_name
+      type: object
+    StringCheck:
+      properties:
+        auto_decline:
+          default: false
+          type: boolean
+        decline_description:
+          type:
+          - string
+          - 'null'
+        email_template_name:
+          type:
+          - string
+          - 'null'
+        ignore_metric_availability:
+          default: false
+          type: boolean
+        is_mandatory:
+          default: false
+          type: boolean
+        on_failure:
+          default: fail
+          enum:
+          - fail
+          - review_required
+        pass_description:
+          type:
+          - string
+          - 'null'
+        type:
+          enum:
+          - equal
+          - not_equal
+          - starts_with
+          - starts_with_any_of
+          - does_not_start_with_any_of
+          - contains
+          - does_not_start_with
+          - does_not_contain
+          - is_in
+          - is_not_in
+        value:
+          type: string
+      type: object
+  securitySchemes:
+    ApiKeyAuth:
+      in: header
+      name: x-api-key
+      type: apiKey
+externalDocs:
+  description: Read Tutorial
+  url: https://docs.herondata.io/

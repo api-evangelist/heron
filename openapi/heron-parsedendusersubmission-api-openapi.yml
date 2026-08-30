@@ -1,0 +1,75 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@herondata.io
+    name: Support
+  title: Heron Data Parsed End User Submission API
+  version: '2021-07-19'
+servers:
+- description: Production
+  url: https://app.herondata.io
+security:
+- ApiKeyAuth:
+  - key_XXX
+tags:
+- name: ParsedEndUserSubmission
+paths:
+  /api/submission_parsers/{end_user_heron_id}:
+    get:
+      parameters:
+      - description: The heron_id of the end user
+        in: path
+        name: end_user_heron_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ParsedEndUserSubmissionSchema'
+                type: array
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Get parsed submissions for an End User
+      tags:
+      - ParsedEndUserSubmission
+components:
+  schemas:
+    ParsedEndUserSubmissionSchema:
+      properties:
+        end_user_heron_id:
+          type: string
+        result:
+          additionalProperties: {}
+          type: object
+        status:
+          enum:
+          - success
+          - failed
+          type: string
+        submission_parser:
+          $ref: '#/components/schemas/SubmissionParserExternal'
+      type: object
+    SubmissionParserExternal:
+      properties:
+        description:
+          type: string
+        heron_id:
+          type: string
+        name:
+          type: string
+        slug:
+          type: string
+      type: object
+  securitySchemes:
+    ApiKeyAuth:
+      in: header
+      name: x-api-key
+      type: apiKey
+externalDocs:
+  description: Read Tutorial
+  url: https://docs.herondata.io/

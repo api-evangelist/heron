@@ -1,0 +1,627 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@herondata.io
+    name: Support
+  title: Heron Data Broker Funder Policies API
+  version: '2021-07-19'
+servers:
+- description: Production
+  url: https://app.herondata.io
+security:
+- ApiKeyAuth:
+  - key_XXX
+tags:
+- name: Broker Funder Policies
+paths:
+  /api/broker_funder_policies/:
+    get:
+      description: Get all broker funder policies for the current user, ordered by matching priority
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/BrokerFunderPolicy'
+                type: array
+          description: List of broker funder policies
+      security:
+      - ApiKeyAuth: []
+      summary: List broker funder policies for current user
+      tags:
+      - Broker Funder Policies
+    patch:
+      description: Create or update broker funder policies for the current user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BulkUpdateBrokerFunderPoliciesSchema'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/BrokerFunderPolicy'
+                type: array
+          description: Broker funder policies updated successfully
+        '404':
+          description: One or more funders not found
+      security:
+      - ApiKeyAuth: []
+      summary: Bulk update broker funder policies
+      tags:
+      - Broker Funder Policies
+  /api/broker_funder_policies/export/:
+    get:
+      description: 'Download the current user''s broker funder policies as an Excel spreadsheet.
+
+        The exported file can be re-uploaded via POST /broker_funder_policies/upload/ to round-trip policies.
+
+        '
+      responses:
+        '200':
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                format: binary
+                type: string
+          description: Excel file containing funder policies
+      security:
+      - ApiKeyAuth: []
+      summary: Export broker funder policies as Excel
+      tags:
+      - Broker Funder Policies
+  /api/broker_funder_policies/funders/:
+    post:
+      description: 'Add a funder to the current broker''s funder policies table. Idempotent — if the funder already exists in the broker''s table, returns the existing record without modification. New entries start with empty criteria.
+
+        '
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddFunderToPoliciesSchema'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BrokerFunderLink'
+          description: Funder already exists in policies (no modification)
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BrokerFunderLink'
+          description: Funder added to policies
+        '404':
+          description: Funder not found
+      security:
+      - ApiKeyAuth: []
+      summary: Add a funder to broker's policies
+      tags:
+      - Broker Funder Policies
+  /api/broker_funder_policies/funders/{funder_heron_id}/:
+    delete:
+      description: 'Remove a funder from the current broker''s funder policies table. Blocked if the broker-funder pair has active submission integrations (API keys).
+
+        '
+      parameters:
+      - description: The Heron ID of the funder to remove
+        in: path
+        name: funder_heron_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                type: object
+          description: Funder removed from policies
+        '404':
+          description: Funder not found or not linked to this broker
+        '409':
+          description: Cannot remove funder due to active submission integrations
+      security:
+      - ApiKeyAuth: []
+      summary: Remove a funder from broker's policies
+      tags:
+      - Broker Funder Policies
+  /api/broker_funder_policies/upload/:
+    post:
+      description: 'Upload a spreadsheet (XLS, XLSX, CSV) or PDF containing funder policies.
+
+        The file will be parsed asynchronously and policies will be upserted for the current user.
+
+        Only one upload job can be active at a time per user.
+
+        '
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BrokerFunderPolicyUploadSchema'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BrokerFunderPolicyUploadJobSchema'
+          description: Upload job created successfully
+        '400':
+          description: Invalid file or another job is already in progress
+        '409':
+          description: Another upload job is already active
+      security:
+      - ApiKeyAuth: []
+      summary: Upload funder policy file for parsing
+      tags:
+      - Broker Funder Policies
+  /api/broker_funder_policies/upload/status/:
+    get:
+      description: Get the status of the most recent policy upload job for the current user
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BrokerFunderPolicyUploadJobSchema'
+          description: Upload job status
+        '404':
+          description: No upload job found
+      security:
+      - ApiKeyAuth: []
+      summary: Get policy upload job status
+      tags:
+      - Broker Funder Policies
+  /api/broker_funder_policies/upload/{job_heron_id}/:
+    get:
+      description: Get a specific policy upload job by its Heron ID
+      parameters:
+      - description: The Heron ID of the upload job
+        in: path
+        name: job_heron_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BrokerFunderPolicyUploadJobSchema'
+          description: Upload job details
+        '404':
+          description: Upload job not found
+      security:
+      - ApiKeyAuth: []
+      summary: Get specific policy upload job
+      tags:
+      - Broker Funder Policies
+  /api/broker_funder_policies/upload/{job_heron_id}/pending/:
+    get:
+      description: Get all pending funder matches that need manual resolution for a specific upload job
+      parameters:
+      - description: The Heron ID of the upload job
+        in: path
+        name: job_heron_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/PendingMatchSchema'
+                type: array
+          description: List of pending matches
+        '404':
+          description: Job not found
+      security:
+      - ApiKeyAuth: []
+      summary: List pending funder matches for a job
+      tags:
+      - Broker Funder Policies
+  /api/broker_funder_policies/upload/{job_heron_id}/pending/{index}/resolve/:
+    post:
+      description: 'Resolve a pending match by selecting a funder. This will create the broker_funder
+
+        record with the policy data and mark the pending match as resolved.
+
+        '
+      parameters:
+      - description: The Heron ID of the upload job
+        in: path
+        name: job_heron_id
+        required: true
+        schema:
+          type: string
+      - description: The index of the pending match to resolve
+        in: path
+        name: index
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResolvePendingMatchRequestSchema'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PendingMatchSchema'
+          description: Pending match resolved successfully
+        '400':
+          description: Invalid request or match already resolved
+        '404':
+          description: Job or pending match not found
+      security:
+      - ApiKeyAuth: []
+      summary: Resolve a pending funder match
+      tags:
+      - Broker Funder Policies
+  /api/broker_funder_policies/upload/{job_heron_id}/pending/{index}/skip/:
+    post:
+      description: Skip a pending match without resolving it. This will mark it as skipped.
+      parameters:
+      - description: The Heron ID of the upload job
+        in: path
+        name: job_heron_id
+        required: true
+        schema:
+          type: string
+      - description: The index of the pending match to skip
+        in: path
+        name: index
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PendingMatchSchema'
+          description: Pending match skipped successfully
+        '400':
+          description: Match already resolved or skipped
+        '404':
+          description: Job or pending match not found
+      security:
+      - ApiKeyAuth: []
+      summary: Skip a pending funder match
+      tags:
+      - Broker Funder Policies
+components:
+  schemas:
+    BrokerFunderPolicy:
+      additionalProperties: false
+      properties:
+        created:
+          format: date-time
+          readOnly: true
+          type: string
+        funder:
+          allOf:
+          - $ref: '#/components/schemas/BrokerFunderPolicyFunder'
+          readOnly: true
+        last_updated:
+          format: date-time
+          readOnly: true
+          type: string
+        matching_priority:
+          readOnly: true
+          type:
+          - integer
+          - 'null'
+        policy:
+          additionalProperties: {}
+          readOnly: true
+          type:
+          - object
+          - 'null'
+      type: object
+    BrokerFunderLink:
+      additionalProperties: false
+      properties:
+        broker_user_id:
+          readOnly: true
+          type: integer
+        classification_instructions_override:
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        created:
+          format: date-time
+          readOnly: true
+          type: string
+        external_reference_id:
+          readOnly: true
+          type:
+          - integer
+          - 'null'
+        extraction_instructions_override:
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        funder_heron_id:
+          readOnly: true
+          type: string
+        last_updated:
+          format: date-time
+          readOnly: true
+          type: string
+        offer_calculation_constants_override:
+          additionalProperties: {}
+          readOnly: true
+          type:
+          - object
+          - 'null'
+        offer_email_instructions_override:
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        offer_portal_instructions_override:
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        offer_source_override:
+          enum:
+          - email
+          - api
+          - web_portal
+          - all_offers
+          - crm_lendsaas
+          - null
+          readOnly: true
+        staging_submission_integration_id:
+          readOnly: true
+          type:
+          - integer
+          - 'null'
+        submission_cc_email_addresses:
+          items:
+            type: string
+          readOnly: true
+          type:
+          - array
+          - 'null'
+        submission_channel_override:
+          enum:
+          - email
+          - api
+          - web_portal
+          - all_offers
+          - crm_lendsaas
+          - null
+          readOnly: true
+        submission_email_address:
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        submission_integration_id:
+          readOnly: true
+          type:
+          - integer
+          - 'null'
+      type: object
+    BrokerFunderPolicyUploadSchema:
+      additionalProperties: false
+      properties:
+        file_base64:
+          description: Base64 encoded file bytes
+          type: string
+        filename:
+          description: Name of file
+          type: string
+      required:
+      - file_base64
+      - filename
+      type: object
+    BrokerFunderPolicyFunder:
+      additionalProperties: false
+      properties:
+        heron_id:
+          readOnly: true
+          type: string
+        logo_url:
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        name:
+          readOnly: true
+          type: string
+      type: object
+    ResolvePendingMatchRequestSchema:
+      additionalProperties: false
+      properties:
+        funder_heron_id:
+          description: Heron ID of the funder to match with
+          type: string
+      required:
+      - funder_heron_id
+      type: object
+    AddFunderToPoliciesSchema:
+      additionalProperties: false
+      properties:
+        funder_heron_id:
+          description: Heron ID of the funder to add
+          type: string
+      required:
+      - funder_heron_id
+      type: object
+    PendingMatchSchema:
+      additionalProperties: false
+      properties:
+        candidates:
+          items:
+            $ref: '#/components/schemas/FunderCandidate'
+          readOnly: true
+          type: array
+        index:
+          readOnly: true
+          type: integer
+        matching_priority:
+          readOnly: true
+          type:
+          - integer
+          - 'null'
+        policy:
+          additionalProperties: {}
+          readOnly: true
+          type:
+          - object
+          - 'null'
+        resolved_funder_heron_id:
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        spreadsheet_name:
+          readOnly: true
+          type: string
+        status:
+          readOnly: true
+          type: string
+      type: object
+    BulkUpdateBrokerFunderPoliciesSchema:
+      additionalProperties: false
+      properties:
+        policies:
+          items:
+            $ref: '#/components/schemas/BrokerFunderPolicyUpdateItem'
+          type: array
+      required:
+      - policies
+      type: object
+    FunderCandidate:
+      additionalProperties: false
+      properties:
+        funder_heron_id:
+          readOnly: true
+          type: string
+        funder_name:
+          readOnly: true
+          type: string
+        similarity:
+          readOnly: true
+          type: number
+      type: object
+    BrokerFunderPolicyUploadJobSchema:
+      additionalProperties: false
+      properties:
+        created:
+          format: date-time
+          readOnly: true
+          type: string
+        error_count:
+          readOnly: true
+          type: integer
+        error_details:
+          additionalProperties: {}
+          readOnly: true
+          type:
+          - object
+          - 'null'
+        error_message:
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        filename:
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        finished_at:
+          format: date-time
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        heron_id:
+          readOnly: true
+          type: string
+        last_updated:
+          format: date-time
+          readOnly: true
+          type: string
+        processed_count:
+          readOnly: true
+          type: integer
+        results_summary:
+          additionalProperties: {}
+          readOnly: true
+          type:
+          - object
+          - 'null'
+        started_at:
+          format: date-time
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        status:
+          enum:
+          - queued
+          - processing
+          - completed
+          - failed
+          readOnly: true
+        success_count:
+          readOnly: true
+          type: integer
+        total_count:
+          readOnly: true
+          type:
+          - integer
+          - 'null'
+      type: object
+    BrokerFunderPolicyUpdateItem:
+      additionalProperties: false
+      properties:
+        funder_heron_id:
+          type: string
+        matching_priority:
+          type:
+          - integer
+          - 'null'
+        policy:
+          additionalProperties: {}
+          type:
+          - object
+          - 'null'
+      required:
+      - funder_heron_id
+      type: object
+  securitySchemes:
+    ApiKeyAuth:
+      in: header
+      name: x-api-key
+      type: apiKey
+externalDocs:
+  description: Read Tutorial
+  url: https://docs.herondata.io/

@@ -1,0 +1,1686 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@herondata.io
+    name: Support
+  title: Heron Data End User Integrations API
+  version: '2021-07-19'
+servers:
+- description: Production
+  url: https://app.herondata.io
+security:
+- ApiKeyAuth:
+  - key_XXX
+tags:
+- name: EndUserIntegrations
+paths:
+  /api/end_users/{end_user_id_or_heron_id}/decision_logic:
+    post:
+      description: 'Upload DecisionLogic XML files for a specified end user to translate into Heron Data format and add transactions for the end user
+
+        '
+      parameters:
+      - description: The `end_user_id` or `heron_id` of EndUser to upload
+        in: path
+        name: end_user_id_or_heron_id
+        required: true
+        schema:
+          type: string
+      - description: ISO 4217 currency code
+        in: query
+        name: currency
+        required: false
+        schema:
+          example: USD
+          type: string
+      requestBody:
+        content:
+          application/xml:
+            schema:
+              type: string
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                properties:
+                  _summary:
+                    properties:
+                      request_id:
+                        description: Unique UUID per request
+                        type: string
+                    type: object
+                type: object
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Upload DecisionLogic XML
+      tags:
+      - EndUserIntegrations
+  /api/end_users/{end_user_id_or_heron_id}/inscribe:
+    post:
+      description: 'Upload Inscribe JSON for a specified end user to translate into Heron Data format and add transactions for the end user
+
+        '
+      parameters:
+      - description: The `end_user_id` or `heron_id` of EndUser to upload
+        in: path
+        name: end_user_id_or_heron_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InscribeSchema'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                properties:
+                  _summary:
+                    properties:
+                      request_id:
+                        description: Unique UUID per request
+                        type: string
+                    type: object
+                type: object
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Upload Inscribe
+      tags:
+      - EndUserIntegrations
+  /api/end_users/{end_user_id_or_heron_id}/integration_links:
+    get:
+      description: 'Get a list of integration links for a specified end user
+
+        '
+      parameters:
+      - description: The `end_user_id` or `heron_id` of EndUser
+        in: path
+        name: end_user_id_or_heron_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  links:
+                    items:
+                      $ref: '#/components/schemas/IntegrationLinkSchema'
+                    type: array
+                type: object
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Get Integration Links
+      tags:
+      - EndUserIntegrations
+  /api/end_users/{end_user_id_or_heron_id}/ocrolus:
+    post:
+      description: 'Upload Ocrolus JSON for a specified end user to translate into Heron Data format and add transactions for the end user
+
+        '
+      parameters:
+      - description: The `end_user_id` or `heron_id` of EndUser to upload
+        in: path
+        name: end_user_id_or_heron_id
+        required: true
+        schema:
+          type: string
+      - description: Skip the check for the number of transactions in the payload
+        in: query
+        name: skip_num_txns_check
+        required: false
+        schema:
+          type: boolean
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OcrolusSchema'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                properties:
+                  _summary:
+                    properties:
+                      request_id:
+                        description: Unique UUID per request
+                        type: string
+                    type: object
+                type: object
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Upload Ocrolus
+      tags:
+      - EndUserIntegrations
+  /api/end_users/{end_user_id_or_heron_id}/pdfs:
+    get:
+      description: 'Get list of PDFs for a specified end user
+
+        '
+      parameters:
+      - description: The `end_user_id` or `heron_id` of EndUser to upload
+        in: path
+        name: end_user_id_or_heron_id
+        required: true
+        schema:
+          type: string
+      - description: Include processed results where applicable per pdf
+        in: query
+        name: with_processed_results
+        required: false
+        schema:
+          type: boolean
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  pdfs:
+                    items:
+                      $ref: '#/components/schemas/PdfGetSchema'
+                    type: array
+                type: object
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Get PDFs
+      tags:
+      - EndUserIntegrations
+  /api/end_users/{end_user_id_or_heron_id}/pdfs/parse:
+    post:
+      description: 'Starts parsing all PDFs for a specified end users. This will not restart any PDFs that are already being parsed
+
+        '
+      parameters:
+      - description: The `end_user_id` or `heron_id` of EndUser to upload
+        in: path
+        name: end_user_id_or_heron_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  pdf_heron_ids:
+                    items:
+                      type: string
+                    type: array
+                  request_id:
+                    description: Unique UUID per request
+                    type: string
+                type: object
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Parse all PDF
+      tags:
+      - EndUserIntegrations
+  /api/end_users/{end_user_id_or_heron_id}/pdfs/v1:
+    post:
+      description: 'Upload encoded PDF of transactions for a specified end user to translate into Heron Data format
+
+        '
+      parameters:
+      - description: The `end_user_id` or `heron_id` of EndUser to upload
+        in: path
+        name: end_user_id_or_heron_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PdfPostSchema'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                properties:
+                  pdf_heron_id:
+                    description: Heron id of the uploaded pdf file
+                    type: string
+                  request_id:
+                    description: Unique UUID per request
+                    type: string
+                type: object
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Upload PDF
+      tags:
+      - EndUserIntegrations
+  /api/end_users/{end_user_id_or_heron_id}/plaid/assets:
+    post:
+      description: 'Upload Plaid asset JSON for a specified end user to translate into Heron Data format and add transactions for the end user
+
+        '
+      parameters:
+      - description: The `end_user_id` or `heron_id` of EndUser to upload
+        in: path
+        name: end_user_id_or_heron_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlaidAssetsSchema'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                properties:
+                  _summary:
+                    properties:
+                      request_id:
+                        description: Unique UUID per request
+                        type: string
+                    type: object
+                type: object
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Upload Plaid assets
+      tags:
+      - EndUserIntegrations
+  /api/end_users/{end_user_id_or_heron_id}/plaid/transactions:
+    post:
+      description: 'Upload Plaid transactions JSON for a specified end user to translate into Heron Data format and add transactions for the end user
+
+        '
+      parameters:
+      - description: The `end_user_id` or `heron_id` of EndUser to upload
+        in: path
+        name: end_user_id_or_heron_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlaidTransactionsSchema'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                properties:
+                  _summary:
+                    properties:
+                      request_id:
+                        description: Unique UUID per request
+                        type: string
+                    type: object
+                type: object
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Upload Plaid transactions
+      tags:
+      - EndUserIntegrations
+  /api/end_users/{end_user_id_or_heron_id}/yodlee:
+    post:
+      description: 'Upload Yodlee JSON files for a specified end user to translate into Heron Data format and add transactions for the end user
+
+        '
+      parameters:
+      - description: The `end_user_id` or `heron_id` of EndUser to upload
+        in: path
+        name: end_user_id_or_heron_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/YodleeSchema'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                properties:
+                  _summary:
+                    properties:
+                      request_id:
+                        description: Unique UUID per request
+                        type: string
+                    type: object
+                type: object
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Upload Yodlee
+      tags:
+      - EndUserIntegrations
+  /api/integrations/pdfs/{heron_id}:
+    get:
+      description: 'Retrieve a single PDF document by its heron_id. Returns the PDF metadata, status information, and optionally the processed statements/transactions. Users can only access their own PDFs.
+
+        '
+      parameters:
+      - description: The heron_id of the PDF to retrieve
+        in: path
+        name: heron_id
+        required: true
+        schema:
+          type: string
+      - description: Include processed statements/transactions in the response
+        in: query
+        name: with_processed_results
+        required: false
+        schema:
+          default: false
+          type: boolean
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  pdf:
+                    $ref: '#/components/schemas/PdfGetSchema'
+                type: object
+          description: Successfully retrieved PDF
+        '404':
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    example: no pdf with heron_id=example_id found
+                    type: string
+                type: object
+          description: PDF not found or user does not have access
+      security:
+      - ApiKeyAuth: []
+      summary: Get single PDF by heron_id
+      tags:
+      - EndUserIntegrations
+    put:
+      description: 'Update PDF attributes including status
+
+        '
+      parameters:
+      - description: heron_id of the pdf
+        in: path
+        name: heron_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PdfPutSchema'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  pdf:
+                    $ref: '#/components/schemas/PdfGetSchema'
+                  request_id:
+                    description: Unique UUID per request
+                    type: string
+                type: object
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Update PDF attributes including status
+      tags:
+      - EndUserIntegrations
+  /api/integrations/pdfs/{heron_id}/processed:
+    patch:
+      description: 'Send patch transactions processed pdf that will override the extracted transactions in the specified statement
+
+        '
+      parameters:
+      - description: heron_id of the pdf
+        in: path
+        name: heron_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PdfStatementPatchSchema'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  ok:
+                    type: boolean
+                type: object
+          description: Ok
+      security:
+      - ApiKeyAuth: []
+      summary: Send patch transactions for a pdf statement
+      tags:
+      - EndUserIntegrations
+  /api/integrations/pdfs/{heron_id}/reload_transactions:
+    post:
+      description: 'This will load transactions for the pdf that is in a transactions unloaded status
+
+        '
+      parameters:
+      - description: heron_id of the pdf
+        in: path
+        name: heron_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  ok:
+                    type: boolean
+                type: object
+          description: Ok
+      security:
+      - ApiKeyAuth: []
+      summary: Reloads transactions for a pdf
+      tags:
+      - EndUserIntegrations
+  /api/integrations/pdfs/{heron_id}/unload_transactions:
+    post:
+      description: 'This will delete all transactions that were previously loaded for the pdf
+
+        '
+      parameters:
+      - description: heron_id of the pdf
+        in: path
+        name: heron_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  ok:
+                    type: boolean
+                type: object
+          description: Ok
+      security:
+      - ApiKeyAuth: []
+      summary: Unloads transactions for a pdf
+      tags:
+      - EndUserIntegrations
+  /api/integrations/pdfs/{heron_id}/update_currency:
+    post:
+      description: 'Update the currency for a PDF and all its statement summaries. The PDF must be in transactions_unloaded status.
+
+        '
+      parameters:
+      - description: heron_id of the PDF
+        in: path
+        name: heron_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PdfDefaultCurrencyUpdateSchema'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  ok:
+                    type: boolean
+                  pdf:
+                    $ref: '#/components/schemas/PdfGetSchema'
+                  request_id:
+                    description: Unique UUID per request
+                    type: string
+                type: object
+          description: PDF currency updated successfully
+        '400':
+          description: Bad request - PDF not in correct status
+        '404':
+          description: PDF not found
+      security:
+      - ApiKeyAuth: []
+      summary: Update PDF currency
+      tags:
+      - EndUserIntegrations
+components:
+  schemas:
+    DataSourceNested:
+      properties:
+        heron_id:
+          description: Heron ID of the data source
+          type: string
+        is_enabled:
+          description: Whether this data source is enabled
+          type: boolean
+      type: object
+    YodleeAmount:
+      properties:
+        amount:
+          type: number
+        currency:
+          type: string
+      type: object
+    InscribeSchema:
+      properties:
+        customer_name:
+          type:
+          - string
+          - 'null'
+        parsed_details:
+          $ref: '#/components/schemas/InscribeParsedDetails'
+      type: object
+    MoneyThumbStatementSummary:
+      properties:
+        account_number:
+          type: string
+        account_title:
+          type: string
+        bank_name:
+          type: string
+        company:
+          type: string
+        currency:
+          type: string
+        end_balance:
+          type: number
+        fraud_reasons:
+          items:
+            type: string
+          type: array
+        fraud_score:
+          type: integer
+        is_business_account:
+          type: boolean
+        is_ocr:
+          type: boolean
+        max_resolution:
+          type: integer
+        min_resolution:
+          type: integer
+        num_credits:
+          type: integer
+        num_debits:
+          type: integer
+        num_transactions:
+          type: integer
+        reconciled:
+          type: boolean
+        start_balance:
+          type: number
+        statement_end_date:
+          format: date-time
+          type: string
+        statement_start_date:
+          format: date-time
+          type: string
+        total_credits:
+          type: number
+        total_debits:
+          type: number
+        unreconciled_end_balance:
+          type: number
+        web_report:
+          type: boolean
+      required:
+      - end_balance
+      - num_credits
+      - num_debits
+      - num_transactions
+      - reconciled
+      - start_balance
+      - total_credits
+      - total_debits
+      type: object
+    InscribeTransaction:
+      properties:
+        amount:
+          type: integer
+        date:
+          format: date
+          type: string
+        description:
+          type: string
+        id:
+          type: string
+      type: object
+    PdfPutSchema:
+      properties:
+        filename:
+          description: The filename of the PDF
+          example: my-favourite.pdf
+          type: string
+        fraud_reason:
+          description: 'If fraud reason '
+          type:
+          - string
+          - 'null'
+        is_fraud:
+          description: True if fraud was detected in the PDF
+          type: boolean
+        notes:
+          description: Notes associated with PDF, e.g., rejected reason, failed reason
+          type: string
+        reference_id:
+          description: An optional field for your unique identifier for the PDF
+          example: my-favourite-pdf
+          maxLength: 140
+          type: string
+        status:
+          description: Status of PDF
+          enum:
+          - new
+          - parsing
+          - parsed
+          - processed
+          - human_reviewing
+          - approved
+          - rejected
+          - failed
+          - transactions_loaded
+          - transactions_unloaded
+          example: processed
+          type: string
+      type: object
+    PlaidAccount:
+      properties:
+        account_id:
+          type: string
+        balances:
+          $ref: '#/components/schemas/PlaidAccountSnapshotBalance'
+        historical_balances:
+          items:
+            $ref: '#/components/schemas/PlaidAccountBalance'
+          type: array
+        holder_category:
+          type:
+          - string
+          - 'null'
+        mask:
+          type:
+          - string
+          - 'null'
+        name:
+          type:
+          - string
+          - 'null'
+        official_name:
+          type:
+          - string
+          - 'null'
+        owners:
+          items:
+            $ref: '#/components/schemas/PlaidAccountOwners'
+          type:
+          - array
+          - 'null'
+        subtype:
+          type:
+          - string
+          - 'null'
+        transactions:
+          items:
+            $ref: '#/components/schemas/PlaidTransaction'
+          type: array
+        type:
+          type:
+          - string
+          - 'null'
+      required:
+      - account_id
+      - balances
+      - historical_balances
+      - transactions
+      type: object
+    OcrolusResponse:
+      properties:
+        bank_accounts:
+          items:
+            $ref: '#/components/schemas/OcrolusBankAccount'
+          type: array
+        name:
+          type: string
+      required:
+      - bank_accounts
+      - name
+      type: object
+    MoneyThumbTransactionBounds:
+      properties:
+        page:
+          type:
+          - integer
+          - 'null'
+        x_max:
+          type:
+          - integer
+          - 'null'
+        x_min:
+          type:
+          - integer
+          - 'null'
+        y_max:
+          type:
+          - integer
+          - 'null'
+        y_min:
+          type:
+          - integer
+          - 'null'
+      required:
+      - page
+      - x_max
+      - x_min
+      - y_max
+      - y_min
+      type: object
+    InscribeParsedDetails:
+      properties:
+        bank_accounts:
+          items:
+            $ref: '#/components/schemas/InscribeAccount'
+          type: array
+        name:
+          $ref: '#/components/schemas/InscribeParsedDetailsName'
+      type: object
+    PlaidAccountSnapshotBalance:
+      properties:
+        available:
+          type:
+          - number
+          - 'null'
+        current:
+          type:
+          - number
+          - 'null'
+        iso_currency_code:
+          type: string
+        limit:
+          type:
+          - number
+          - 'null'
+      type: object
+    InscribeNumberPrediction:
+      properties:
+        confidence:
+          type: number
+        normalized:
+          type: integer
+        raw:
+          type: string
+      type: object
+    PdfTransaction:
+      properties:
+        amount:
+          type: number
+        balance:
+          type: number
+        bounds:
+          allOf:
+          - $ref: '#/components/schemas/MoneyThumbTransactionBounds'
+        currency:
+          type:
+          - string
+          - 'null'
+        description:
+          type: string
+        ocr_suspect:
+          type: boolean
+        reference_id:
+          type: string
+        timestamp:
+          format: date-time
+          type: string
+        transaction_code:
+          type: string
+      required:
+      - amount
+      - description
+      - timestamp
+      type: object
+    PlaidAssetsSchema:
+      properties:
+        report:
+          $ref: '#/components/schemas/PlaidAssetReport'
+      required:
+      - report
+      type: object
+    PlaidTransaction:
+      properties:
+        account_id:
+          type: string
+        amount:
+          type: number
+        balance:
+          type: number
+        category:
+          type:
+          - string
+          - 'null'
+        date:
+          format: date
+          type: string
+        iso_currency_code:
+          description: ISO 4217 currency code
+          example: USD
+          maxLength: 3
+          minLength: 3
+          type:
+          - string
+          - 'null'
+        merchant_name:
+          type:
+          - string
+          - 'null'
+        name:
+          type: string
+        pending:
+          type: boolean
+        pending_transaction_id:
+          type:
+          - string
+          - 'null'
+        timestamp:
+          format: date-time
+          type: string
+        transaction_code:
+          type:
+          - string
+          - 'null'
+        transaction_id:
+          type: string
+      type: object
+    PlaidTransactionsSchema:
+      properties:
+        accounts:
+          items:
+            $ref: '#/components/schemas/PlaidAccountSnapshot'
+          type: array
+        transactions:
+          items:
+            $ref: '#/components/schemas/PlaidTransaction'
+          type: array
+      required:
+      - transactions
+      type: object
+    OcrolusSchema:
+      properties:
+        response:
+          $ref: '#/components/schemas/OcrolusResponse'
+      required:
+      - response
+      type: object
+    PlaidAccountSnapshot:
+      properties:
+        account_id:
+          type: string
+        balances:
+          allOf:
+          - $ref: '#/components/schemas/PlaidAccountSnapshotBalance'
+          description: Balance information for the account as an object. This is optional, but if not provided, balance calculations will not be performed for individual transactions.
+        holder_category:
+          type:
+          - string
+          - 'null'
+        institution_name:
+          type:
+          - string
+          - 'null'
+        mask:
+          type:
+          - string
+          - 'null'
+        name:
+          type: string
+        official_name:
+          type:
+          - string
+          - 'null'
+        owners:
+          items:
+            $ref: '#/components/schemas/PlaidAccountOwners'
+          type:
+          - array
+          - 'null'
+        subtype:
+          type: string
+        type:
+          type: string
+      type: object
+    OcrolusBankAccount:
+      properties:
+        account_category:
+          type: string
+        account_number:
+          type: string
+        alternative_lender_transactions:
+          items:
+            $ref: '#/components/schemas/OcrolusTransaction'
+          type: array
+        daily_balances:
+          additionalProperties:
+            type: string
+          type: object
+        debt_consolidator_txns:
+          items:
+            $ref: '#/components/schemas/OcrolusTransaction'
+          type: array
+        deposits_max_by_month:
+          additionalProperties:
+            items:
+              $ref: '#/components/schemas/OcrolusTransaction'
+            type:
+            - array
+            - 'null'
+          type: object
+        estimated_expense_txns_list:
+          items:
+            $ref: '#/components/schemas/OcrolusTransaction'
+          type: array
+        estimated_revenue_txns_list:
+          items:
+            $ref: '#/components/schemas/OcrolusTransaction'
+          type: array
+        factor_txns:
+          items:
+            $ref: '#/components/schemas/OcrolusTransaction'
+          type: array
+        holder_country:
+          type: string
+        insurance_credits:
+          items:
+            $ref: '#/components/schemas/OcrolusTransaction'
+          type: array
+        insurance_debits:
+          items:
+            $ref: '#/components/schemas/OcrolusTransaction'
+          type: array
+        interbank_transactions:
+          items:
+            $ref: '#/components/schemas/OcrolusTransaction'
+          type: array
+        merchant_cash_advance_lender_txns:
+          items:
+            $ref: '#/components/schemas/OcrolusTransaction'
+          type: array
+        non_estimated_revenue_txns_list:
+          items:
+            $ref: '#/components/schemas/OcrolusTransaction'
+          type: array
+        nsf_transactions:
+          items:
+            $ref: '#/components/schemas/OcrolusTransaction'
+          type: array
+        nsf_transactions_paid_or_negative_balance:
+          items:
+            $ref: '#/components/schemas/OcrolusTransaction'
+          type: array
+        nsf_transactions_returned_or_not_paid:
+          items:
+            $ref: '#/components/schemas/OcrolusTransaction'
+          type: array
+        outside_source_deposits:
+          items:
+            $ref: '#/components/schemas/OcrolusTransaction'
+          type: array
+        payroll:
+          items:
+            $ref: '#/components/schemas/OcrolusTransaction'
+          type: array
+        period_balance_mismatches:
+          items:
+            $ref: '#/components/schemas/OcrolusTransaction'
+          type: array
+        ppp_loan_txns:
+          items:
+            $ref: '#/components/schemas/OcrolusTransaction'
+          type: array
+        probable_recurring_txns:
+          items:
+            items:
+              $ref: '#/components/schemas/OcrolusTransaction'
+            type: array
+          type: array
+        returned_items:
+          items:
+            $ref: '#/components/schemas/OcrolusTransaction'
+          type: array
+        round_number_txns:
+          items:
+            $ref: '#/components/schemas/OcrolusTransaction'
+          type: array
+        txn_count:
+          type: integer
+        withdrawals:
+          items:
+            $ref: '#/components/schemas/OcrolusTransaction'
+          type: array
+        withdrawals_max_by_month:
+          additionalProperties:
+            items:
+              $ref: '#/components/schemas/OcrolusTransaction'
+            type:
+            - array
+            - 'null'
+          type: object
+      type: object
+    YodleeTransaction:
+      properties:
+        accountId:
+          type: integer
+        amount:
+          $ref: '#/components/schemas/YodleeAmount'
+        baseType:
+          enum:
+          - CREDIT
+          - DEBIT
+          type: string
+        category:
+          type: string
+        date:
+          example: '2025-07-08'
+          pattern: ^\d{4}-\d{2}-\d{2}$
+          type: string
+        description:
+          $ref: '#/components/schemas/YodleeTransactionDescription'
+        id:
+          type: integer
+      type: object
+    YodleeTransactionDescription:
+      properties:
+        original:
+          type: string
+        simple:
+          type: string
+      type: object
+    PdfDefaultCurrencyUpdateSchema:
+      properties:
+        currency:
+          description: ISO 4217 currency code to update for PDF and all statements
+          enum:
+          - USD
+          - GBP
+          - EUR
+          - SEK
+          - AED
+          - AUD
+          - SGD
+          - CAD
+          - NOK
+          - IDR
+          - CHF
+          - DKK
+          - MXN
+          - PLN
+          - MYR
+          - VND
+          - RON
+          - TRY
+          - CZK
+          - BGN
+          - HKD
+          - PHP
+          - HUF
+          - NZD
+          - BRL
+          - ILS
+          - COP
+          - RUB
+          - INR
+          - ZAR
+          - THB
+          - JPY
+          - CLP
+          - MAD
+          - RSD
+          - SLE
+          example: EUR
+          type: string
+      required:
+      - currency
+      type: object
+    YodleeSchema:
+      properties:
+        accounts:
+          items:
+            $ref: '#/components/schemas/YodleeAccount'
+          type: array
+        transactions:
+          items:
+            $ref: '#/components/schemas/YodleeTransaction'
+          type: array
+      type: object
+    YodleeAccount:
+      properties:
+        balance:
+          $ref: '#/components/schemas/YodleeAmount'
+        classification:
+          type:
+          - string
+          - 'null'
+        id:
+          type: integer
+      type: object
+    IntegrationLinkSchema:
+      properties:
+        access_token:
+          description: The generated token that grants access to the bank (this is encrypted in transit and at-rest with a custom key)
+          example: access-sandbox-de3ce8ef-33f8-452c-a685-8671031fc0f6
+          type: string
+          writeOnly: true
+        asset_report_token:
+          description: Optional. If you already have a Plaid asset report, pass the token to skip creating a new one.
+          type:
+          - string
+          - 'null'
+          writeOnly: true
+        created:
+          description: When the integration link was created in Heron system
+          example: '2020-01-01T00:00:00Z'
+          format: date-time
+          readOnly: true
+          type: string
+        end_user_id:
+          description: A unique identifier for your end user (customer) generated by you
+          example: 8432b0b7-11fa-4334-b496-5f850c35bb43
+          type: string
+          writeOnly: true
+        end_user_name:
+          description: An human readable name for this end user, like the company legal name
+          example: Acme Corp
+          type: string
+          writeOnly: true
+        item_id:
+          description: Unique identifier for each bank connection made by your end users. In Plaid this is the 'item_id'.
+          example: M5eVJqLnv3tbzdngLDp9FL5OlDNxlNhlE55op
+          type: string
+        last_successful_sync:
+          description: When the integration link was last successfully synced
+          example: '2020-01-01T00:00:00Z'
+          format: date-time
+          readOnly: true
+          type: string
+        last_updated:
+          description: When the integration link was last updated in Heron system
+          example: '2020-01-01T00:00:00Z'
+          format: date-time
+          readOnly: true
+          type: string
+        status:
+          description: The integration link status
+          enum:
+          - pending
+          - active
+          - syncing
+          - erroring
+          - sync_disabled
+          - deleted_in_plaid
+          example: active
+          readOnly: true
+          type: string
+        status_message:
+          description: A message describing the 'erroring' status of the integration link
+          example: '[ITEM_LOGIN_REQUIRED] the login details of this item have changed (credentials, MFA, or required user action) and a user login is required to update this information. use Link''s update mode to restore the item to a good state'
+          readOnly: true
+          type: string
+        type:
+          description: 'The integration link type, inherited from the integration: plaid_assets_report or plaid_integration'
+          example: plaid_assets_report
+          readOnly: true
+          type: string
+      required:
+      - access_token
+      - end_user_id
+      - item_id
+      type: object
+    OcrolusTransaction:
+      properties:
+        amount:
+          type: string
+        description:
+          type: string
+        pk:
+          type: integer
+        timestamp:
+          format: date-time
+          type: string
+        txn_date:
+          example: 07/08/2025
+          format: date
+          pattern: ^\d{2}/\d{2}/\d{4}$
+          type: string
+      type: object
+    PdfStatement:
+      properties:
+        data_source_account:
+          allOf:
+          - $ref: '#/components/schemas/DataSourceAccountNested'
+          description: The data source account for this statement. Only available after parsing and enrichment has completed, otherwise null.
+        exclude:
+          description: True if the statement should be excluded from processing
+          type: boolean
+        invalid_transaction_partials:
+          items:
+            $ref: '#/components/schemas/PdfPatchTransaction'
+          type: array
+        summary:
+          $ref: '#/components/schemas/MoneyThumbStatementSummary'
+        transaction_partials:
+          items:
+            $ref: '#/components/schemas/PdfTransaction'
+          type: array
+      type: object
+    InscribeParsedDetailsName:
+      properties:
+        raw:
+          type: string
+      type: object
+    PdfStatementPatchSchema:
+      properties:
+        exclude:
+          description: True if the statement should be excluded from processing
+          type: boolean
+        index:
+          description: The index of the statement in the pdf to patch
+          type: integer
+        summary:
+          $ref: '#/components/schemas/PdfPatchStatementSummary'
+        transactions:
+          description: The full list of transactions that will be used to override the extracted transactions for the specified statement
+          items:
+            $ref: '#/components/schemas/PdfPatchTransaction'
+          type: array
+      required:
+      - index
+      - transactions
+      type: object
+    PdfPatchTransaction:
+      properties:
+        amount:
+          type:
+          - number
+          - 'null'
+        balance:
+          type:
+          - number
+          - 'null'
+        bounds:
+          allOf:
+          - $ref: '#/components/schemas/MoneyThumbTransactionBounds'
+        currency:
+          type:
+          - string
+          - 'null'
+        description:
+          type:
+          - string
+          - 'null'
+        ocr_suspect:
+          type:
+          - boolean
+          - 'null'
+        reference_id:
+          type:
+          - string
+          - 'null'
+        timestamp:
+          format: date-time
+          type:
+          - string
+          - 'null'
+        transaction_code:
+          type:
+          - string
+          - 'null'
+      type: object
+    PlaidAssetReport:
+      properties:
+        date_generated:
+          format: date-time
+          type: string
+        days_requested:
+          type: integer
+        items:
+          items:
+            $ref: '#/components/schemas/PlaidAssetReportItem'
+          type: array
+      required:
+      - date_generated
+      - days_requested
+      - items
+      type: object
+    PlaidAccountOwners:
+      properties:
+        names:
+          items:
+            type: string
+          type: array
+      required:
+      - names
+      type: object
+    InscribeAccount:
+      properties:
+        account_type:
+          type:
+          - string
+          - 'null'
+        beginning_balance:
+          allOf:
+          - $ref: '#/components/schemas/InscribeNumberPrediction'
+        ending_balance:
+          allOf:
+          - $ref: '#/components/schemas/InscribeNumberPrediction'
+        institution_name:
+          type:
+          - string
+          - 'null'
+        number:
+          $ref: '#/components/schemas/InscribeStringPrediction'
+        transactions:
+          items:
+            $ref: '#/components/schemas/InscribeTransaction'
+          type: array
+        transactions_match_balances:
+          type:
+          - boolean
+          - 'null'
+      type: object
+    PdfPatchStatementSummary:
+      properties:
+        account_number:
+          type: string
+        bank_name:
+          type: string
+        company:
+          type: string
+        currency:
+          enum:
+          - USD
+          - GBP
+          - EUR
+          - SEK
+          - AED
+          - AUD
+          - SGD
+          - CAD
+          - NOK
+          - IDR
+          - CHF
+          - DKK
+          - MXN
+          - PLN
+          - MYR
+          - VND
+          - RON
+          - TRY
+          - CZK
+          - BGN
+          - HKD
+          - PHP
+          - HUF
+          - NZD
+          - BRL
+          - ILS
+          - COP
+          - RUB
+          - INR
+          - ZAR
+          - THB
+          - JPY
+          - CLP
+          - MAD
+          - RSD
+          - SLE
+          type: string
+        end_balance:
+          type: number
+        fraud_reasons:
+          items:
+            type: string
+          type: array
+        fraud_score:
+          type: integer
+        start_balance:
+          type: number
+        statement_end_date:
+          format: date-time
+          type: string
+        statement_start_date:
+          format: date-time
+          type: string
+      type: object
+    EndUser2:
+      properties:
+        heron_id:
+          description: Unique id for end user generated by Heron
+          example: eus_5yWkT2NZzCevkyPwbGhn2Z
+          readOnly: true
+          type: string
+      type: object
+    DataSourceAccountNested:
+      properties:
+        heron_id:
+          description: Heron ID of the data source account
+          type: string
+        is_enabled:
+          description: Whether this data source account is enabled
+          type: boolean
+      type: object
+    InscribeStringPrediction:
+      properties:
+        confidence:
+          type: number
+        normalized:
+          type: string
+        raw:
+          type: string
+      type: object
+    PdfGetSchema:
+      properties:
+        account_id:
+          description: Unique ID for account associated with PDF
+          example: checking_account_202348
+          type: string
+        created:
+          description: Timestamp when PDF was created in Heron system
+          example: '2026-08-14T12:24:30.801571'
+          format: date-time
+          type: string
+        currency:
+          description: ISO 4217 currency code for transactions in account. We currently only support GBP and USD PDFs
+          enum:
+          - USD
+          - GBP
+          example: USD
+          type: string
+        data_source:
+          allOf:
+          - $ref: '#/components/schemas/DataSourceNested'
+          description: The data source for this PDF. Only available after parsing and enrichment has completed, otherwise null.
+        end_user:
+          $ref: '#/components/schemas/EndUser2'
+        filename:
+          description: The filename of the PDF
+          example: my-favourite.pdf
+          type: string
+        heron_id:
+          description: ID generated by Heron Data
+          example: pdf_TdpNDuBWbCK82yDs4CqSAT
+          type: string
+        is_image_based:
+          description: True if the PDF was processed using image-based OCR. None if not yet processed
+          type:
+          - boolean
+          - 'null'
+        last_updated:
+          description: Timestamp when PDF was last updated in Heron system
+          example: '2026-08-14T12:24:30.801623'
+          format: date-time
+          type: string
+        notes:
+          description: Notes for the PDF, e.g., failed reason
+          example: failed to send to external OCR provider
+          type: string
+        parsing_version:
+          description: Indicates which provider was used to parse this pdf
+          type: string
+        reference_id:
+          description: An optional field for your unique identifier for the PDF
+          example: my-favourite-pdf
+          type: string
+        statements:
+          items:
+            $ref: '#/components/schemas/PdfStatement'
+          type: array
+        status:
+          description: Status of PDF
+          enum:
+          - new
+          - parsing
+          - parsed
+          - processed
+          - human_reviewing
+          - approved
+          - rejected
+          - failed
+          - transactions_loaded
+          - transactions_unloaded
+          example: processed
+          type: string
+      type: object
+    PlaidAccountBalance:
+      properties:
+        current:
+          type: number
+        date:
+          format: date
+          type: string
+        iso_currency_code:
+          description: ISO 4217 currency code
+          example: USD
+          maxLength: 3
+          minLength: 3
+          type:
+          - string
+          - 'null'
+      type: object
+    PlaidAssetReportItem:
+      properties:
+        accounts:
+          items:
+            $ref: '#/components/schemas/PlaidAccount'
+          type: array
+        institution_name:
+          type: string
+      required:
+      - accounts
+      - institution_name
+      type: object
+    PdfPostSchema:
+      properties:
+        account_id:
+          description: Unique ID for account associated with PDF
+          example: checking_account_202348
+          type:
+          - string
+          - 'null'
+        currency:
+          description: ISO 4217 currency code for transactions in account. We currently only support GBP and USD PDFs
+          enum:
+          - USD
+          - GBP
+          - null
+          example: USD
+          type:
+          - string
+          - 'null'
+        filename:
+          description: The filename of the PDF
+          example: my-favourite.pdf
+          type:
+          - string
+          - 'null'
+        is_split:
+          description: Whether the file has been manually split
+          example: false
+          type:
+          - boolean
+          - 'null'
+        parent_file_heron_id:
+          description: The Heron ID of the parent file, if this PDF is a split from another file
+          type:
+          - string
+          - 'null'
+        pdf_base64:
+          description: The base64 encoded string of the PDF file. If using Javascript, this is directly the output of the FileReader.readAsDataURL() output.
+          pattern: ^data\:\w+\/\w+\;base64\,
+          type: string
+        read_us_dates:
+          description: 'True if date formats in the statement are US: month/date/year'
+          type:
+          - boolean
+          - 'null'
+        reference_id:
+          description: An optional field for your unique identifier for the PDF
+          example: my-favourite-pdf
+          maxLength: 140
+          type:
+          - string
+          - 'null'
+      required:
+      - pdf_base64
+      type: object
+  securitySchemes:
+    ApiKeyAuth:
+      in: header
+      name: x-api-key
+      type: apiKey
+externalDocs:
+  description: Read Tutorial
+  url: https://docs.herondata.io/

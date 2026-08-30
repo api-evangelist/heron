@@ -1,0 +1,74 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@herondata.io
+    name: Support
+  title: Heron Data End User Attributes API
+  version: '2021-07-19'
+servers:
+- description: Production
+  url: https://app.herondata.io
+security:
+- ApiKeyAuth:
+  - key_XXX
+tags:
+- name: EndUserAttributes
+paths:
+  /api/end_users/{end_user_heron_id}/company_attributes:
+    get:
+      description: Get calculated attribute values for a given end user
+      parameters:
+      - in: path
+        name: end_user_heron_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/CompanyAttributeValueSchema'
+                type: array
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Get EndUser attribute values
+      tags:
+      - EndUserAttributes
+components:
+  schemas:
+    CompanyAttribute:
+      properties:
+        label:
+          type: string
+        type:
+          enum:
+          - float
+          - int
+          - decimal
+          - string
+          - date
+          - datetime
+          - bool
+      type: object
+    CompanyAttributeValueSchema:
+      properties:
+        attribute:
+          $ref: '#/components/schemas/CompanyAttribute'
+        availability:
+          enum:
+          - available
+          - partially_available
+          - not_available
+        value: {}
+      type: object
+  securitySchemes:
+    ApiKeyAuth:
+      in: header
+      name: x-api-key
+      type: apiKey
+externalDocs:
+  description: Read Tutorial
+  url: https://docs.herondata.io/

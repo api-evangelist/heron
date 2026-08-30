@@ -1,0 +1,81 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@herondata.io
+    name: Support
+  title: Heron Data Analytics API
+  version: '2021-07-19'
+servers:
+- description: Production
+  url: https://app.herondata.io
+security:
+- ApiKeyAuth:
+  - key_XXX
+tags:
+- name: Analytics
+paths:
+  /api/analytics/decline:
+    get:
+      description: 'Returns aggregated decline analytics for end users within a date range, including total end users, total declined, and per-check pass/fail/missing counts. Only the latest policy evaluation per end user is considered.
+
+        '
+      parameters:
+      - description: Start of the date range (filters by end_user created date)
+        in: query
+        name: start_date
+        required: true
+        schema:
+          format: date-time
+          type: string
+      - description: End of the date range (filters by end_user created date)
+        in: query
+        name: end_date
+        required: true
+        schema:
+          format: date-time
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  check_analytics:
+                    items:
+                      properties:
+                        check_name:
+                          type: string
+                        total_failed:
+                          type: integer
+                        total_missing_data:
+                          type: integer
+                        total_passed:
+                          type: integer
+                      type: object
+                    type: array
+                  total_declined:
+                    description: Number of end users with at least one failed check
+                    type: integer
+                  total_end_users:
+                    description: Total number of end users with policy evaluations
+                    type: integer
+                type: object
+          description: Decline analytics retrieved successfully
+        '400':
+          description: User does not have analytics configured
+        '401':
+          description: Authentication required
+        '422':
+          description: Missing required parameters
+      summary: Get decline analytics for a user
+      tags:
+      - Analytics
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      in: header
+      name: x-api-key
+      type: apiKey
+externalDocs:
+  description: Read Tutorial
+  url: https://docs.herondata.io/

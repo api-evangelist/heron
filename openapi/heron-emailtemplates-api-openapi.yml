@@ -1,0 +1,170 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@herondata.io
+    name: Support
+  title: Heron Data Email Templates API
+  version: '2021-07-19'
+servers:
+- description: Production
+  url: https://app.herondata.io
+security:
+- ApiKeyAuth:
+  - key_XXX
+tags:
+- name: EmailTemplates
+paths:
+  /api/email_templates:
+    get:
+      description: Read all available templates
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  rules:
+                    items:
+                      $ref: '#/components/schemas/EmailTemplateSchema'
+                    type: array
+                type: object
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Get email templates
+      tags:
+      - EmailTemplates
+    post:
+      description: 'Create an email template used to send emails conditional on events like policy evaluation
+
+        '
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailTemplateSchema'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                properties:
+                  email_template:
+                    $ref: '#/components/schemas/EmailTemplateSchema'
+                type: object
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Create an email template
+      tags:
+      - EmailTemplates
+  /api/email_templates/{heron_id}:
+    patch:
+      description: 'Update an email template
+
+        '
+      parameters:
+      - in: path
+        name: heron_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailTemplatePatchSchema'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                properties:
+                  email_template:
+                    $ref: '#/components/schemas/EmailTemplatePatchSchema'
+                type: object
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Patch an email template
+      tags:
+      - EmailTemplates
+components:
+  schemas:
+    EmailTemplatePatchSchema:
+      additionalProperties: true
+      properties:
+        cc_address:
+          description: The email address to CC
+          type:
+          - string
+          - 'null'
+        heron_id:
+          description: Unique identifier for the email template
+          readOnly: true
+          type: string
+        html_body:
+          description: The body of the email to send.
+          type: string
+        name:
+          description: Unique name of the email template. Used to match which email template to send. Only alphanumeric characters, underscores, and dashes are allowed.
+          maxLength: 50
+          minLength: 3
+          pattern: ^[a-zA-Z0-9_-]+$
+          type: string
+        reply_to_address:
+          description: The email address to reply to
+          type:
+          - string
+          - 'null'
+        to_address:
+          description: The email address to send the email to
+          type:
+          - string
+          - 'null'
+      type: object
+    EmailTemplateSchema:
+      additionalProperties: true
+      properties:
+        cc_address:
+          description: The email address to CC
+          type:
+          - string
+          - 'null'
+        heron_id:
+          description: Unique identifier for the email template
+          readOnly: true
+          type: string
+        html_body:
+          description: The body of the email to send.
+          type: string
+        name:
+          description: Unique name of the email template. Used to match which email template to send. Only alphanumeric characters, underscores, and dashes are allowed.
+          maxLength: 50
+          minLength: 3
+          pattern: ^[a-zA-Z0-9_-]+$
+          type: string
+        reply_to_address:
+          description: The email address to reply to
+          type:
+          - string
+          - 'null'
+        to_address:
+          description: The email address to send the email to
+          type:
+          - string
+          - 'null'
+      required:
+      - html_body
+      - name
+      type: object
+  securitySchemes:
+    ApiKeyAuth:
+      in: header
+      name: x-api-key
+      type: apiKey
+externalDocs:
+  description: Read Tutorial
+  url: https://docs.herondata.io/

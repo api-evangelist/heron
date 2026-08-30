@@ -1,0 +1,277 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@herondata.io
+    name: Support
+  title: Heron Data End Users API
+  version: '2021-07-19'
+servers:
+- description: Production
+  url: https://app.herondata.io
+security:
+- ApiKeyAuth:
+  - key_XXX
+tags:
+- name: End Users
+paths:
+  /api/end_users/{end_user_heron_id}/deal_link/:
+    get:
+      description: List all end users linked to the same CRM opportunity as this end user — the original submission end user plus one end user per funder decision email.
+      parameters:
+      - description: The Heron ID of the end user
+        in: path
+        name: end_user_heron_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/DealLinkEntry'
+                type: array
+          description: List of deal link entries
+        '404':
+          description: End user not found
+      security:
+      - ApiKeyAuth: []
+      summary: Get deal link entries for an end user
+      tags:
+      - End Users
+  /api/end_users/{end_user_heron_id}/funder_policy_evaluations/:
+    get:
+      description: Get all funder policy evaluations for a specific end user
+      parameters:
+      - description: The Heron ID of the end user
+        in: path
+        name: end_user_heron_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/FunderPolicyEvaluation'
+                type: array
+          description: List of funder policy evaluations
+        '404':
+          description: End user not found
+      security:
+      - ApiKeyAuth: []
+      summary: List funder policy evaluations for an end user
+      tags:
+      - End Users
+  /api/end_users/{end_user_heron_id}/funder_submissions/{submission_heron_id}/submit_to_funder/:
+    post:
+      description: Triggers an async submission for a specific funder submission. Returns 202 immediately; poll the submission status to check progress.
+      parameters:
+      - description: The Heron ID of the end user
+        in: path
+        name: end_user_heron_id
+        required: true
+        schema:
+          type: string
+      - description: The Heron ID of the funder submission
+        in: path
+        name: submission_heron_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubmitFunderSubmissionRequestSchema'
+        required: true
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubmitFunderSubmissionResponseSchema'
+          description: Submission accepted and queued for processing
+        '400':
+          description: Submission cannot be submitted in its current status
+        '404':
+          description: End user or funder submission not found
+        '409':
+          description: Submission is already in progress
+      security:
+      - ApiKeyAuth: []
+      summary: Submit an end user to a single funder
+      tags:
+      - End Users
+components:
+  schemas:
+    LinkedFunderSubmission:
+      additionalProperties: false
+      properties:
+        heron_id:
+          readOnly: true
+          type: string
+        status:
+          enum:
+          - pending
+          - in_progress
+          - submitted_to_funder
+          - invalid_data_for_funder
+          - submission_failed
+          - approved
+          - declined
+          - null
+          readOnly: true
+        submitted_at:
+          format: date-time
+          readOnly: true
+          type:
+          - string
+          - 'null'
+      type: object
+    DealLinkEntry:
+      additionalProperties: false
+      properties:
+        decline_reason:
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        funder_heron_id:
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        funder_name:
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        name:
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        occurrences:
+          items:
+            $ref: '#/components/schemas/DealLinkOccurrence'
+          readOnly: true
+          type: array
+        opportunity_id:
+          readOnly: true
+          type: string
+        role:
+          enum:
+          - submission
+          - approval
+          - decline
+          - other
+          - unknown
+          readOnly: true
+      type: object
+    SubmitFunderSubmissionResponseSchema:
+      additionalProperties: false
+      properties:
+        submission_heron_id:
+          readOnly: true
+          type: string
+      type: object
+    SubmitFunderSubmissionRequestSchema:
+      additionalProperties: false
+      properties:
+        use_sandbox:
+          type: boolean
+      required:
+      - use_sandbox
+      type: object
+    FunderPolicyEvaluation:
+      additionalProperties: false
+      properties:
+        created:
+          format: date-time
+          readOnly: true
+          type: string
+        end_user_heron_id:
+          readOnly: true
+          type: string
+        funder:
+          allOf:
+          - $ref: '#/components/schemas/FunderSearchResultSchema'
+          readOnly: true
+        input_data:
+          additionalProperties: {}
+          readOnly: true
+          type:
+          - object
+          - 'null'
+        last_updated:
+          format: date-time
+          readOnly: true
+          type: string
+        linked_funder_submission:
+          allOf:
+          - $ref: '#/components/schemas/LinkedFunderSubmission'
+          readOnly: true
+        matching_priority:
+          readOnly: true
+          type:
+          - integer
+          - 'null'
+        result:
+          additionalProperties: {}
+          readOnly: true
+          type:
+          - object
+          - 'null'
+        status:
+          enum:
+          - not_evaluated
+          - evaluating
+          - matched
+          - mismatched
+          - missing_data
+          - error
+          readOnly: true
+        submission_configured:
+          readOnly: true
+          type: boolean
+      type: object
+    DealLinkOccurrence:
+      additionalProperties: false
+      properties:
+        created:
+          format: date-time
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        end_user_heron_id:
+          readOnly: true
+          type: string
+      type: object
+    FunderSearchResultSchema:
+      additionalProperties: false
+      properties:
+        heron_id:
+          readOnly: true
+          type: string
+        logo_url:
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        name:
+          readOnly: true
+          type: string
+      type: object
+  securitySchemes:
+    ApiKeyAuth:
+      in: header
+      name: x-api-key
+      type: apiKey
+externalDocs:
+  description: Read Tutorial
+  url: https://docs.herondata.io/

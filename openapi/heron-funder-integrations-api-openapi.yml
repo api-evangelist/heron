@@ -1,0 +1,420 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@herondata.io
+    name: Support
+  title: Heron Data Funder Integrations API
+  version: '2021-07-19'
+servers:
+- description: Production
+  url: https://app.herondata.io
+security:
+- ApiKeyAuth:
+  - key_XXX
+tags:
+- name: Funder Integrations
+paths:
+  /api/funder_integrations/:
+    get:
+      description: 'Returns one entry per linked integration (API/portal) funder, with its current state, configuration, and last test result.
+
+        '
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/FunderIntegrationViewSchema'
+                type: array
+          description: List of funder integration states
+      security:
+      - ApiKeyAuth: []
+      summary: List funder integration states for the current broker
+      tags:
+      - Funder Integrations
+    post:
+      description: 'Links a funder the broker can configure. Returns the new entry in the same shape as `GET /api/funder_integrations/`.
+
+        '
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddFunderIntegrationRequestSchema'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FunderIntegrationViewSchema'
+          description: Funder linked
+        '400':
+          description: Funder not supported for self-service
+        '404':
+          description: Funder not found
+        '409':
+          description: Broker is already linked to this funder
+      security:
+      - ApiKeyAuth: []
+      summary: Link a funder to the current broker for self-service
+      tags:
+      - Funder Integrations
+  /api/funder_integrations/candidates/:
+    get:
+      description: 'Returns the funders the broker can link but hasn''t yet, sorted alphabetically.
+
+        '
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/FunderCandidateSchema'
+                type: array
+          description: List of available funders
+      security:
+      - ApiKeyAuth: []
+      summary: List funders available for self-service that the broker hasn't linked yet
+      tags:
+      - Funder Integrations
+  /api/funder_integrations/{funder_heron_id}/:
+    delete:
+      description: 'With an `environment`, deletes that environment''s saved integration. With `remove=true`, removes the funder entirely. Exactly one of the two must be given: full removal is destructive (scrubs credentials and deletes the funder''s policies row), so it must be requested explicitly — an absent or mistyped `environment` must never escalate into it.
+
+        '
+      parameters:
+      - in: path
+        name: funder_heron_id
+        required: true
+        schema:
+          type: string
+      - in: query
+        name: environment
+        required: false
+        schema:
+          enum:
+          - staging
+          - production
+          type: string
+      - in: query
+        name: remove
+        required: false
+        schema:
+          type: boolean
+      responses:
+        '204':
+          description: Funder removed, or environment integration deleted
+        '400':
+          description: Neither `environment` nor `remove=true` given, or both given
+        '404':
+          description: Funder not linked, or no integration configured for this environment
+        '409':
+          description: Funder cannot be removed due to active API keys
+      security:
+      - ApiKeyAuth: []
+      summary: Remove a funder, or delete one environment's saved integration
+      tags:
+      - Funder Integrations
+    patch:
+      description: 'Saves the funder''s submission email address and CC list, and optionally switches its submission channel (integration or email). An omitted or null `channel` keeps the current channel, so email-field saves can never change how deals are routed. Returns the updated funder entry.
+
+        '
+      parameters:
+      - in: path
+        name: funder_heron_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateFunderIntegrationRequestSchema'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FunderIntegrationViewSchema'
+          description: Funder updated
+        '400':
+          description: Invalid input (unsupported channel, malformed email)
+        '404':
+          description: Funder not linked to current broker
+      security:
+      - ApiKeyAuth: []
+      summary: Update a funder's submission channel and email configuration
+      tags:
+      - Funder Integrations
+    put:
+      description: 'Saves the funder''s staging or production configuration.
+
+        '
+      parameters:
+      - in: path
+        name: funder_heron_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SaveFunderIntegrationRequestSchema'
+        required: true
+      responses:
+        '200':
+          description: Integration saved
+        '400':
+          description: Invalid input (missing fields, unsupported funder, promotion gate)
+        '404':
+          description: Funder not linked to current broker
+      security:
+      - ApiKeyAuth: []
+      summary: Save staging or production form values for a funder integration
+      tags:
+      - Funder Integrations
+  /api/funder_integrations/{funder_heron_id}/test/:
+    post:
+      description: 'Submits the synthetic test end user to the selected funder environment. Returns the funder submission Heron ID. Frontend polls `/funder_submissions/{id}/` for the result.
+
+        '
+      parameters:
+      - in: path
+        name: funder_heron_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TriggerTestRequestSchema'
+        required: false
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TriggerTestResponseSchema'
+          description: Test triggered
+        '400':
+          description: Credentials not configured
+        '404':
+          description: Funder not linked to current broker
+        '409':
+          description: A test is already in progress for this funder
+      security:
+      - ApiKeyAuth: []
+      summary: Trigger a staging or production test submission for this funder
+      tags:
+      - Funder Integrations
+components:
+  schemas:
+    FunderIntegrationViewSchema:
+      properties:
+        channel:
+          enum:
+          - integration
+          - email
+          - null
+        config:
+          allOf:
+          - $ref: '#/components/schemas/FunderIntegrationConfig'
+        effective_submission_email_address:
+          type:
+          - string
+          - 'null'
+        funder_email_domains:
+          items:
+            type: string
+          type: array
+        funder_heron_id:
+          type: string
+        funder_logo_url:
+          type:
+          - string
+          - 'null'
+        funder_name:
+          type: string
+        production:
+          allOf:
+          - $ref: '#/components/schemas/IntegrationEnvironment'
+        sender_address:
+          type: string
+        slug:
+          type:
+          - string
+          - 'null'
+        staging:
+          allOf:
+          - $ref: '#/components/schemas/IntegrationEnvironment'
+        state:
+          enum:
+          - not_available
+          - not_configured
+          - staging_configured
+          - staging_live
+          - production_configured
+          - production_live
+          - live
+        submission_cc_email_addresses:
+          items:
+            type: string
+          type:
+          - array
+          - 'null'
+        submission_email_address:
+          type:
+          - string
+          - 'null'
+        supports_staging:
+          type: boolean
+      required:
+      - funder_email_domains
+      - funder_heron_id
+      - funder_name
+      - sender_address
+      - state
+      - supports_staging
+      type: object
+    FunderCandidateSchema:
+      properties:
+        funder_heron_id:
+          type: string
+        funder_logo_url:
+          type:
+          - string
+          - 'null'
+        funder_name:
+          type: string
+      required:
+      - funder_heron_id
+      - funder_name
+      type: object
+    IntegrationEnvironment:
+      properties:
+        has_credentials:
+          type: boolean
+        last_test_attempted_at:
+          format: date-time
+          type:
+          - string
+          - 'null'
+        last_test_deal_id:
+          type:
+          - string
+          - 'null'
+        last_test_status:
+          enum:
+          - not_run
+          - in_progress
+          - succeeded
+          - failed
+        last_test_status_message:
+          type:
+          - string
+          - 'null'
+      required:
+      - has_credentials
+      - last_test_status
+      type: object
+    TriggerTestResponseSchema:
+      properties:
+        funder_submission_heron_id:
+          type: string
+      required:
+      - funder_submission_heron_id
+      type: object
+    AddFunderIntegrationRequestSchema:
+      properties:
+        funder_heron_id:
+          type: string
+      required:
+      - funder_heron_id
+      type: object
+    TriggerTestRequestSchema:
+      properties:
+        environment:
+          default: staging
+          enum:
+          - staging
+          - production
+      type: object
+    FormField:
+      properties:
+        field_type:
+          enum:
+          - text
+          - password
+        label:
+          type: string
+        name:
+          type: string
+        required:
+          type: boolean
+      required:
+      - field_type
+      - label
+      - name
+      - required
+      type: object
+    FunderIntegrationConfig:
+      properties:
+        display_name:
+          type: string
+        form_fields:
+          items:
+            $ref: '#/components/schemas/FormField'
+          type: array
+        supports_staging:
+          type: boolean
+      required:
+      - display_name
+      - form_fields
+      - supports_staging
+      type: object
+    SaveFunderIntegrationRequestSchema:
+      properties:
+        environment:
+          enum:
+          - staging
+          - production
+        form_values:
+          additionalProperties:
+            type: string
+          type: object
+      required:
+      - environment
+      - form_values
+      type: object
+    UpdateFunderIntegrationRequestSchema:
+      properties:
+        channel:
+          enum:
+          - integration
+          - email
+          - null
+        submission_cc_email_addresses:
+          items:
+            type: string
+          type:
+          - array
+          - 'null'
+        submission_email_address:
+          type:
+          - string
+          - 'null'
+      type: object
+  securitySchemes:
+    ApiKeyAuth:
+      in: header
+      name: x-api-key
+      type: apiKey
+externalDocs:
+  description: Read Tutorial
+  url: https://docs.herondata.io/

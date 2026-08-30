@@ -1,0 +1,145 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@herondata.io
+    name: Support
+  title: Heron Data App Store API
+  version: '2021-07-19'
+servers:
+- description: Production
+  url: https://app.herondata.io
+security:
+- ApiKeyAuth:
+  - key_XXX
+tags:
+- name: AppStore
+paths:
+  /api/app_store/list:
+    get:
+      description: List available apps
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppStoreSchema'
+          description: OK
+      summary: List available apps
+      tags:
+      - AppStore
+components:
+  schemas:
+    Application:
+      properties:
+        cta:
+          $ref: '#/components/schemas/CTA'
+        description:
+          description: A brief description of the application.
+          example: This is an example application.
+          type: string
+        file_classes:
+          example:
+          - description: description1
+            name: file_class1
+          - description: description2
+            name: file_class2
+          items:
+            $ref: '#/components/schemas/FileClass'
+          type: array
+        heron_id:
+          example: asa_1a833hPPXwu8BrzFhoDVJL
+          type: string
+        image:
+          description: URL to the application's logo
+          example: https://example.com/image.png
+          format: url
+          type: string
+        integrations:
+          example:
+          - integration1
+          - integration2
+          items:
+            type: string
+          type: array
+        is_enabled:
+          example: true
+          type: boolean
+        name:
+          description: The name of the application.
+          example: Example App
+          type: string
+        priority:
+          example: 1
+          type: integer
+        tags:
+          example:
+          - tag1
+          - tag2
+          items:
+            type: string
+          type: array
+        type:
+          description: The type of the application.
+          enum:
+          - enricher
+          - integration
+          - ingestion
+          - parser
+          - check
+          - analytics
+          - workflow
+          example: enricher
+          type: string
+        use_cases:
+          example:
+          - use_case1
+          - use_case2
+          items:
+            type: string
+          type: array
+      required:
+      - description
+      - heron_id
+      - is_enabled
+      - name
+      - priority
+      - type
+      type: object
+    AppStoreSchema:
+      properties:
+        applications:
+          items:
+            $ref: '#/components/schemas/Application'
+          type: array
+      type: object
+    FileClass:
+      properties:
+        description:
+          example: File Class Description
+          type: string
+        name:
+          example: File Class Name
+          type: string
+      required:
+      - name
+      type: object
+    CTA:
+      properties:
+        text:
+          example: CTA Text
+          type: string
+        url:
+          example: https://example.com/cta
+          type: string
+      required:
+      - text
+      - url
+      type: object
+  securitySchemes:
+    ApiKeyAuth:
+      in: header
+      name: x-api-key
+      type: apiKey
+externalDocs:
+  description: Read Tutorial
+  url: https://docs.herondata.io/

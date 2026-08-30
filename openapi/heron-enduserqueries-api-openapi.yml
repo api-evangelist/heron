@@ -1,0 +1,85 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@herondata.io
+    name: Support
+  title: Heron Data End User Queries API
+  version: '2021-07-19'
+servers:
+- description: Production
+  url: https://app.herondata.io
+security:
+- ApiKeyAuth:
+  - key_XXX
+tags:
+- name: EndUserQueries
+paths:
+  /api/end_user_queries/execute:
+    post:
+      description: 'Execute saved SQL queries by name for a specific end user and return results
+
+        '
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                end_user_heron_id:
+                  description: Heron ID of the end user
+                  example: eu_abc123
+                  type: string
+                query_names:
+                  description: List of saved query names to execute
+                  example:
+                  - monthly_revenue
+                  - top_transactions
+                  items:
+                    type: string
+                  type: array
+              required:
+              - query_names
+              - end_user_heron_id
+              type: object
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  items:
+                    type: object
+                  type: array
+                example:
+                  results:
+                    monthly_revenue:
+                      column_order:
+                      - month
+                      - revenue
+                      records:
+                      - month: 2024-01
+                        revenue: 50000
+                    top_transactions:
+                      column_order:
+                      - id
+                      - amount
+                      records:
+                      - amount: 1000
+                        id: 1
+                type: object
+          description: Successfully executed queries
+      security:
+      - ApiKeyAuth: []
+      summary: Execute saved queries
+      tags:
+      - EndUserQueries
+      x-hidden: true
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      in: header
+      name: x-api-key
+      type: apiKey
+externalDocs:
+  description: Read Tutorial
+  url: https://docs.herondata.io/

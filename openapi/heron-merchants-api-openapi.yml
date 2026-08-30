@@ -1,0 +1,498 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@herondata.io
+    name: Support
+  title: Heron Data Merchants API
+  version: '2021-07-19'
+servers:
+- description: Production
+  url: https://app.herondata.io
+security:
+- ApiKeyAuth:
+  - key_XXX
+tags:
+- name: Merchants
+paths:
+  /api/merchants/extract:
+    post:
+      description: Extract Merchant from a transaction description
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                description:
+                  example: PAYPAL* AMZN Mktp 198748320
+                  type: string
+              required:
+              - description
+              type: object
+        description: The bank transaction description as a string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  description_clean:
+                    example: Amzn Mktp
+                    type:
+                    - string
+                    - 'null'
+                  merchant:
+                    $ref: '#/components/schemas/MerchantExtract'
+                  payment_processor:
+                    $ref: '#/components/schemas/PaymentProcessor'
+                type: object
+          description: 'The `merchant` key is not null when we find a positive match to our database. When we could not match a merchant, `merchant` is null and `description_clean` is set to a substring of the original description that our models identified as the relevant entity.
+
+            '
+      security:
+      - ApiKeyAuth: []
+      summary: Extract merchant
+      tags:
+      - Merchants
+  /api/merchants/groups:
+    get:
+      description: Get Merchant groups
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/MerchantGroup'
+                type: array
+          description: Ok
+      security:
+      - ApiKeyAuth: []
+      summary: List merchant groups
+      tags:
+      - Merchants
+  /api/merchants/list:
+    get:
+      description: Get a paginated list of merchants with optional name and group_id filtering. Results are ordered by merchant ID for stable pagination.
+      parameters:
+      - description: Filter merchants by name (full or partial match)
+        in: query
+        name: name
+        required: false
+        schema:
+          type: string
+      - description: Filter merchants by group ID
+        in: query
+        name: group_id
+        required: false
+        schema:
+          type: string
+      - description: Number of merchants to return per page
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 50
+          maximum: 200
+          minimum: 1
+          type: integer
+      - description: Number of merchants to skip
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/Merchant1'
+                    type: array
+                  has_more:
+                    type: boolean
+                  limit:
+                    type: integer
+                  offset:
+                    type: integer
+                  total:
+                    type: integer
+                type: object
+          description: List of merchants with pagination metadata
+      security:
+      - ApiKeyAuth: []
+      summary: List merchants
+      tags:
+      - Merchants
+  /api/merchants/search:
+    get:
+      description: Search Merchants by name
+      parameters:
+      - description: Full or partial name, minimum 3 characters
+        in: query
+        name: name
+        required: true
+        schema:
+          type: string
+      - description: If true, only returns priority merchants
+        in: query
+        name: only_priority
+        required: false
+        schema:
+          type: boolean
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  merchants:
+                    items:
+                      $ref: '#/components/schemas/Merchant'
+                    type: array
+                type: object
+          description: 'A list of up to 5 merchants which match the search term, sorted by descending order of their URL rank and the frequency this merchant has been seen historically.
+
+            '
+      security:
+      - ApiKeyAuth: []
+      summary: Search merchants
+      tags:
+      - Merchants
+  /api/merchants/{heron_id}:
+    get:
+      description: Get Merchant by heron_id
+      parameters:
+      - description: The Merchant `heron_id`
+        in: path
+        name: heron_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  merchant:
+                    $ref: '#/components/schemas/Merchant'
+                type: object
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Get merchant by ID
+      tags:
+      - Merchants
+  /api/merchants/{merchant_heron_id}/user_merchant_group:
+    patch:
+      description: Update the group id for a merchant for the current user
+      parameters:
+      - description: The Merchant `heron_id`
+        in: path
+        name: merchant_heron_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                group_id:
+                  example: debt.mca_or_rbf
+                  type:
+                  - string
+                  - 'null'
+              required:
+              - group_id
+              type: object
+        description: Group ID to assign to the merchant
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserMerchantGroupSchema'
+          description: OK
+        '404':
+          description: Merchant not found
+      security:
+      - ApiKeyAuth: []
+      summary: Set merchant group override
+      tags:
+      - Merchants
+components:
+  schemas:
+    Merchant1:
+      properties:
+        aliases:
+          type:
+          - string
+          - 'null'
+        categories:
+          items:
+            $ref: '#/components/schemas/MerchantCategory'
+          readOnly: true
+          type: array
+        category_codes:
+          items:
+            type: string
+          type: array
+          writeOnly: true
+        created:
+          format: date-time
+          readOnly: true
+          type: string
+        debt_merchant_aliases:
+          type:
+          - string
+          - 'null'
+        frequency:
+          type: integer
+          writeOnly: true
+        group_id:
+          enum:
+          - Uber
+          - Google
+          - Intuit
+          - debt.mca_or_rbf
+          - debt.non_bank_business
+          - debt.equipment_and_auto_leasing
+          - debt.mortgage
+          - debt.personal_non_mortgage
+          - debt.collections
+          - debt.bank
+          - invoice_factoring
+          - fuel_provider
+          - gambling_and_betting
+          - null
+          type:
+          - string
+          - 'null'
+        heron_id:
+          example: mrc_RTgUcM9od9w9fwU8YG6mjH
+          readOnly: true
+          type: string
+        icon_url:
+          format: url
+          type:
+          - string
+          - 'null'
+        id:
+          readOnly: true
+          type: integer
+        is_deleted:
+          readOnly: true
+          type: boolean
+        is_priority:
+          readOnly: true
+          type: boolean
+        logo_url:
+          format: url
+          type:
+          - string
+          - 'null'
+        name:
+          type: string
+        regex_aliases:
+          items:
+            type: string
+          type:
+          - array
+          - 'null'
+        url:
+          format: url
+          type: string
+        use_name_as_alias:
+          type:
+          - boolean
+          - 'null'
+      required:
+      - name
+      - url
+      type: object
+    MerchantCategory:
+      properties:
+        code:
+          example: '7311'
+          readOnly: true
+          type: string
+        description:
+          example: Advertising services
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        slug:
+          example: advertising_services
+          readOnly: true
+          type:
+          - string
+          - 'null'
+      required:
+      - code
+      type: object
+    UserMerchantGroupSchema:
+      properties:
+        group_id:
+          type: string
+        merchant_heron_id:
+          type: string
+        merchant_name:
+          type: string
+      required:
+      - merchant_heron_id
+      - merchant_name
+      type: object
+    MerchantExtract:
+      properties:
+        categories:
+          items:
+            $ref: '#/components/schemas/MerchantCategory'
+          readOnly: true
+          type: array
+        confidence:
+          maximum: 1.0
+          minimum: 0.0
+          type:
+          - number
+          - 'null'
+        group_id:
+          type: string
+        heron_id:
+          example: mrc_RTgUcM9od9w9fwU8YG6mjH
+          readOnly: true
+          type: string
+        icon_url:
+          format: url
+          readOnly: true
+          type: string
+        logo_url:
+          format: url
+          readOnly: true
+          type: string
+        name:
+          example: Amazon
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        url:
+          example: https://www.amazon.com/
+          format: url
+          readOnly: true
+          type:
+          - string
+          - 'null'
+      type: object
+    PaymentProcessor:
+      properties:
+        heron_id:
+          example: mrc_nRYdGU7nYuevb7qem65cEb
+          readOnly: true
+          type: string
+        icon_url:
+          example: https://storage.googleapis.com/heron-merchant-assets/icons/mrc_nRYdGU7nYuevb7qem65cEb.svg
+          format: url
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        logo_url:
+          example: https://storage.googleapis.com/heron-merchant-assets/logos/mrc_nRYdGU7nYuevb7qem65cEb.svg
+          format: url
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        name:
+          example: Paypal
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        url:
+          example: https://www.paypal.com
+          format: url
+          readOnly: true
+          type:
+          - string
+          - 'null'
+      type: object
+    MerchantGroup:
+      properties:
+        description:
+          description: Description of merchant group
+          type: string
+        id:
+          description: Unique ID of merchant group
+          type: string
+        name:
+          description: Display name of merchant group
+          type: string
+      type: object
+    Merchant:
+      properties:
+        categories:
+          items:
+            $ref: '#/components/schemas/MerchantCategory'
+          readOnly: true
+          type: array
+        group_id:
+          enum:
+          - Uber
+          - Google
+          - Intuit
+          - debt.mca_or_rbf
+          - debt.non_bank_business
+          - debt.equipment_and_auto_leasing
+          - debt.mortgage
+          - debt.personal_non_mortgage
+          - debt.collections
+          - debt.bank
+          - invoice_factoring
+          - fuel_provider
+          - gambling_and_betting
+          - null
+          type:
+          - string
+          - 'null'
+        heron_id:
+          example: mrc_RTgUcM9od9w9fwU8YG6mjH
+          readOnly: true
+          type: string
+        icon_url:
+          format: url
+          type:
+          - string
+          - 'null'
+        is_priority:
+          readOnly: true
+          type: boolean
+        logo_url:
+          format: url
+          type:
+          - string
+          - 'null'
+        name:
+          type: string
+        url:
+          format: url
+          type: string
+      required:
+      - name
+      - url
+      type: object
+  securitySchemes:
+    ApiKeyAuth:
+      in: header
+      name: x-api-key
+      type: apiKey
+externalDocs:
+  description: Read Tutorial
+  url: https://docs.herondata.io/

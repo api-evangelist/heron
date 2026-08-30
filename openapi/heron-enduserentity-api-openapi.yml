@@ -1,0 +1,962 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@herondata.io
+    name: Support
+  title: Heron Data End User Entity API
+  version: '2021-07-19'
+servers:
+- description: Production
+  url: https://app.herondata.io
+security:
+- ApiKeyAuth:
+  - key_XXX
+tags:
+- name: EndUserEntity
+paths:
+  /api/end_user_entities:
+    get:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/NestedEndUserEntitySchema'
+                type: array
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Get the definitions for all end user entities
+      tags:
+      - EndUserEntity
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateEndUserEntitySchema'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EndUserEntitySchema'
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Create an end user entity
+      tags:
+      - EndUserEntity
+  /api/end_user_entities/attribute_values/export:
+    get:
+      description: 'Export a spreadsheet with saved entity attribute values (API sources only) for all end users under the current user.
+
+        '
+      responses:
+        '200':
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                format: binary
+                type: string
+          description: OK
+        '404':
+          description: No end users or API attribute values found
+      security:
+      - ApiKeyAuth: []
+      summary: Export all saved attribute for all end users to an Excel file
+      tags:
+      - EndUserEntity
+  /api/end_user_entities/reorder:
+    patch:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReorderEndUserEntitiesSchema'
+        required: true
+      responses:
+        '200':
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Set the display order of end user entities
+      tags:
+      - EndUserEntity
+  /api/end_user_entities/{entity_heron_id}/attributes:
+    post:
+      parameters:
+      - in: path
+        name: entity_heron_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateEndUserEntityAttributeSchema'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EndUserEntityAttributeSchema'
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Create an end user entity attribute
+      tags:
+      - EndUserEntity
+  /api/end_user_entities/{entity_heron_id}/attributes/reorder:
+    patch:
+      parameters:
+      - in: path
+        name: entity_heron_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReorderEndUserEntityAttributesSchema'
+        required: true
+      responses:
+        '200':
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Set the display order of end user entity attributes
+      tags:
+      - EndUserEntity
+  /api/end_user_entities/{entity_heron_id}/attributes/{attribute_heron_id}:
+    delete:
+      parameters:
+      - in: path
+        name: entity_heron_id
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: attribute_heron_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: Indicates if the delete operation was successful
+                    type: boolean
+                required:
+                - success
+                type: object
+          description: Successfully deleted the EndUserEntity attribute
+        '404':
+          description: EndUserEntity attribute not found
+      security:
+      - ApiKeyAuth: []
+      summary: Delete an EndUserEntityAttribute
+      tags:
+      - EndUserEntity
+    patch:
+      parameters:
+      - in: path
+        name: entity_heron_id
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: attribute_heron_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateEndUserEntityAttributeSchema'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EndUserEntityAttributeSchema'
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Update an end user entity
+      tags:
+      - EndUserEntity
+  /api/end_user_entities/{entity_heron_id}/attributes/{attribute_heron_id}/clone:
+    post:
+      parameters:
+      - in: path
+        name: entity_heron_id
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: attribute_heron_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CloneEndUserEntityAttributeSchema'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EndUserEntityAttributeSchema'
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Create an end user entity attribute
+      tags:
+      - EndUserEntity
+  /api/end_user_entities/{entity_heron_id}/attributes/{attribute_heron_id}/sources:
+    post:
+      parameters:
+      - in: path
+        name: entity_heron_id
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: attribute_heron_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateEndUserEntityAttributeSourceSchema'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EndUserEntityAttributeSourceSchema'
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Create an end user entity attribute source
+      tags:
+      - EndUserEntity
+  /api/end_user_entities/{entity_heron_id}/attributes/{attribute_heron_id}/sources/{source_heron_id}:
+    delete:
+      parameters:
+      - in: path
+        name: entity_heron_id
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: attribute_heron_id
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: source_heron_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    type: boolean
+                type: object
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Delete an EndUserEntityAttribute
+      tags:
+      - EndUserEntity
+    patch:
+      parameters:
+      - in: path
+        name: entity_heron_id
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: attribute_heron_id
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: source_heron_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateEndUserEntityAttributeSourceSchema'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EndUserEntityAttributeSourceSchema'
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Upsert an end user entity
+      tags:
+      - EndUserEntity
+  /api/end_user_entities/{heron_id}:
+    delete:
+      parameters:
+      - description: The Integration's heron_id
+        in: path
+        name: heron_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    type: boolean
+                type: object
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Delete an EndUserEntity
+      tags:
+      - EndUserEntity
+    patch:
+      parameters:
+      - in: path
+        name: heron_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateEndUserEntitySchema'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EndUserEntitySchema'
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Update an end user entity
+      tags:
+      - EndUserEntity
+  /api/end_users/{end_user_heron_id}/entities:
+    get:
+      parameters:
+      - in: path
+        name: end_user_heron_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/MaterialisedEndUserEntitySchema'
+                type: array
+          description: OK
+      security:
+      - ApiKeyAuth: []
+      summary: Get the materialised end user entities for an end user
+      tags:
+      - EndUserEntity
+  /api/end_users/{end_user_heron_id}/entities/values/bulk:
+    put:
+      description: 'Save multiple entity attribute values in a single request.
+
+        Each item specifies the entity name, attribute name, and value to set.
+
+        If an API source doesn''t exist for an attribute, one will be created.
+
+        '
+      parameters:
+      - description: The Heron ID of the end user
+        in: path
+        name: end_user_heron_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BulkSaveEntityAttributeValuesSchema'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/BulkSaveEntityAttributeValueResultSchema'
+                type: array
+          description: Results for each item in the bulk request
+        '404':
+          description: End user not found
+      security:
+      - ApiKeyAuth: []
+      summary: Bulk save entity attribute values by entity name and attribute name
+      tags:
+      - EndUserEntity
+  /api/end_users/{end_user_heron_id}/entities/{entity_heron_id}:
+    post:
+      parameters:
+      - in: path
+        name: end_user_heron_id
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: entity_heron_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpsertEndUserEntityAttributeValueSchema'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EndUserEntityAttributeValueSchema'
+          description: OK
+        '204':
+          description: No Content (value was deleted)
+      security:
+      - ApiKeyAuth: []
+      summary: Upsert the attribute value for an end user entity attribute source
+      tags:
+      - EndUserEntity
+  /api/entities/post_processors:
+    get:
+      description: Returns a list of all available post processors that can be applied to entity attributes
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostProcessorsResponseSchema'
+          description: List of available post processor and configurations
+      security:
+      - ApiKeyAuth: []
+      summary: Get all available post processors
+      tags:
+      - EndUserEntity
+      x-hidden: true
+components:
+  schemas:
+    EndUserEntityAttributeSource:
+      properties:
+        heron_id:
+          type:
+          - string
+          - 'null'
+        sort_order:
+          type: integer
+        source_config:
+          additionalProperties: {}
+          type: object
+        source_type:
+          enum:
+          - parsed_end_user_file
+          - api
+          - rel_6
+          - end_user_enricher
+          - company_attribute
+          - static_value
+          - end_user_query
+          - broker_submission_api
+      type: object
+    EndUserEntityAttributeSourceSchema:
+      properties:
+        heron_id:
+          type:
+          - string
+          - 'null'
+        sort_order:
+          type: integer
+        source_config:
+          additionalProperties: {}
+          type: object
+        source_type:
+          enum:
+          - parsed_end_user_file
+          - api
+          - rel_6
+          - end_user_enricher
+          - company_attribute
+          - static_value
+          - end_user_query
+          - broker_submission_api
+      type: object
+    UpdateEndUserEntityAttributeSourceSchema:
+      properties:
+        sort_order:
+          type: integer
+        source_config:
+          additionalProperties: {}
+          type: object
+        source_type:
+          enum:
+          - parsed_end_user_file
+          - api
+          - rel_6
+          - end_user_enricher
+          - company_attribute
+          - static_value
+          - end_user_query
+          - broker_submission_api
+      type: object
+    UpdateEndUserEntitySchema:
+      properties:
+        display_order:
+          type: integer
+        entity_description:
+          type: string
+        entity_name:
+          type: string
+        entity_post_processor_configs:
+          items:
+            additionalProperties: {}
+            type: object
+          type: array
+        is_list:
+          type: boolean
+        saved_query_heron_id:
+          type:
+          - string
+          - 'null'
+      type: object
+    NestedEndUserEntityAttribute:
+      properties:
+        attribute_description:
+          type: string
+        attribute_name:
+          type: string
+        attribute_sources:
+          items:
+            $ref: '#/components/schemas/EndUserEntityAttributeSource'
+          type: array
+        attribute_type:
+          enum:
+          - float
+          - int
+          - decimal
+          - string
+          - date
+          - datetime
+          - bool
+        display_order:
+          type: integer
+        heron_id:
+          type: string
+        is_dedupe_key:
+          default: false
+          type: boolean
+        reconciliation_config:
+          additionalProperties: {}
+          type: object
+        reconciliation_strategy:
+          enum:
+          - sort_order
+          - llm
+          - comparison
+          - concatenate_lists
+      type: object
+    EndUserEntitySchema:
+      properties:
+        display_order:
+          type: integer
+        entity_description:
+          type: string
+        entity_name:
+          type: string
+        entity_post_processor_configs:
+          default: []
+          items:
+            additionalProperties: {}
+            type: object
+          type: array
+        heron_id:
+          type: string
+        is_list:
+          type: boolean
+        saved_query_heron_id:
+          type:
+          - string
+          - 'null'
+      type: object
+    MaterialisedEndUserEntityAttribute:
+      properties:
+        attribute_heron_id:
+          type: string
+        attribute_name:
+          type: string
+        attribute_type:
+          enum:
+          - float
+          - int
+          - decimal
+          - string
+          - date
+          - datetime
+          - bool
+        display_order:
+          type: integer
+        materialised_sources:
+          items:
+            $ref: '#/components/schemas/MaterialisedEndUserEntityAttributeSource'
+          type: array
+        selected_source:
+          allOf:
+          - $ref: '#/components/schemas/MaterialisedEndUserEntityAttributeSource'
+      type: object
+    UpdateEndUserEntityAttributeSchema:
+      properties:
+        attribute_description:
+          type: string
+        attribute_name:
+          type: string
+        attribute_type:
+          enum:
+          - float
+          - int
+          - decimal
+          - string
+          - date
+          - datetime
+          - bool
+        is_dedupe_key:
+          type: boolean
+        reconciliation_config:
+          additionalProperties: {}
+          type: object
+        reconciliation_strategy:
+          enum:
+          - sort_order
+          - llm
+          - comparison
+          - concatenate_lists
+      type: object
+    PostProcessorConfigSchema:
+      properties:
+        description:
+          type:
+          - string
+          - 'null'
+        inputs:
+          additionalProperties: {}
+          type:
+          - object
+          - 'null'
+        name:
+          type: string
+      required:
+      - name
+      type: object
+    BulkSaveEntityAttributeValueItem:
+      properties:
+        attribute_name:
+          description: Name of the attribute to set the value for
+          type: string
+        entity_name:
+          description: Name of the entity to target
+          type: string
+        value:
+          description: The value to set for the attribute
+      required:
+      - attribute_name
+      - entity_name
+      - value
+      type: object
+    BulkSaveEntityAttributeValuesSchema:
+      properties:
+        values:
+          description: List of entity attribute values to save
+          items:
+            $ref: '#/components/schemas/BulkSaveEntityAttributeValueItem'
+          type: array
+      required:
+      - values
+      type: object
+    UpsertEndUserEntityAttributeValueSchema:
+      properties:
+        attribute_heron_id:
+          type: string
+        source_heron_id:
+          type: string
+        value: {}
+      required:
+      - attribute_heron_id
+      - source_heron_id
+      - value
+      type: object
+    ReorderEndUserEntitiesSchema:
+      properties:
+        ordered_entity_heron_ids:
+          items:
+            type: string
+          type: array
+      required:
+      - ordered_entity_heron_ids
+      type: object
+    BulkSaveEntityAttributeValueResultSchema:
+      properties:
+        attribute_name:
+          description: Name of the attribute
+          type: string
+        entity_name:
+          description: Name of the entity
+          type: string
+        error:
+          description: Error message if the save failed
+          type:
+          - string
+          - 'null'
+        success:
+          description: Whether the value was saved successfully
+          type: boolean
+      required:
+      - attribute_name
+      - entity_name
+      - success
+      type: object
+    CreateEndUserEntityAttributeSourceSchema:
+      properties:
+        sort_order:
+          type: integer
+        source_config:
+          additionalProperties: {}
+          type: object
+        source_type:
+          enum:
+          - parsed_end_user_file
+          - api
+          - rel_6
+          - end_user_enricher
+          - company_attribute
+          - static_value
+          - end_user_query
+          - broker_submission_api
+      type: object
+    CreateEndUserEntityAttributeSchema:
+      properties:
+        attribute_description:
+          type: string
+        attribute_name:
+          type: string
+        attribute_type:
+          enum:
+          - float
+          - int
+          - decimal
+          - string
+          - date
+          - datetime
+          - bool
+        display_order:
+          type: integer
+        is_dedupe_key:
+          default: false
+          type: boolean
+        reconciliation_config:
+          additionalProperties: {}
+          type: object
+        reconciliation_strategy:
+          enum:
+          - sort_order
+          - llm
+          - comparison
+          - concatenate_lists
+      required:
+      - attribute_name
+      type: object
+    CloneEndUserEntityAttributeSchema:
+      properties:
+        attribute_name:
+          type: string
+      required:
+      - attribute_name
+      type: object
+    EndUserEntityAttributeValueSchema:
+      properties:
+        heron_id:
+          type: string
+        value: {}
+      type: object
+    MaterialisedEndUserEntityAttributeSource:
+      properties:
+        source:
+          $ref: '#/components/schemas/EndUserEntityAttributeSourceSchema'
+        source_data:
+          additionalProperties: {}
+          type: object
+        timestamp:
+          format: date-time
+          type: string
+        value: {}
+      type: object
+    NestedEndUserEntitySchema:
+      properties:
+        display_order:
+          type: integer
+        entity_attributes:
+          items:
+            $ref: '#/components/schemas/NestedEndUserEntityAttribute'
+          type: array
+        entity_description:
+          type: string
+        entity_name:
+          type: string
+        entity_post_processor_configs:
+          default: []
+          items:
+            additionalProperties: {}
+            type: object
+          type: array
+        heron_id:
+          type: string
+        is_list:
+          type: boolean
+        saved_query_heron_id:
+          type:
+          - string
+          - 'null'
+      type: object
+    PostProcessorsResponseSchema:
+      properties:
+        post_processors:
+          items:
+            $ref: '#/components/schemas/PostProcessorConfigSchema'
+          type: array
+      required:
+      - post_processors
+      type: object
+    EndUserEntityAttributeSchema:
+      properties:
+        attribute_description:
+          type: string
+        attribute_name:
+          type: string
+        attribute_type:
+          enum:
+          - float
+          - int
+          - decimal
+          - string
+          - date
+          - datetime
+          - bool
+        display_order:
+          type: integer
+        heron_id:
+          type: string
+        is_dedupe_key:
+          default: false
+          type: boolean
+        reconciliation_config:
+          additionalProperties: {}
+          type: object
+        reconciliation_strategy:
+          enum:
+          - sort_order
+          - llm
+          - comparison
+          - concatenate_lists
+      type: object
+    ReorderEndUserEntityAttributesSchema:
+      properties:
+        ordered_attribute_heron_ids:
+          items:
+            type: string
+          type: array
+      required:
+      - ordered_attribute_heron_ids
+      type: object
+    CreateEndUserEntitySchema:
+      properties:
+        display_order:
+          type: integer
+        entity_description:
+          type: string
+        entity_name:
+          type: string
+        entity_post_processor_configs:
+          default: []
+          items:
+            additionalProperties: {}
+            type: object
+          type: array
+        is_list:
+          type: boolean
+        saved_query_heron_id:
+          type:
+          - string
+          - 'null'
+      required:
+      - entity_name
+      type: object
+    MaterialisedEndUserEntitySchema:
+      properties:
+        display_order:
+          type: integer
+        entity_heron_id:
+          type: string
+        entity_name:
+          type: string
+        is_list:
+          type: boolean
+        materialised_attributes:
+          items:
+            $ref: '#/components/schemas/MaterialisedEndUserEntityAttribute'
+          type: array
+      type: object
+  securitySchemes:
+    ApiKeyAuth:
+      in: header
+      name: x-api-key
+      type: apiKey
+externalDocs:
+  description: Read Tutorial
+  url: https://docs.herondata.io/

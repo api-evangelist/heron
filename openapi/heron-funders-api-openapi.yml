@@ -1,0 +1,236 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@herondata.io
+    name: Support
+  title: Heron Data Funders API
+  version: '2021-07-19'
+servers:
+- description: Production
+  url: https://app.herondata.io
+security:
+- ApiKeyAuth:
+  - key_XXX
+tags:
+- name: Funders
+paths:
+  /api/funders/:
+    get:
+      description: 'Returns funders whose name or aliases fuzzy-match `q`, capped at `limit` (max 50).
+
+        Requires `q` (min 3 characters); bulk listing is no longer supported.
+
+        '
+      parameters:
+      - description: Funder name (or alias) prefix/fuzzy search term.
+        in: query
+        name: q
+        required: true
+        schema:
+          minLength: 3
+          type: string
+      - description: Maximum number of matching funders to return (capped server-side).
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 50
+          maximum: 50
+          minimum: 1
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Funder'
+                type: array
+          description: Matching funders sorted by similarity descending.
+      security:
+      - ApiKeyAuth: []
+      summary: Search funders by name
+      tags:
+      - Funders
+  /api/funders/linked:
+    get:
+      description: Get a list of funders linked to the current user
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  funders:
+                    items:
+                      $ref: '#/components/schemas/Funder'
+                    type: array
+                type: object
+          description: List of user's linked funders
+      security:
+      - ApiKeyAuth: []
+      summary: List your linked funders
+      tags:
+      - Funders
+  /api/funders/search/:
+    get:
+      description: 'Search the Heron funder database by name using fuzzy matching. Returns a lightweight list of matching funders for the frontend picker UI.
+
+        '
+      parameters:
+      - description: Funder name to search for (e.g. 'iwoca', 'Funding Circle')
+        in: query
+        name: query
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/FunderSearchResultSchema'
+                type: array
+          description: List of matching funders
+      security:
+      - ApiKeyAuth: []
+      summary: Search funders by name
+      tags:
+      - Funders
+  /api/funders/{heron_id}:
+    get:
+      description: Get details of a specific funder by heron_id
+      parameters:
+      - description: The funder's heron_id
+        in: path
+        name: heron_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  funder:
+                    $ref: '#/components/schemas/Funder'
+                type: object
+          description: Funder details
+        '404':
+          description: Funder not found
+      security:
+      - ApiKeyAuth: []
+      summary: Get a single funder
+      tags:
+      - Funders
+components:
+  schemas:
+    Funder:
+      additionalProperties: false
+      properties:
+        aliases:
+          items:
+            type: string
+          readOnly: true
+          type: array
+        classification_instructions:
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        created:
+          format: date-time
+          readOnly: true
+          type: string
+        email_domains:
+          items:
+            type: string
+          readOnly: true
+          type: array
+        extraction_instructions:
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        heron_id:
+          readOnly: true
+          type: string
+        last_updated:
+          format: date-time
+          readOnly: true
+          type: string
+        logo_url:
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        merchant_heron_id:
+          readOnly: true
+          type: string
+        name:
+          readOnly: true
+          type: string
+        offer_email_instructions:
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        offer_portal_instructions:
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        offer_source:
+          enum:
+          - email
+          - api
+          - web_portal
+          - all_offers
+          - crm_lendsaas
+          - null
+          readOnly: true
+        slug:
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        submission_channel:
+          enum:
+          - email
+          - api
+          - web_portal
+          - all_offers
+          - crm_lendsaas
+          - null
+          readOnly: true
+        submission_email_address:
+          readOnly: true
+          type:
+          - string
+          - 'null'
+      type: object
+    FunderSearchResultSchema:
+      additionalProperties: false
+      properties:
+        heron_id:
+          readOnly: true
+          type: string
+        logo_url:
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        name:
+          readOnly: true
+          type: string
+      type: object
+  securitySchemes:
+    ApiKeyAuth:
+      in: header
+      name: x-api-key
+      type: apiKey
+externalDocs:
+  description: Read Tutorial
+  url: https://docs.herondata.io/

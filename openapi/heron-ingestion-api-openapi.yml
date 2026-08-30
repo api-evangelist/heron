@@ -1,0 +1,67 @@
+openapi: 3.2.0
+info:
+  contact:
+    email: support@herondata.io
+    name: Support
+  title: Heron Data Ingestion API
+  version: '2021-07-19'
+servers:
+- description: Production
+  url: https://app.herondata.io
+security:
+- ApiKeyAuth:
+  - key_XXX
+tags:
+- name: Ingestion
+paths:
+  /api/ingestion/crm/{crm_integration_heron_id}:
+    post:
+      description: 'Receives a webhook payload from a CRM integration and syncs the end user via the ingestion pipeline. Per-CRM payload shapes are parsed by the matching CRM client; only the generic ingestion controls documented below are read directly here.
+
+        '
+      parameters:
+      - description: Heron ID of the CRM integration
+        in: path
+        name: crm_integration_heron_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                start_workflow:
+                  default: false
+                  description: 'When true, entity data nudges the policy workflow only if no files are saved. Saved files start the workflow through their classification pipeline. Broker callers omit it because their submission trigger owns workflow progress.
+
+                    '
+                  type: boolean
+              type: object
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  end_user_heron_id:
+                    type: string
+                type: object
+          description: End user successfully ingested
+        '400':
+          description: Invalid payload or unsupported CRM provider
+        '404':
+          description: CRM integration not found
+      summary: Ingest end user data from a CRM webhook
+      tags:
+      - Ingestion
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      in: header
+      name: x-api-key
+      type: apiKey
+externalDocs:
+  description: Read Tutorial
+  url: https://docs.herondata.io/
