@@ -58,7 +58,7 @@ tags:
 - Document Automation
 - Underwriting
 - Lending
-- Cash Flow Analytics
+- Cashflow Analytics
 - Fintech
 - Data Enrichment
 - Bank Statements
@@ -107,6 +107,8 @@ apis:
   humanURL: https://docs.herondata.io/
   baseURL: https://app.herondata.io/api
   tags:
+  - App Store
+  tags_raw:
   - AppStore
   properties:
   - type: OpenAPI
@@ -275,6 +277,8 @@ apis:
   humanURL: https://docs.herondata.io/
   baseURL: https://app.herondata.io/api
   tags:
+  - CRM Integrations
+  tags_raw:
   - CrmIntegrations
   properties:
   - type: OpenAPI
@@ -299,6 +303,8 @@ apis:
   humanURL: https://docs.herondata.io/
   baseURL: https://app.herondata.io/api
   tags:
+  - Email Templates
+  tags_raw:
   - EmailTemplates
   properties:
   - type: OpenAPI
@@ -347,6 +353,8 @@ apis:
   humanURL: https://docs.herondata.io/
   baseURL: https://app.herondata.io/api
   tags:
+  - End User Accounts
+  tags_raw:
   - EndUserAccounts
   properties:
   - type: OpenAPI
@@ -660,6 +668,8 @@ apis:
   humanURL: https://docs.herondata.io/
   baseURL: https://app.herondata.io/api
   tags:
+  - End Users
+  tags_raw:
   - EndUsers
   properties:
   - type: OpenAPI
@@ -852,6 +862,8 @@ apis:
   humanURL: https://docs.herondata.io/
   baseURL: https://app.herondata.io/api
   tags:
+  - Integration
+  tags_raw:
   - Integrations
   properties:
   - type: OpenAPI
@@ -1092,6 +1104,8 @@ apis:
   humanURL: https://docs.herondata.io/
   baseURL: https://app.herondata.io/api
   tags:
+  - Transaction
+  tags_raw:
   - Transactions
   properties:
   - type: OpenAPI
@@ -1140,6 +1154,8 @@ apis:
   humanURL: https://docs.herondata.io/
   baseURL: https://app.herondata.io/api
   tags:
+  - User
+  tags_raw:
   - Users
   properties:
   - type: OpenAPI
@@ -1188,6 +1204,8 @@ apis:
   humanURL: https://docs.herondata.io/
   baseURL: https://app.herondata.io/api
   tags:
+  - Webhook
+  tags_raw:
   - Webhooks
   properties:
   - type: OpenAPI
