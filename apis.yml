@@ -98,32 +98,6 @@ apis:
     url: asyncapi/heron-webhooks-asyncapi.yml
   - type: Webhooks
     url: asyncapi/heron-webhooks-asyncapi.yml
-- aid: heron:heron-appstore-api
-  name: Heron App Store API
-  description: The AppStore API from Heron — 1 operation(s) for appstore.
-  humanURL: https://docs.herondata.io/
-  baseURL: https://app.herondata.io/api
-  tags:
-  - App Store
-  tags_raw:
-  - AppStore
-  properties:
-  - type: OpenAPI
-    url: openapi/heron-appstore-api-openapi.yml
-  - type: Documentation
-    url: https://docs.herondata.io/
-  - type: APIReference
-    url: https://docs.herondata.io/api-reference/authentication
-  - type: GettingStarted
-    url: https://docs.herondata.io/
-  - type: LLMsTxt
-    url: llms/heron-llms.txt
-  - type: Authentication
-    url: authentication/heron-authentication.yml
-  - type: AsyncAPI
-    url: asyncapi/heron-webhooks-asyncapi.yml
-  - type: Webhooks
-    url: asyncapi/heron-webhooks-asyncapi.yml
 - aid: heron:heron-authentication-api
   name: Heron Authentication API
   description: The Authentication API from Heron — 1 operation(s) for authentication.
@@ -294,32 +268,6 @@ apis:
     url: asyncapi/heron-webhooks-asyncapi.yml
   - type: Webhooks
     url: asyncapi/heron-webhooks-asyncapi.yml
-- aid: heron:heron-emailtemplates-api
-  name: Heron Email Templates API
-  description: The EmailTemplates API from Heron — 2 operation(s) for emailtemplates.
-  humanURL: https://docs.herondata.io/
-  baseURL: https://app.herondata.io/api
-  tags:
-  - Email Templates
-  tags_raw:
-  - EmailTemplates
-  properties:
-  - type: OpenAPI
-    url: openapi/heron-emailtemplates-api-openapi.yml
-  - type: Documentation
-    url: https://docs.herondata.io/
-  - type: APIReference
-    url: https://docs.herondata.io/api-reference/authentication
-  - type: GettingStarted
-    url: https://docs.herondata.io/
-  - type: LLMsTxt
-    url: llms/heron-llms.txt
-  - type: Authentication
-    url: authentication/heron-authentication.yml
-  - type: AsyncAPI
-    url: asyncapi/heron-webhooks-asyncapi.yml
-  - type: Webhooks
-    url: asyncapi/heron-webhooks-asyncapi.yml
 - aid: heron:heron-end-users-api
   name: Heron End Users API
   description: The End Users API from Heron — 3 operation(s) for end users.
@@ -330,32 +278,6 @@ apis:
   properties:
   - type: OpenAPI
     url: openapi/heron-end-users-api-openapi.yml
-  - type: Documentation
-    url: https://docs.herondata.io/
-  - type: APIReference
-    url: https://docs.herondata.io/api-reference/authentication
-  - type: GettingStarted
-    url: https://docs.herondata.io/
-  - type: LLMsTxt
-    url: llms/heron-llms.txt
-  - type: Authentication
-    url: authentication/heron-authentication.yml
-  - type: AsyncAPI
-    url: asyncapi/heron-webhooks-asyncapi.yml
-  - type: Webhooks
-    url: asyncapi/heron-webhooks-asyncapi.yml
-- aid: heron:heron-enduseraccounts-api
-  name: Heron End User Accounts API
-  description: The EndUserAccounts API from Heron — 1 operation(s) for enduseraccounts.
-  humanURL: https://docs.herondata.io/
-  baseURL: https://app.herondata.io/api
-  tags:
-  - End User Accounts
-  tags_raw:
-  - EndUserAccounts
-  properties:
-  - type: OpenAPI
-    url: openapi/heron-enduseraccounts-api-openapi.yml
   - type: Documentation
     url: https://docs.herondata.io/
   - type: APIReference
@@ -420,7 +342,8 @@ apis:
     url: asyncapi/heron-webhooks-asyncapi.yml
 - aid: heron:heron-enduserdatasourceaccounts-api
   name: Heron End User Data Source Accounts API
-  description: The EndUserDataSourceAccounts API from Heron — 3 operation(s) for enduserdatasourceaccounts.
+  description: >-
+    The EndUserDataSourceAccounts API from Heron — 3 operation(s) for enduserdatasourceaccounts.
   humanURL: https://docs.herondata.io/
   baseURL: https://app.herondata.io/api
   tags:
@@ -644,32 +567,6 @@ apis:
   properties:
   - type: OpenAPI
     url: openapi/heron-enduserrules-api-openapi.yml
-  - type: Documentation
-    url: https://docs.herondata.io/
-  - type: APIReference
-    url: https://docs.herondata.io/api-reference/authentication
-  - type: GettingStarted
-    url: https://docs.herondata.io/
-  - type: LLMsTxt
-    url: llms/heron-llms.txt
-  - type: Authentication
-    url: authentication/heron-authentication.yml
-  - type: AsyncAPI
-    url: asyncapi/heron-webhooks-asyncapi.yml
-  - type: Webhooks
-    url: asyncapi/heron-webhooks-asyncapi.yml
-- aid: heron:heron-endusers-api
-  name: Heron End Users API
-  description: The EndUsers API from Heron — 20 operation(s) for endusers.
-  humanURL: https://docs.herondata.io/
-  baseURL: https://app.herondata.io/api
-  tags:
-  - End Users
-  tags_raw:
-  - EndUsers
-  properties:
-  - type: OpenAPI
-    url: openapi/heron-endusers-api-openapi.yml
   - type: Documentation
     url: https://docs.herondata.io/
   - type: APIReference
@@ -1230,6 +1127,78 @@ apis:
   properties:
   - type: OpenAPI
     url: openapi/heron-workflows-api-openapi.yml
+  - type: Documentation
+    url: https://docs.herondata.io/
+  - type: APIReference
+    url: https://docs.herondata.io/api-reference/authentication
+  - type: GettingStarted
+    url: https://docs.herondata.io/
+  - type: LLMsTxt
+    url: llms/heron-llms.txt
+  - type: Authentication
+    url: authentication/heron-authentication.yml
+  - type: AsyncAPI
+    url: asyncapi/heron-webhooks-asyncapi.yml
+  - type: Webhooks
+    url: asyncapi/heron-webhooks-asyncapi.yml
+- aid: heron:heron-app-store-api
+  name: Heron App Store API
+  description: The App Store API from Heron — 1 operation(s) for app store.
+  humanURL: https://docs.herondata.io/
+  baseURL: https://app.herondata.io/api
+  tags:
+  - App Store
+  properties:
+  - type: OpenAPI
+    url: openapi/heron-app-store-api-openapi.yml
+  - type: Documentation
+    url: https://docs.herondata.io/
+  - type: APIReference
+    url: https://docs.herondata.io/api-reference/authentication
+  - type: GettingStarted
+    url: https://docs.herondata.io/
+  - type: LLMsTxt
+    url: llms/heron-llms.txt
+  - type: Authentication
+    url: authentication/heron-authentication.yml
+  - type: AsyncAPI
+    url: asyncapi/heron-webhooks-asyncapi.yml
+  - type: Webhooks
+    url: asyncapi/heron-webhooks-asyncapi.yml
+- aid: heron:heron-email-templates-api
+  name: Heron Email Templates API
+  description: The Email Templates API from Heron — 2 operation(s) for email templates.
+  humanURL: https://docs.herondata.io/
+  baseURL: https://app.herondata.io/api
+  tags:
+  - Email Templates
+  properties:
+  - type: OpenAPI
+    url: openapi/heron-email-templates-api-openapi.yml
+  - type: Documentation
+    url: https://docs.herondata.io/
+  - type: APIReference
+    url: https://docs.herondata.io/api-reference/authentication
+  - type: GettingStarted
+    url: https://docs.herondata.io/
+  - type: LLMsTxt
+    url: llms/heron-llms.txt
+  - type: Authentication
+    url: authentication/heron-authentication.yml
+  - type: AsyncAPI
+    url: asyncapi/heron-webhooks-asyncapi.yml
+  - type: Webhooks
+    url: asyncapi/heron-webhooks-asyncapi.yml
+- aid: heron:heron-end-user-accounts-api
+  name: Heron End User Accounts API
+  description: The End User Accounts API from Heron — 1 operation(s) for end user accounts.
+  humanURL: https://docs.herondata.io/
+  baseURL: https://app.herondata.io/api
+  tags:
+  - End User Accounts
+  properties:
+  - type: OpenAPI
+    url: openapi/heron-end-user-accounts-api-openapi.yml
   - type: Documentation
     url: https://docs.herondata.io/
   - type: APIReference
