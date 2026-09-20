@@ -11,8 +11,32 @@ capability_model:
   attribution: Turbo EA Capabilities by Vincent Verdet — Turbo EA, https://github.com/vincentmakes/turbo-ea-capabilities,
     CC BY 4.0
   notice: NOTICE
-edge_count: 5
+edge_count: 7
 edges:
+- tag: Webhooks
+  spec_file: heron-webhooks-api-openapi.yml
+  capability_id: BC-4270.80
+  capability_id_l1: BC-4270
+  capability_name: Webhook & Event Subscription Management
+  confidence: 0.82
+  evidence: '"Create a webhook", "Get webhook topics", "Update a webhook", WebhookSchema'
+  reason: Operations manage the lifecycle of outbound webhook subscriptions and enumerate available event
+    topics, which is exactly Webhook & Event Subscription Management within the developer-platform capability.
+    Confidence held below 0.9 because such surfaces are also plain integration plumbing.
+  recovered_from: sweep-20260829T005356Z-edges.json
+- tag: Credentials
+  spec_file: heron-credentials-api-openapi.yml
+  capability_id: BC-4270.40
+  capability_id_l1: BC-4270
+  capability_name: Developer Identity & Credential Management
+  confidence: 0.75
+  evidence: GET /api/credentials/keys 'List API keys'; POST 'Create a new API key'; PUT '/keys/{heron_id}/activate'
+    ; schemas 'CreateKeySchema', 'ApiKeyWithLastUsedSchema'
+  reason: The operations are pure lifecycle management of API keys used by external integrators of Heron's
+    public API — issuance, deletion, activation/deactivation, last-used tracking. That is developer credential
+    stewardship on a developer-platform surface. Some ambiguity versus generic Identity & Access Management,
+    hence 0.75.
+  recovered_from: sweep-20260829T005356Z-edges.json
 - tag: EndUserCalculations
   spec_file: heron-endusercalculations-api-openapi.yml
   capability_id: BC-1320.20
