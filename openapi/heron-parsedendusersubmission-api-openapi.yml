@@ -37,6 +37,8 @@ paths:
       summary: Get parsed submissions for an End User
       tags:
       - ParsedEndUserSubmission
+      operationId: getApiSubmissionParsersByEndUserHeronId
+      x-operation-id-source: derived
 components:
   schemas:
     ParsedEndUserSubmissionSchema:

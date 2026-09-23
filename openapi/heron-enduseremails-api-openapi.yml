@@ -37,6 +37,8 @@ paths:
       summary: Export an end user email as an EML file
       tags:
       - EndUserEmails
+      operationId: getApiEndUserEmailsByHeronIdExport
+      x-operation-id-source: derived
 components:
   securitySchemes:
     ApiKeyAuth:

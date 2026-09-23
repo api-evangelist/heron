@@ -30,6 +30,8 @@ paths:
       summary: Get the definitions for all end user entities
       tags:
       - EndUserEntity
+      operationId: getApiEndUserEntities
+      x-operation-id-source: derived
     post:
       requestBody:
         content:
@@ -49,11 +51,11 @@ paths:
       summary: Create an end user entity
       tags:
       - EndUserEntity
+      operationId: postApiEndUserEntities
+      x-operation-id-source: derived
   /api/end_user_entities/attribute_values/export:
     get:
-      description: 'Export a spreadsheet with saved entity attribute values (API sources only) for all end users under the current user.
-
-        '
+      description: Export a spreadsheet with saved entity attribute values (API sources only) for all end users under the current user.
       responses:
         '200':
           content:
@@ -69,6 +71,8 @@ paths:
       summary: Export all saved attribute for all end users to an Excel file
       tags:
       - EndUserEntity
+      operationId: getApiEndUserEntitiesAttributeValuesExport
+      x-operation-id-source: derived
   /api/end_user_entities/reorder:
     patch:
       requestBody:
@@ -85,6 +89,8 @@ paths:
       summary: Set the display order of end user entities
       tags:
       - EndUserEntity
+      operationId: patchApiEndUserEntitiesReorder
+      x-operation-id-source: derived
   /api/end_user_entities/{entity_heron_id}/attributes:
     post:
       parameters:
@@ -111,6 +117,8 @@ paths:
       summary: Create an end user entity attribute
       tags:
       - EndUserEntity
+      operationId: postApiEndUserEntitiesByEntityHeronIdAttributes
+      x-operation-id-source: derived
   /api/end_user_entities/{entity_heron_id}/attributes/reorder:
     patch:
       parameters:
@@ -133,6 +141,8 @@ paths:
       summary: Set the display order of end user entity attributes
       tags:
       - EndUserEntity
+      operationId: patchApiEndUserEntitiesByEntityHeronIdAttributesReorder
+      x-operation-id-source: derived
   /api/end_user_entities/{entity_heron_id}/attributes/{attribute_heron_id}:
     delete:
       parameters:
@@ -166,6 +176,8 @@ paths:
       summary: Delete an EndUserEntityAttribute
       tags:
       - EndUserEntity
+      operationId: deleteApiEndUserEntitiesByEntityHeronIdAttributesByAttributeHeronId
+      x-operation-id-source: derived
     patch:
       parameters:
       - in: path
@@ -196,6 +208,8 @@ paths:
       summary: Update an end user entity
       tags:
       - EndUserEntity
+      operationId: patchApiEndUserEntitiesByEntityHeronIdAttributesByAttributeHeronId
+      x-operation-id-source: derived
   /api/end_user_entities/{entity_heron_id}/attributes/{attribute_heron_id}/clone:
     post:
       parameters:
@@ -227,6 +241,8 @@ paths:
       summary: Create an end user entity attribute
       tags:
       - EndUserEntity
+      operationId: postApiEndUserEntitiesByEntityHeronIdAttributesByAttributeHeronIdClone
+      x-operation-id-source: derived
   /api/end_user_entities/{entity_heron_id}/attributes/{attribute_heron_id}/sources:
     post:
       parameters:
@@ -258,6 +274,8 @@ paths:
       summary: Create an end user entity attribute source
       tags:
       - EndUserEntity
+      operationId: postApiEndUserEntitiesByEntityHeronIdAttributesByAttributeHeronIdSources
+      x-operation-id-source: derived
   /api/end_user_entities/{entity_heron_id}/attributes/{attribute_heron_id}/sources/{source_heron_id}:
     delete:
       parameters:
@@ -291,6 +309,8 @@ paths:
       summary: Delete an EndUserEntityAttribute
       tags:
       - EndUserEntity
+      operationId: deleteApiEndUserEntitiesByEntityHeronIdAttributesByAttributeHeronIdSourcesBySourceHeronId
+      x-operation-id-source: derived
     patch:
       parameters:
       - in: path
@@ -326,6 +346,8 @@ paths:
       summary: Upsert an end user entity
       tags:
       - EndUserEntity
+      operationId: patchApiEndUserEntitiesByEntityHeronIdAttributesByAttributeHeronIdSourcesBySourceHeronId
+      x-operation-id-source: derived
   /api/end_user_entities/{heron_id}:
     delete:
       parameters:
@@ -350,6 +372,8 @@ paths:
       summary: Delete an EndUserEntity
       tags:
       - EndUserEntity
+      operationId: deleteApiEndUserEntitiesByHeronId
+      x-operation-id-source: derived
     patch:
       parameters:
       - in: path
@@ -375,6 +399,8 @@ paths:
       summary: Update an end user entity
       tags:
       - EndUserEntity
+      operationId: patchApiEndUserEntitiesByHeronId
+      x-operation-id-source: derived
   /api/end_users/{end_user_heron_id}/entities:
     get:
       parameters:
@@ -397,15 +423,15 @@ paths:
       summary: Get the materialised end user entities for an end user
       tags:
       - EndUserEntity
+      operationId: getApiEndUsersByEndUserHeronIdEntities
+      x-operation-id-source: derived
   /api/end_users/{end_user_heron_id}/entities/values/bulk:
     put:
       description: 'Save multiple entity attribute values in a single request.
 
         Each item specifies the entity name, attribute name, and value to set.
 
-        If an API source doesn''t exist for an attribute, one will be created.
-
-        '
+        If an API source doesn''t exist for an attribute, one will be created.'
       parameters:
       - description: The Heron ID of the end user
         in: path
@@ -435,6 +461,8 @@ paths:
       summary: Bulk save entity attribute values by entity name and attribute name
       tags:
       - EndUserEntity
+      operationId: putApiEndUsersByEndUserHeronIdEntitiesValuesBulk
+      x-operation-id-source: derived
   /api/end_users/{end_user_heron_id}/entities/{entity_heron_id}:
     post:
       parameters:
@@ -468,6 +496,8 @@ paths:
       summary: Upsert the attribute value for an end user entity attribute source
       tags:
       - EndUserEntity
+      operationId: postApiEndUsersByEndUserHeronIdEntitiesByEntityHeronId
+      x-operation-id-source: derived
   /api/entities/post_processors:
     get:
       description: Returns a list of all available post processors that can be applied to entity attributes
@@ -484,6 +514,8 @@ paths:
       tags:
       - EndUserEntity
       x-hidden: true
+      operationId: getApiEntitiesPostProcessors
+      x-operation-id-source: derived
 components:
   schemas:
     EndUserEntityAttributeSource:
@@ -507,6 +539,204 @@ components:
           - static_value
           - end_user_query
           - broker_submission_api
+      type: object
+    EndUserEntitySchema:
+      properties:
+        display_order:
+          type: integer
+        entity_description:
+          type: string
+        entity_name:
+          type: string
+        entity_post_processor_configs:
+          default: []
+          items:
+            additionalProperties: {}
+            type: object
+          type: array
+        heron_id:
+          type: string
+        is_list:
+          type: boolean
+        saved_query_heron_id:
+          type:
+          - string
+          - 'null'
+      type: object
+    ReorderEndUserEntityAttributesSchema:
+      properties:
+        ordered_attribute_heron_ids:
+          items:
+            type: string
+          type: array
+      required:
+      - ordered_attribute_heron_ids
+      type: object
+    PostProcessorsResponseSchema:
+      properties:
+        post_processors:
+          items:
+            $ref: '#/components/schemas/PostProcessorConfigSchema'
+          type: array
+      required:
+      - post_processors
+      type: object
+    NestedEndUserEntityAttribute:
+      properties:
+        attribute_description:
+          type: string
+        attribute_name:
+          type: string
+        attribute_sources:
+          items:
+            $ref: '#/components/schemas/EndUserEntityAttributeSource'
+          type: array
+        attribute_type:
+          enum:
+          - float
+          - int
+          - decimal
+          - string
+          - date
+          - datetime
+          - bool
+        display_order:
+          type: integer
+        heron_id:
+          type: string
+        is_dedupe_key:
+          default: false
+          type: boolean
+        reconciliation_config:
+          additionalProperties: {}
+          type: object
+        reconciliation_strategy:
+          enum:
+          - sort_order
+          - llm
+          - comparison
+          - concatenate_lists
+      type: object
+    BulkSaveEntityAttributeValueItem:
+      properties:
+        attribute_name:
+          description: Name of the attribute to set the value for
+          type: string
+        entity_name:
+          description: Name of the entity to target
+          type: string
+        value:
+          description: The value to set for the attribute
+      required:
+      - attribute_name
+      - entity_name
+      - value
+      type: object
+    MaterialisedEndUserEntitySchema:
+      properties:
+        display_order:
+          type: integer
+        entity_heron_id:
+          type: string
+        entity_name:
+          type: string
+        is_list:
+          type: boolean
+        materialised_attributes:
+          items:
+            $ref: '#/components/schemas/MaterialisedEndUserEntityAttribute'
+          type: array
+      type: object
+    CreateEndUserEntitySchema:
+      properties:
+        display_order:
+          type: integer
+        entity_description:
+          type: string
+        entity_name:
+          type: string
+        entity_post_processor_configs:
+          default: []
+          items:
+            additionalProperties: {}
+            type: object
+          type: array
+        is_list:
+          type: boolean
+        saved_query_heron_id:
+          type:
+          - string
+          - 'null'
+      required:
+      - entity_name
+      type: object
+    UpdateEndUserEntityAttributeSchema:
+      properties:
+        attribute_description:
+          type: string
+        attribute_name:
+          type: string
+        attribute_type:
+          enum:
+          - float
+          - int
+          - decimal
+          - string
+          - date
+          - datetime
+          - bool
+        is_dedupe_key:
+          type: boolean
+        reconciliation_config:
+          additionalProperties: {}
+          type: object
+        reconciliation_strategy:
+          enum:
+          - sort_order
+          - llm
+          - comparison
+          - concatenate_lists
+      type: object
+    EndUserEntityAttributeSchema:
+      properties:
+        attribute_description:
+          type: string
+        attribute_name:
+          type: string
+        attribute_type:
+          enum:
+          - float
+          - int
+          - decimal
+          - string
+          - date
+          - datetime
+          - bool
+        display_order:
+          type: integer
+        heron_id:
+          type: string
+        is_dedupe_key:
+          default: false
+          type: boolean
+        reconciliation_config:
+          additionalProperties: {}
+          type: object
+        reconciliation_strategy:
+          enum:
+          - sort_order
+          - llm
+          - comparison
+          - concatenate_lists
+      type: object
+    ReorderEndUserEntitiesSchema:
+      properties:
+        ordered_entity_heron_ids:
+          items:
+            type: string
+          type: array
+      required:
+      - ordered_entity_heron_ids
       type: object
     EndUserEntityAttributeSourceSchema:
       properties:
@@ -548,6 +778,45 @@ components:
           - end_user_query
           - broker_submission_api
       type: object
+    NestedEndUserEntitySchema:
+      properties:
+        display_order:
+          type: integer
+        entity_attributes:
+          items:
+            $ref: '#/components/schemas/NestedEndUserEntityAttribute'
+          type: array
+        entity_description:
+          type: string
+        entity_name:
+          type: string
+        entity_post_processor_configs:
+          default: []
+          items:
+            additionalProperties: {}
+            type: object
+          type: array
+        heron_id:
+          type: string
+        is_list:
+          type: boolean
+        saved_query_heron_id:
+          type:
+          - string
+          - 'null'
+      type: object
+    UpsertEndUserEntityAttributeValueSchema:
+      properties:
+        attribute_heron_id:
+          type: string
+        source_heron_id:
+          type: string
+        value: {}
+      required:
+      - attribute_heron_id
+      - source_heron_id
+      - value
+      type: object
     UpdateEndUserEntitySchema:
       properties:
         display_order:
@@ -568,117 +837,6 @@ components:
           - string
           - 'null'
       type: object
-    NestedEndUserEntityAttribute:
-      properties:
-        attribute_description:
-          type: string
-        attribute_name:
-          type: string
-        attribute_sources:
-          items:
-            $ref: '#/components/schemas/EndUserEntityAttributeSource'
-          type: array
-        attribute_type:
-          enum:
-          - float
-          - int
-          - decimal
-          - string
-          - date
-          - datetime
-          - bool
-        display_order:
-          type: integer
-        heron_id:
-          type: string
-        is_dedupe_key:
-          default: false
-          type: boolean
-        reconciliation_config:
-          additionalProperties: {}
-          type: object
-        reconciliation_strategy:
-          enum:
-          - sort_order
-          - llm
-          - comparison
-          - concatenate_lists
-      type: object
-    EndUserEntitySchema:
-      properties:
-        display_order:
-          type: integer
-        entity_description:
-          type: string
-        entity_name:
-          type: string
-        entity_post_processor_configs:
-          default: []
-          items:
-            additionalProperties: {}
-            type: object
-          type: array
-        heron_id:
-          type: string
-        is_list:
-          type: boolean
-        saved_query_heron_id:
-          type:
-          - string
-          - 'null'
-      type: object
-    MaterialisedEndUserEntityAttribute:
-      properties:
-        attribute_heron_id:
-          type: string
-        attribute_name:
-          type: string
-        attribute_type:
-          enum:
-          - float
-          - int
-          - decimal
-          - string
-          - date
-          - datetime
-          - bool
-        display_order:
-          type: integer
-        materialised_sources:
-          items:
-            $ref: '#/components/schemas/MaterialisedEndUserEntityAttributeSource'
-          type: array
-        selected_source:
-          allOf:
-          - $ref: '#/components/schemas/MaterialisedEndUserEntityAttributeSource'
-      type: object
-    UpdateEndUserEntityAttributeSchema:
-      properties:
-        attribute_description:
-          type: string
-        attribute_name:
-          type: string
-        attribute_type:
-          enum:
-          - float
-          - int
-          - decimal
-          - string
-          - date
-          - datetime
-          - bool
-        is_dedupe_key:
-          type: boolean
-        reconciliation_config:
-          additionalProperties: {}
-          type: object
-        reconciliation_strategy:
-          enum:
-          - sort_order
-          - llm
-          - comparison
-          - concatenate_lists
-      type: object
     PostProcessorConfigSchema:
       properties:
         description:
@@ -695,51 +853,18 @@ components:
       required:
       - name
       type: object
-    BulkSaveEntityAttributeValueItem:
+    EndUserEntityAttributeValueSchema:
       properties:
-        attribute_name:
-          description: Name of the attribute to set the value for
-          type: string
-        entity_name:
-          description: Name of the entity to target
-          type: string
-        value:
-          description: The value to set for the attribute
-      required:
-      - attribute_name
-      - entity_name
-      - value
-      type: object
-    BulkSaveEntityAttributeValuesSchema:
-      properties:
-        values:
-          description: List of entity attribute values to save
-          items:
-            $ref: '#/components/schemas/BulkSaveEntityAttributeValueItem'
-          type: array
-      required:
-      - values
-      type: object
-    UpsertEndUserEntityAttributeValueSchema:
-      properties:
-        attribute_heron_id:
-          type: string
-        source_heron_id:
+        heron_id:
           type: string
         value: {}
-      required:
-      - attribute_heron_id
-      - source_heron_id
-      - value
       type: object
-    ReorderEndUserEntitiesSchema:
+    CloneEndUserEntityAttributeSchema:
       properties:
-        ordered_entity_heron_ids:
-          items:
-            type: string
-          type: array
+        attribute_name:
+          type: string
       required:
-      - ordered_entity_heron_ids
+      - attribute_name
       type: object
     BulkSaveEntityAttributeValueResultSchema:
       properties:
@@ -761,24 +886,6 @@ components:
       - attribute_name
       - entity_name
       - success
-      type: object
-    CreateEndUserEntityAttributeSourceSchema:
-      properties:
-        sort_order:
-          type: integer
-        source_config:
-          additionalProperties: {}
-          type: object
-        source_type:
-          enum:
-          - parsed_end_user_file
-          - api
-          - rel_6
-          - end_user_enricher
-          - company_attribute
-          - static_value
-          - end_user_query
-          - broker_submission_api
       type: object
     CreateEndUserEntityAttributeSchema:
       properties:
@@ -812,70 +919,9 @@ components:
       required:
       - attribute_name
       type: object
-    CloneEndUserEntityAttributeSchema:
+    MaterialisedEndUserEntityAttribute:
       properties:
-        attribute_name:
-          type: string
-      required:
-      - attribute_name
-      type: object
-    EndUserEntityAttributeValueSchema:
-      properties:
-        heron_id:
-          type: string
-        value: {}
-      type: object
-    MaterialisedEndUserEntityAttributeSource:
-      properties:
-        source:
-          $ref: '#/components/schemas/EndUserEntityAttributeSourceSchema'
-        source_data:
-          additionalProperties: {}
-          type: object
-        timestamp:
-          format: date-time
-          type: string
-        value: {}
-      type: object
-    NestedEndUserEntitySchema:
-      properties:
-        display_order:
-          type: integer
-        entity_attributes:
-          items:
-            $ref: '#/components/schemas/NestedEndUserEntityAttribute'
-          type: array
-        entity_description:
-          type: string
-        entity_name:
-          type: string
-        entity_post_processor_configs:
-          default: []
-          items:
-            additionalProperties: {}
-            type: object
-          type: array
-        heron_id:
-          type: string
-        is_list:
-          type: boolean
-        saved_query_heron_id:
-          type:
-          - string
-          - 'null'
-      type: object
-    PostProcessorsResponseSchema:
-      properties:
-        post_processors:
-          items:
-            $ref: '#/components/schemas/PostProcessorConfigSchema'
-          type: array
-      required:
-      - post_processors
-      type: object
-    EndUserEntityAttributeSchema:
-      properties:
-        attribute_description:
+        attribute_heron_id:
           type: string
         attribute_name:
           type: string
@@ -890,67 +936,53 @@ components:
           - bool
         display_order:
           type: integer
-        heron_id:
-          type: string
-        is_dedupe_key:
-          default: false
-          type: boolean
-        reconciliation_config:
+        materialised_sources:
+          items:
+            $ref: '#/components/schemas/MaterialisedEndUserEntityAttributeSource'
+          type: array
+        selected_source:
+          allOf:
+          - $ref: '#/components/schemas/MaterialisedEndUserEntityAttributeSource'
+      type: object
+    MaterialisedEndUserEntityAttributeSource:
+      properties:
+        source:
+          $ref: '#/components/schemas/EndUserEntityAttributeSourceSchema'
+        source_data:
           additionalProperties: {}
           type: object
-        reconciliation_strategy:
+        timestamp:
+          format: date-time
+          type: string
+        value: {}
+      type: object
+    CreateEndUserEntityAttributeSourceSchema:
+      properties:
+        sort_order:
+          type: integer
+        source_config:
+          additionalProperties: {}
+          type: object
+        source_type:
           enum:
-          - sort_order
-          - llm
-          - comparison
-          - concatenate_lists
+          - parsed_end_user_file
+          - api
+          - rel_6
+          - end_user_enricher
+          - company_attribute
+          - static_value
+          - end_user_query
+          - broker_submission_api
       type: object
-    ReorderEndUserEntityAttributesSchema:
+    BulkSaveEntityAttributeValuesSchema:
       properties:
-        ordered_attribute_heron_ids:
+        values:
+          description: List of entity attribute values to save
           items:
-            type: string
+            $ref: '#/components/schemas/BulkSaveEntityAttributeValueItem'
           type: array
       required:
-      - ordered_attribute_heron_ids
-      type: object
-    CreateEndUserEntitySchema:
-      properties:
-        display_order:
-          type: integer
-        entity_description:
-          type: string
-        entity_name:
-          type: string
-        entity_post_processor_configs:
-          default: []
-          items:
-            additionalProperties: {}
-            type: object
-          type: array
-        is_list:
-          type: boolean
-        saved_query_heron_id:
-          type:
-          - string
-          - 'null'
-      required:
-      - entity_name
-      type: object
-    MaterialisedEndUserEntitySchema:
-      properties:
-        display_order:
-          type: integer
-        entity_heron_id:
-          type: string
-        entity_name:
-          type: string
-        is_list:
-          type: boolean
-        materialised_attributes:
-          items:
-            $ref: '#/components/schemas/MaterialisedEndUserEntityAttribute'
-          type: array
+      - values
       type: object
   securitySchemes:
     ApiKeyAuth:

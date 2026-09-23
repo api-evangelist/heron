@@ -34,10 +34,10 @@ paths:
       summary: Get rules
       tags:
       - Rules
+      operationId: getApiRules
+      x-operation-id-source: derived
     post:
-      description: 'Create a new rule to send a ''end_user.review_required'' webhook after processing if rule condition evaluates to true
-
-        '
+      description: Create a new rule to send a 'end_user.review_required' webhook after processing if rule condition evaluates to true
       requestBody:
         content:
           application/json:
@@ -62,6 +62,8 @@ paths:
       summary: Create a single rule
       tags:
       - Rules
+      operationId: postApiRules
+      x-operation-id-source: derived
   /api/rules/metrics:
     get:
       description: Read all available metrics to define rules on
@@ -79,11 +81,11 @@ paths:
       summary: Get metrics
       tags:
       - Rules
+      operationId: getApiRulesMetrics
+      x-operation-id-source: derived
   /api/rules/{heron_id}:
     delete:
-      description: 'Delete a rule
-
-        '
+      description: Delete a rule
       parameters:
       - in: path
         name: heron_id
@@ -105,10 +107,10 @@ paths:
       summary: Delete rule by heron_id
       tags:
       - Rules
+      operationId: deleteApiRulesByHeronId
+      x-operation-id-source: derived
     put:
-      description: 'Update a rule
-
-        '
+      description: Update a rule
       parameters:
       - in: path
         name: heron_id
@@ -140,32 +142,11 @@ paths:
       summary: Update rule by heron_id
       tags:
       - Rules
+      operationId: putApiRulesByHeronId
+      x-operation-id-source: derived
 components:
   schemas:
-    MetricDefinitionSchema:
-      properties:
-        date_range:
-          description: The date range this metric covers
-          example: last_180_days
-          type: string
-        description:
-          description: Human-readable description of the metric
-          example: Total number of unique transactions
-          type: string
-        group:
-          description: The group/category this metric belongs to
-          example: transaction_metrics
-          type: string
-        label:
-          description: The label/name of the metric
-          example: unique_transactions
-          type: string
-        unit:
-          description: The unit of measurement for this metric
-          example: count
-          type: string
-      type: object
-    RuleUpdateSchema:
+    Rule:
       properties:
         condition:
           description: Key for how to compare metric value to rule value
@@ -482,7 +463,30 @@ components:
           - string
           - 'null'
       type: object
-    Rule:
+    MetricDefinitionSchema:
+      properties:
+        date_range:
+          description: The date range this metric covers
+          example: last_180_days
+          type: string
+        description:
+          description: Human-readable description of the metric
+          example: Total number of unique transactions
+          type: string
+        group:
+          description: The group/category this metric belongs to
+          example: transaction_metrics
+          type: string
+        label:
+          description: The label/name of the metric
+          example: unique_transactions
+          type: string
+        unit:
+          description: The unit of measurement for this metric
+          example: count
+          type: string
+      type: object
+    RuleUpdateSchema:
       properties:
         condition:
           description: Key for how to compare metric value to rule value

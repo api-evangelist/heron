@@ -29,6 +29,10 @@ paths:
           description: url works
       tags:
       - Testing
+      summary: Get api hello world
+      x-summary-source: derived
+      operationId: getApiHelloWorld
+      x-operation-id-source: derived
   /api/hello_world/authenticated:
     get:
       description: Test authentication
@@ -48,6 +52,10 @@ paths:
       - ApiKeyAuth: []
       tags:
       - Testing
+      summary: Get api hello world authenticated
+      x-summary-source: derived
+      operationId: getApiHelloWorldAuthenticated
+      x-operation-id-source: derived
 components:
   securitySchemes:
     ApiKeyAuth:

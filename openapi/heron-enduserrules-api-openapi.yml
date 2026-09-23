@@ -36,106 +36,10 @@ paths:
       summary: Evaluate all rules for an end user
       tags:
       - EndUserRules
+      operationId: getApiEndUsersByEndUserIdOrHeronIdEvaluateRules
+      x-operation-id-source: derived
 components:
   schemas:
-    Metric:
-      properties:
-        context:
-          description: Context for how to interpret the metric, e.g., whether a higher value is 'better' than a lower value
-          enum:
-          - higher_is_better
-          - lower_is_better
-          - null
-          example: higher_is_better
-          type:
-          - string
-          - 'null'
-        currency:
-          description: The ISO currency code for metric, where applicable
-          type:
-          - string
-          - 'null'
-        date_range:
-          description: Metric date range
-          enum:
-          - latest
-          - last_30_days
-          - last_90_days
-          - last_120_days
-          - last_180_days
-          - last_365_days
-          - next_30_days
-          - next_60_days
-          - next_90_days
-          - next_180_days
-          - last_1_calendar_months
-          - last_3_calendar_months
-          - last_4_calendar_months
-          - last_6_calendar_months
-          - last_12_calendar_months
-          - last_15_calendar_months
-          - last_24_calendar_months
-          - last_1_full_calendar_months
-          - last_2_full_calendar_months
-          - last_3_full_calendar_months
-          - last_6_full_calendar_months
-          - last_12_full_calendar_months
-          - last_60_days
-          - last_45_days
-          - last_2_calendar_months
-          example: last_180_days
-          type: string
-        description:
-          description: Description of metric
-          example: The number of unique transactions with a timestamp
-          type:
-          - string
-          - 'null'
-        group:
-          description: The type of metric
-          enum:
-          - data_quality
-          - processing_quality
-          - balance
-          - profit_and_loss
-          - debt
-          - risk_flag
-          - forecast
-          - heron
-          - ml_feature
-          example: data_quality
-          type: string
-        label:
-          description: Metric label, slugified
-          example: unique_transactions
-          type: string
-        status:
-          description: either 'calculated' or 'not_available' depending on the requested date range vs. date range of the data
-          enum:
-          - available
-          - partially_available
-          - not_available
-          - null
-          example: not_available
-          type:
-          - string
-          - 'null'
-        unit:
-          description: The unit of measurement for metric
-          enum:
-          - n
-          - day
-          - ratio
-          - amount
-          - weekday
-          - array
-          - probability
-          example: n
-          type: string
-        value:
-          description: The metric value
-          example: 42.42
-      type: object
     RuleEvaluationSchema:
       properties:
         metric:
@@ -465,6 +369,104 @@ components:
           type:
           - string
           - 'null'
+      type: object
+    Metric:
+      properties:
+        context:
+          description: Context for how to interpret the metric, e.g., whether a higher value is 'better' than a lower value
+          enum:
+          - higher_is_better
+          - lower_is_better
+          - null
+          example: higher_is_better
+          type:
+          - string
+          - 'null'
+        currency:
+          description: The ISO currency code for metric, where applicable
+          type:
+          - string
+          - 'null'
+        date_range:
+          description: Metric date range
+          enum:
+          - latest
+          - last_30_days
+          - last_90_days
+          - last_120_days
+          - last_180_days
+          - last_365_days
+          - next_30_days
+          - next_60_days
+          - next_90_days
+          - next_180_days
+          - last_1_calendar_months
+          - last_3_calendar_months
+          - last_4_calendar_months
+          - last_6_calendar_months
+          - last_12_calendar_months
+          - last_15_calendar_months
+          - last_24_calendar_months
+          - last_1_full_calendar_months
+          - last_2_full_calendar_months
+          - last_3_full_calendar_months
+          - last_6_full_calendar_months
+          - last_12_full_calendar_months
+          - last_60_days
+          - last_45_days
+          - last_2_calendar_months
+          example: last_180_days
+          type: string
+        description:
+          description: Description of metric
+          example: The number of unique transactions with a timestamp
+          type:
+          - string
+          - 'null'
+        group:
+          description: The type of metric
+          enum:
+          - data_quality
+          - processing_quality
+          - balance
+          - profit_and_loss
+          - debt
+          - risk_flag
+          - forecast
+          - heron
+          - ml_feature
+          example: data_quality
+          type: string
+        label:
+          description: Metric label, slugified
+          example: unique_transactions
+          type: string
+        status:
+          description: either 'calculated' or 'not_available' depending on the requested date range vs. date range of the data
+          enum:
+          - available
+          - partially_available
+          - not_available
+          - null
+          example: not_available
+          type:
+          - string
+          - 'null'
+        unit:
+          description: The unit of measurement for metric
+          enum:
+          - n
+          - day
+          - ratio
+          - amount
+          - weekday
+          - array
+          - probability
+          example: n
+          type: string
+        value:
+          description: The metric value
+          example: 42.42
       type: object
   securitySchemes:
     ApiKeyAuth:

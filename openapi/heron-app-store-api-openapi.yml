@@ -12,11 +12,10 @@ security:
 - ApiKeyAuth:
   - key_XXX
 tags:
-- name: AppStore
+- name: App Store
 paths:
   /api/app_store/list:
     get:
-      description: List available apps
       responses:
         '200':
           content:
@@ -26,9 +25,29 @@ paths:
           description: OK
       summary: List available apps
       tags:
-      - AppStore
+      - App Store
+      operationId: getApiAppStoreList
+      x-operation-id-source: derived
 components:
   schemas:
+    FileClass:
+      properties:
+        description:
+          example: File Class Description
+          type: string
+        name:
+          example: File Class Name
+          type: string
+      required:
+      - name
+      type: object
+    AppStoreSchema:
+      properties:
+        applications:
+          items:
+            $ref: '#/components/schemas/Application'
+          type: array
+      type: object
     Application:
       properties:
         cta:
@@ -104,24 +123,6 @@ components:
       - name
       - priority
       - type
-      type: object
-    AppStoreSchema:
-      properties:
-        applications:
-          items:
-            $ref: '#/components/schemas/Application'
-          type: array
-      type: object
-    FileClass:
-      properties:
-        description:
-          example: File Class Description
-          type: string
-        name:
-          example: File Class Name
-          type: string
-      required:
-      - name
       type: object
     CTA:
       properties:

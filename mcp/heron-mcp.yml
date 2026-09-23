@@ -1,27 +1,21 @@
 generated: '2026-08-14'
 method: probed
 status: live
-source: >-
-  https://docs.herondata.io/mcp — a live, unauthenticated remote MCP endpoint served
-  by Heron's documentation host. Confirmed by POSTing {"jsonrpc":"2.0","id":1,
-  "method":"tools/list"}, which returned HTTP 200 with three real tools and their
-  inputSchemas (captured verbatim below). A bare GET returns JSON-RPC error -32000
-  "Method not allowed", which is how the endpoint was discovered.
-description: >-
-  Heron ships a hosted, remote MCP server for its DOCUMENTATION, not for its REST API.
-  The three published tools search, read and give feedback on docs.herondata.io — they
-  do not create end users, upload files, or read transactions. An agent that needs to
-  operate the Heron API still calls the REST contract in openapi/heron-openapi.json with
-  an x-api-key. This distinction is recorded rather than smoothed over: the surface is
-  real and reachable, but it is a documentation-retrieval surface.
+source: https://docs.herondata.io/mcp — a live, unauthenticated remote MCP endpoint served by Heron's
+  documentation host. Confirmed by POSTing {"jsonrpc":"2.0","id":1, "method":"tools/list"}, which returned
+  HTTP 200 with three real tools and their inputSchemas (captured verbatim below). A bare GET returns
+  JSON-RPC error -32000 "Method not allowed", which is how the endpoint was discovered.
+description: 'Heron ships a hosted, remote MCP server for its DOCUMENTATION, not for its REST API. The
+  three published tools search, read and give feedback on docs.herondata.io — they do not create end users,
+  upload files, or read transactions. An agent that needs to operate the Heron API still calls the REST
+  contract in openapi/heron-openapi.json with an x-api-key. This distinction is recorded rather than smoothed
+  over: the surface is real and reachable, but it is a documentation-retrieval surface.'
 deployment:
-  mode: remote
-  endpoint: https://docs.herondata.io/mcp
-  auth: none
-  verified: probed
-  checked: '2026-08-14'
-  http_status: 200
-  transport: Streamable HTTP (server responds with text/event-stream framing)
+  mode: none
+  verified: derived
+  tools: 8
+  checked: '2026-08-12'
+  source: catalog MCP census
 server:
   name: heron
   vendor_platform: Mintlify hosted docs MCP
@@ -30,64 +24,74 @@ server:
   rest_auth: x-api-key header
 tool_count: 3
 tools:
-  - name: search_heron
-    title: Search documentation
-    scope: docs
-    description: >-
-      Search across the Heron knowledge base to find relevant information, code examples,
-      API references, and guides. Returns contextual content with titles and direct links
-      to documentation pages.
-    inputSchema:
-      type: object
-      properties:
-        query:
-          type: string
-          description: Search query
-      required: [query]
-      additionalProperties: false
-    annotations: {readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false}
-  - name: query_docs_filesystem_heron
-    scope: docs
-    description: >-
-      Run a read-only shell-like query (rg, grep, find, tree, ls, cat, head, tail, jq and
-      similar) against a virtualized in-memory filesystem containing ONLY the Heron
-      documentation pages and OpenAPI specs. Pages are read by passing their .mdx path.
-      Each call is stateless.
-    inputSchema:
-      type: object
-      properties:
-        command:
-          type: string
-          description: A shell command to run against the virtualized documentation filesystem.
-      required: [command]
-      additionalProperties: false
-    annotations: {readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false}
-  - name: submit_feedback
-    title: Submit documentation feedback
-    scope: docs
-    description: >-
-      Report a problem with the documentation site (incorrect, outdated, confusing,
-      incomplete or broken content) so the docs team can fix it.
-    inputSchema:
-      type: object
-      properties:
-        path:
-          type: string
-          minLength: 1
-          description: The documentation page path the feedback is about.
-        feedback:
-          type: string
-          minLength: 1
-          description: A clear description of the documentation issue or suggestion.
-      required: [path, feedback]
-      additionalProperties: false
-    annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true}
+- name: search_heron
+  title: Search documentation
+  scope: docs
+  description: Search across the Heron knowledge base to find relevant information, code examples, API
+    references, and guides. Returns contextual content with titles and direct links to documentation pages.
+  inputSchema:
+    type: object
+    properties:
+      query:
+        type: string
+        description: Search query
+    required:
+    - query
+    additionalProperties: false
+  annotations:
+    readOnlyHint: true
+    destructiveHint: false
+    idempotentHint: true
+    openWorldHint: false
+- name: query_docs_filesystem_heron
+  scope: docs
+  description: Run a read-only shell-like query (rg, grep, find, tree, ls, cat, head, tail, jq and similar)
+    against a virtualized in-memory filesystem containing ONLY the Heron documentation pages and OpenAPI
+    specs. Pages are read by passing their .mdx path. Each call is stateless.
+  inputSchema:
+    type: object
+    properties:
+      command:
+        type: string
+        description: A shell command to run against the virtualized documentation filesystem.
+    required:
+    - command
+    additionalProperties: false
+  annotations:
+    readOnlyHint: true
+    destructiveHint: false
+    idempotentHint: true
+    openWorldHint: false
+- name: submit_feedback
+  title: Submit documentation feedback
+  scope: docs
+  description: Report a problem with the documentation site (incorrect, outdated, confusing, incomplete
+    or broken content) so the docs team can fix it.
+  inputSchema:
+    type: object
+    properties:
+      path:
+        type: string
+        minLength: 1
+        description: The documentation page path the feedback is about.
+      feedback:
+        type: string
+        minLength: 1
+        description: A clear description of the documentation issue or suggestion.
+    required:
+    - path
+    - feedback
+    additionalProperties: false
+  annotations:
+    readOnlyHint: false
+    destructiveHint: false
+    idempotentHint: false
+    openWorldHint: true
 oauth_discovery:
-  '/.well-known/oauth-authorization-server': 404
-  '/.well-known/oauth-protected-resource': 404
-  note: >-
-    Both anonymous OAuth discovery documents 404 on docs.herondata.io, consistent with an
-    endpoint that requires no authentication at all.
+  /.well-known/oauth-authorization-server: 404
+  /.well-known/oauth-protected-resource: 404
+  note: Both anonymous OAuth discovery documents 404 on docs.herondata.io, consistent with an endpoint
+    that requires no authentication at all.
 related:
   crosswalk: mcp/heron-tool-crosswalk.yml
   openapi: openapi/heron-openapi.json

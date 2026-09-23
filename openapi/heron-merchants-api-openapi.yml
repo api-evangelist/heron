@@ -53,6 +53,8 @@ paths:
       summary: Extract merchant
       tags:
       - Merchants
+      operationId: postApiMerchantsExtract
+      x-operation-id-source: derived
   /api/merchants/groups:
     get:
       description: Get Merchant groups
@@ -70,6 +72,8 @@ paths:
       summary: List merchant groups
       tags:
       - Merchants
+      operationId: getApiMerchantsGroups
+      x-operation-id-source: derived
   /api/merchants/list:
     get:
       description: Get a paginated list of merchants with optional name and group_id filtering. Results are ordered by merchant ID for stable pagination.
@@ -128,6 +132,8 @@ paths:
       summary: List merchants
       tags:
       - Merchants
+      operationId: getApiMerchantsList
+      x-operation-id-source: derived
   /api/merchants/search:
     get:
       description: Search Merchants by name
@@ -163,6 +169,8 @@ paths:
       summary: Search merchants
       tags:
       - Merchants
+      operationId: getApiMerchantsSearch
+      x-operation-id-source: derived
   /api/merchants/{heron_id}:
     get:
       description: Get Merchant by heron_id
@@ -188,6 +196,8 @@ paths:
       summary: Get merchant by ID
       tags:
       - Merchants
+      operationId: getApiMerchantsByHeronId
+      x-operation-id-source: derived
   /api/merchants/{merchant_heron_id}/user_merchant_group:
     patch:
       description: Update the group id for a merchant for the current user
@@ -226,8 +236,62 @@ paths:
       summary: Set merchant group override
       tags:
       - Merchants
+      operationId: patchApiMerchantsByMerchantHeronIdUserMerchantGroup
+      x-operation-id-source: derived
 components:
   schemas:
+    Merchant:
+      properties:
+        categories:
+          items:
+            $ref: '#/components/schemas/MerchantCategory'
+          readOnly: true
+          type: array
+        group_id:
+          enum:
+          - Uber
+          - Google
+          - Intuit
+          - debt.mca_or_rbf
+          - debt.non_bank_business
+          - debt.equipment_and_auto_leasing
+          - debt.mortgage
+          - debt.personal_non_mortgage
+          - debt.collections
+          - debt.bank
+          - invoice_factoring
+          - fuel_provider
+          - gambling_and_betting
+          - null
+          type:
+          - string
+          - 'null'
+        heron_id:
+          example: mrc_RTgUcM9od9w9fwU8YG6mjH
+          readOnly: true
+          type: string
+        icon_url:
+          format: url
+          type:
+          - string
+          - 'null'
+        is_priority:
+          readOnly: true
+          type: boolean
+        logo_url:
+          format: url
+          type:
+          - string
+          - 'null'
+        name:
+          type: string
+        url:
+          format: url
+          type: string
+      required:
+      - name
+      - url
+      type: object
     Merchant1:
       properties:
         aliases:
@@ -435,58 +499,6 @@ components:
         name:
           description: Display name of merchant group
           type: string
-      type: object
-    Merchant:
-      properties:
-        categories:
-          items:
-            $ref: '#/components/schemas/MerchantCategory'
-          readOnly: true
-          type: array
-        group_id:
-          enum:
-          - Uber
-          - Google
-          - Intuit
-          - debt.mca_or_rbf
-          - debt.non_bank_business
-          - debt.equipment_and_auto_leasing
-          - debt.mortgage
-          - debt.personal_non_mortgage
-          - debt.collections
-          - debt.bank
-          - invoice_factoring
-          - fuel_provider
-          - gambling_and_betting
-          - null
-          type:
-          - string
-          - 'null'
-        heron_id:
-          example: mrc_RTgUcM9od9w9fwU8YG6mjH
-          readOnly: true
-          type: string
-        icon_url:
-          format: url
-          type:
-          - string
-          - 'null'
-        is_priority:
-          readOnly: true
-          type: boolean
-        logo_url:
-          format: url
-          type:
-          - string
-          - 'null'
-        name:
-          type: string
-        url:
-          format: url
-          type: string
-      required:
-      - name
-      - url
       type: object
   securitySchemes:
     ApiKeyAuth:

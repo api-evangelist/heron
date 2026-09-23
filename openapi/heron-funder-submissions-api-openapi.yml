@@ -16,9 +16,7 @@ tags:
 paths:
   /api/funder_submissions/:
     post:
-      description: 'Find or create a funder submission for the given end user and funder pair. Returns the existing submission if one already exists (unique per end_user + funder).
-
-        '
+      description: Find or create a funder submission for the given end user and funder pair. Returns the existing submission if one already exists (unique per end_user + funder).
       requestBody:
         content:
           application/json:
@@ -39,6 +37,8 @@ paths:
       summary: Upsert a funder submission
       tags:
       - Funder Submissions
+      operationId: postApiFunderSubmissions
+      x-operation-id-source: derived
   /api/funder_submissions/{submission_heron_id}/:
     get:
       description: Returns the status and details of a funder submission. Use this to poll after triggering a submission.
@@ -63,11 +63,11 @@ paths:
       summary: Get funder submission status
       tags:
       - Funder Submissions
+      operationId: getApiFunderSubmissionsBySubmissionHeronId
+      x-operation-id-source: derived
   /api/funder_submissions/{submission_heron_id}/trigger/:
     post:
-      description: 'Triggers an async submission to a funder. Returns 202 immediately; poll via GET /funder_submissions/{submission_heron_id}/ to check progress.
-
-        '
+      description: Triggers an async submission to a funder. Returns 202 immediately; poll via GET /funder_submissions/{submission_heron_id}/ to check progress.
       parameters:
       - description: The Heron ID of the funder submission
         in: path
@@ -95,6 +95,8 @@ paths:
       summary: Trigger a funder submission
       tags:
       - Funder Submissions
+      operationId: postApiFunderSubmissionsBySubmissionHeronIdTrigger
+      x-operation-id-source: derived
 components:
   schemas:
     Funder1:
@@ -106,6 +108,25 @@ components:
         name:
           readOnly: true
           type: string
+      type: object
+    UpsertFunderSubmissionRequestSchema:
+      additionalProperties: false
+      properties:
+        end_user_heron_id:
+          type: string
+        funder_heron_id:
+          type: string
+      required:
+      - end_user_heron_id
+      - funder_heron_id
+      type: object
+    SubmitFunderSubmissionRequestSchema:
+      additionalProperties: false
+      properties:
+        use_sandbox:
+          type: boolean
+      required:
+      - use_sandbox
       type: object
     FunderSubmissionSchema:
       additionalProperties: false
@@ -147,25 +168,6 @@ components:
           type:
           - string
           - 'null'
-      type: object
-    SubmitFunderSubmissionRequestSchema:
-      additionalProperties: false
-      properties:
-        use_sandbox:
-          type: boolean
-      required:
-      - use_sandbox
-      type: object
-    UpsertFunderSubmissionRequestSchema:
-      additionalProperties: false
-      properties:
-        end_user_heron_id:
-          type: string
-        funder_heron_id:
-          type: string
-      required:
-      - end_user_heron_id
-      - funder_heron_id
       type: object
   securitySchemes:
     ApiKeyAuth:

@@ -31,11 +31,11 @@ paths:
       summary: All EndUserFiles
       tags:
       - EndUserFiles
+      operationId: getApiEndUserFiles
+      x-operation-id-source: derived
   /api/end_user_files/process_standalone:
     post:
-      description: 'Process a file for classification and parsing without storing it as an EndUserFile. Results are delivered via webhook to subscribed endpoints.
-
-        '
+      description: Process a file for classification and parsing without storing it as an EndUserFile. Results are delivered via webhook to subscribed endpoints.
       requestBody:
         content:
           application/json:
@@ -58,6 +58,8 @@ paths:
       summary: Process file without creating EndUserFile record
       tags:
       - EndUserFiles
+      operationId: postApiEndUserFilesProcessStandalone
+      x-operation-id-source: derived
   /api/end_user_files/recent_by_file_class:
     get:
       description: Retrieve the most recent files for the specified file class.
@@ -88,6 +90,8 @@ paths:
       summary: Get recent files by file class
       tags:
       - EndUserFiles
+      operationId: getApiEndUserFilesRecentByFileClass
+      x-operation-id-source: derived
   /api/end_user_files/rename_rules:
     get:
       description: Retrieve all file rename rules for the current user.
@@ -105,6 +109,8 @@ paths:
       summary: Get file rename rules
       tags:
       - EndUserFiles
+      operationId: getApiEndUserFilesRenameRules
+      x-operation-id-source: derived
     post:
       description: Add a new rename rule for files.
       requestBody:
@@ -125,6 +131,8 @@ paths:
       summary: Create a file rename rule
       tags:
       - EndUserFiles
+      operationId: postApiEndUserFilesRenameRules
+      x-operation-id-source: derived
   /api/end_user_files/rename_rules/slugs:
     get:
       description: Retrieve all file rename rules slugs for the current user.
@@ -142,6 +150,8 @@ paths:
       summary: Get file rename rule variable slugs
       tags:
       - EndUserFiles
+      operationId: getApiEndUserFilesRenameRulesSlugs
+      x-operation-id-source: derived
   /api/end_user_files/rename_rules/{heron_id}:
     patch:
       description: Update an existing rename rule identified by its `heron_id`.
@@ -170,6 +180,8 @@ paths:
       summary: Update a file rename rule
       tags:
       - EndUserFiles
+      operationId: patchApiEndUserFilesRenameRulesByHeronId
+      x-operation-id-source: derived
   /api/end_user_files/{heron_id}:
     delete:
       parameters:
@@ -198,10 +210,10 @@ paths:
       summary: Delete an EndUserFile
       tags:
       - EndUserFiles
+      operationId: deleteApiEndUserFilesByHeronId
+      x-operation-id-source: derived
     get:
-      description: 'Retrieve a single end user file by its Heron ID. Returns file metadata including filename, file class, parsed results (if any), and related info. Use this endpoint when you have an end user file Heron ID and need its details without listing or filtering all files.
-
-        '
+      description: Retrieve a single end user file by its Heron ID. Returns file metadata including filename, file class, parsed results (if any), and related info. Use this endpoint when you have an end user file Heron ID and need its details without listing or filtering all files.
       parameters:
       - description: The Heron ID of the end user file (e.g. euf_...)
         in: path
@@ -223,10 +235,10 @@ paths:
       summary: Get a single end user file by Heron ID
       tags:
       - EndUserFiles
+      operationId: getApiEndUserFilesByHeronId
+      x-operation-id-source: derived
     patch:
-      description: 'Use this endpoint to change the end user file''s class. The file will be reprocessed as the new type.
-
-        '
+      description: Use this endpoint to change the end user file's class. The file will be reprocessed as the new type.
       parameters:
       - in: path
         name: heron_id
@@ -251,6 +263,8 @@ paths:
       summary: Update the end user file's class
       tags:
       - EndUserFiles
+      operationId: patchApiEndUserFilesByHeronId
+      x-operation-id-source: derived
   /api/end_user_files/{heron_id}/file:
     get:
       description: Get the base64 string representation of an end user file
@@ -273,6 +287,8 @@ paths:
       summary: Get EndUserFile as a base64 string
       tags:
       - EndUserFiles
+      operationId: getApiEndUserFilesByHeronIdFile
+      x-operation-id-source: derived
   /api/end_user_files/{heron_id}/parse_file:
     post:
       parameters:
@@ -296,6 +312,8 @@ paths:
       summary: Trigger async parsing of an end user file
       tags:
       - EndUserFiles
+      operationId: postApiEndUserFilesByHeronIdParseFile
+      x-operation-id-source: derived
   /api/end_user_files/{heron_id}/parsed_results:
     get:
       parameters:
@@ -333,6 +351,8 @@ paths:
       summary: Get parsed results from uploaded files
       tags:
       - EndUserFiles
+      operationId: getApiEndUserFilesByHeronIdParsedResults
+      x-operation-id-source: derived
   /api/end_user_files/{heron_id}/trigger_rename:
     post:
       parameters:
@@ -354,6 +374,8 @@ paths:
       summary: Trigger file's rename rule
       tags:
       - EndUserFiles
+      operationId: postApiEndUserFilesByHeronIdTriggerRename
+      x-operation-id-source: derived
   /api/end_user_files/{heron_id}/trigger_split:
     post:
       parameters:
@@ -374,9 +396,11 @@ paths:
           description: OK
       security:
       - ApiKeyAuth: []
-      summary: Trigger splitting a combined end user file into its child files based on its page_classes
+      summary: Trigger splitting a combined end user file into its child files based on its…
       tags:
       - EndUserFiles
+      operationId: postApiEndUserFilesByHeronIdTriggerSplit
+      x-operation-id-source: derived
   /api/end_user_files/{parsed_end_user_file_id}/parsed_results:
     patch:
       parameters:
@@ -409,6 +433,8 @@ paths:
       summary: Update Parsed Results
       tags:
       - EndUserFiles
+      operationId: patchApiEndUserFilesByParsedEndUserFileIdParsedResults
+      x-operation-id-source: derived
   /api/end_users/{end_user_id_or_heron_id}/files:
     get:
       description: Get all files for an end user
@@ -432,9 +458,11 @@ paths:
       summary: Get EndUserFiles
       tags:
       - EndUserFiles
+      operationId: getApiEndUsersByEndUserIdOrHeronIdFiles
+      x-operation-id-source: derived
     post:
       deprecated: true
-      description: Deprecated — use [Post EndUserFile V2](/api-reference/enduserfiles/post-enduserfile-v2) instead.
+      description: Deprecated — use Post EndUserFile V2 instead.
       parameters:
       - in: path
         name: end_user_id_or_heron_id
@@ -459,6 +487,8 @@ paths:
       summary: Post EndUserFile
       tags:
       - EndUserFiles
+      operationId: postApiEndUsersByEndUserIdOrHeronIdFiles
+      x-operation-id-source: derived
   /api/end_users/{end_user_id_or_heron_id}/files/download:
     get:
       description: Download all files for an end user as a zip
@@ -481,6 +511,8 @@ paths:
       summary: Download EndUserFiles
       tags:
       - EndUserFiles
+      operationId: getApiEndUsersByEndUserIdOrHeronIdFilesDownload
+      x-operation-id-source: derived
   /api/end_users/{end_user_id_or_heron_id}/files/parsed_results/xlsx:
     get:
       parameters:
@@ -502,11 +534,11 @@ paths:
       summary: Download xlsx of parsed results from uploaded files
       tags:
       - EndUserFiles
+      operationId: getApiEndUsersByEndUserIdOrHeronIdFilesParsedResultsXlsx
+      x-operation-id-source: derived
   /api/end_users/{end_user_id_or_heron_id}/files/v2:
     post:
-      description: 'Upload file to an end user & asynchronously classify its type. After uploading, call the `/start_workflow` endpoint to trigger downstream processing (parsing, bank statement extraction, etc.).
-
-        '
+      description: Upload file to an end user & asynchronously classify its type. After uploading, call the `/start_workflow` endpoint to trigger downstream processing (parsing, bank statement extraction, etc.).
       parameters:
       - in: path
         name: end_user_id_or_heron_id
@@ -544,6 +576,8 @@ paths:
       summary: Post EndUserFile V2
       tags:
       - EndUserFiles
+      operationId: postApiEndUsersByEndUserIdOrHeronIdFilesV2
+      x-operation-id-source: derived
   /api/end_users/{end_user_id_or_heron_id}/start_workflow:
     post:
       description: Starts your configured Heron workflow for an end user
@@ -571,111 +605,47 @@ paths:
       summary: Start Workflow
       tags:
       - EndUserFiles
+      operationId: postApiEndUsersByEndUserIdOrHeronIdStartWorkflow
+      x-operation-id-source: derived
 components:
   schemas:
-    DataSourceNested:
+    EndUserFileUploadSchema:
       properties:
-        heron_id:
-          description: Heron ID of the data source
+        file_base64:
+          description: Base64 encoded file bytes
           type: string
-        is_enabled:
-          description: Whether this data source is enabled
-          type: boolean
-      type: object
-    CreateFileRenameRuleSchema:
-      properties:
-        end_user_file_class:
-          type: string
-        file_name_template:
-          type: string
-        is_enabled:
-          type: boolean
-        variables:
-          items:
-            $ref: '#/components/schemas/VariableDefinition'
-          type: array
-      required:
-      - end_user_file_class
-      - file_name_template
-      - is_enabled
-      type: object
-    EndUserFileSchema:
-      properties:
-        bank_statement:
-          allOf:
-          - $ref: '#/components/schemas/PdfGet'
-          example: null
-          readOnly: true
-        created:
-          format: date-time
-          type: string
-        email:
-          allOf:
-          - $ref: '#/components/schemas/EndUserEmailSchema'
-          example: null
-          readOnly: true
         file_class:
-          type: string
-        file_source_metadata:
-          additionalProperties: {}
-          readOnly: true
-          type:
-          - object
-          - 'null'
-        filename:
-          type: string
-        heron_id:
-          type: string
-        iso_application:
-          allOf:
-          - $ref: '#/components/schemas/GetIsoApplication'
-          readOnly: true
-        num_pages:
-          type: integer
-        page_classes:
-          additionalProperties:
-            $ref: '#/components/schemas/EndUserFilePageClasses'
-          type:
-          - object
-          - 'null'
-        parent_heron_id:
+          description: The type of file, e.g., bank_statement
           type:
           - string
           - 'null'
-        parsed_results:
-          default: []
-          items:
-            $ref: '#/components/schemas/ParsedEndUserFile'
-          readOnly: true
-          type: array
-        processing_error:
-          readOnly: true
+        filename:
+          description: Name of file
+          type: string
+        parent_file_heron_id:
+          description: The Heron ID of the parent file, if this file is a part of another file
           type:
           - string
           - 'null'
         reference_id:
-          type: string
-        renamed_filename:
-          type: string
-      type: object
-    GetFileRenameRulesSchema:
-      properties:
-        end_user_file_class:
-          type: string
-        file_name_template:
-          type: string
-        heron_id:
-          type: string
-        is_enabled:
+          description: Your reference id for file
+          type:
+          - string
+          - 'null'
+        trigger_downstream_processing:
+          default: true
+          description: Whether to trigger downstream processing (file classification, parsing, etc.) upon upload
           type: boolean
-        variables:
-          items:
-            $ref: '#/components/schemas/VariableDefinition'
-          type: array
       required:
-      - end_user_file_class
-      - file_name_template
-      - is_enabled
+      - file_base64
+      - filename
+      type: object
+    ParseFileSchema:
+      properties:
+        parser_id:
+          type:
+          - string
+          - 'null'
       type: object
     ParsedEndUserFile:
       properties:
@@ -742,49 +712,6 @@ components:
       - parser_id
       - parsing_status
       type: object
-    EndUserFilePageClasses:
-      properties:
-        confidence:
-          default: 1.0
-          type: number
-        file_class:
-          type: string
-      type: object
-    VariableDefinition:
-      properties:
-        description:
-          type: string
-        examples:
-          items:
-            type: string
-          type: array
-        key:
-          type: string
-        name:
-          type: string
-      required:
-      - description
-      - examples
-      - key
-      - name
-      type: object
-    EndUserFileUpdateSchema:
-      properties:
-        file_class:
-          type: string
-        page_classes:
-          additionalProperties:
-            $ref: '#/components/schemas/EndUserFilePageClasses'
-          type:
-          - object
-          - 'null'
-        parent_heron_id:
-          type:
-          - string
-          - 'null'
-        reference_id:
-          type: string
-      type: object
     StandaloneProcessFileSchema:
       properties:
         expected_file_class:
@@ -805,6 +732,57 @@ components:
       - file_content_base64
       - filename
       - reference_id
+      type: object
+    GetFileRenameRulesSchema:
+      properties:
+        end_user_file_class:
+          type: string
+        file_name_template:
+          type: string
+        heron_id:
+          type: string
+        is_enabled:
+          type: boolean
+        variables:
+          items:
+            $ref: '#/components/schemas/VariableDefinition'
+          type: array
+      required:
+      - end_user_file_class
+      - file_name_template
+      - is_enabled
+      type: object
+    ParsedEndUserFilePatch:
+      properties:
+        correction_reason:
+          type:
+          - string
+          - 'null'
+        enabled:
+          type:
+          - boolean
+          - 'null'
+        op:
+          type: string
+        original_value: {}
+        path:
+          type: string
+        source:
+          type:
+          - string
+          - 'null'
+        value: {}
+      required:
+      - op
+      - path
+      type: object
+    EndUserFilePageClasses:
+      properties:
+        confidence:
+          default: 1.0
+          type: number
+        file_class:
+          type: string
       type: object
     PdfGet:
       properties:
@@ -832,108 +810,39 @@ components:
           example: processed
           type: string
       type: object
-    UpdateFileRenameRuleSchema:
+    CreateFileRenameRuleSchema:
       properties:
+        end_user_file_class:
+          type: string
         file_name_template:
           type: string
         is_enabled:
           type: boolean
         variables:
-          default: []
           items:
             $ref: '#/components/schemas/VariableDefinition'
           type: array
       required:
+      - end_user_file_class
       - file_name_template
       - is_enabled
       type: object
-    EndUserFileUploadSchema:
+    EndUserFileUpdateSchema:
       properties:
-        file_base64:
-          description: Base64 encoded file bytes
-          type: string
         file_class:
-          description: The type of file, e.g., bank_statement
-          type:
-          - string
-          - 'null'
-        filename:
-          description: Name of file
           type: string
-        parent_file_heron_id:
-          description: The Heron ID of the parent file, if this file is a part of another file
+        page_classes:
+          additionalProperties:
+            $ref: '#/components/schemas/EndUserFilePageClasses'
+          type:
+          - object
+          - 'null'
+        parent_heron_id:
           type:
           - string
           - 'null'
         reference_id:
-          description: Your reference id for file
-          type:
-          - string
-          - 'null'
-        trigger_downstream_processing:
-          default: true
-          description: Whether to trigger downstream processing (file classification, parsing, etc.) upon upload
-          type: boolean
-      required:
-      - file_base64
-      - filename
-      type: object
-    GetIsoApplication:
-      properties:
-        heron_id:
-          description: The ISO application's heron_id
-          example: iso_6hBjQT9k6KP2rLCXwjUJff
           type: string
-        processing_status:
-          description: The processing status of the file.
-          enum:
-          - new
-          - processing
-          - processed
-          - failed
-          example: processed
-          type: string
-      required:
-      - heron_id
-      - processing_status
-      type: object
-    EndUserFileBase64Schema:
-      properties:
-        file_b64:
-          type: string
-        mime_type:
-          type: string
-      type: object
-    ParseFileSchema:
-      properties:
-        parser_id:
-          type:
-          - string
-          - 'null'
-      type: object
-    ParsedEndUserFilePatch:
-      properties:
-        correction_reason:
-          type:
-          - string
-          - 'null'
-        enabled:
-          type:
-          - boolean
-          - 'null'
-        op:
-          type: string
-        original_value: {}
-        path:
-          type: string
-        source:
-          type:
-          - string
-          - 'null'
-        value: {}
-      required:
-      - op
-      - path
       type: object
     EndUserEmailSchema:
       properties:
@@ -987,6 +896,21 @@ components:
         viewer_url:
           description: a temporary, secure URL for viewing the email contents
           type: string
+      type: object
+    UpdateFileRenameRuleSchema:
+      properties:
+        file_name_template:
+          type: string
+        is_enabled:
+          type: boolean
+        variables:
+          default: []
+          items:
+            $ref: '#/components/schemas/VariableDefinition'
+          type: array
+      required:
+      - file_name_template
+      - is_enabled
       type: object
     ParsedEndUserFileSchema:
       properties:
@@ -1053,6 +977,53 @@ components:
       - parser_id
       - parsing_status
       type: object
+    EndUserFileBase64Schema:
+      properties:
+        file_b64:
+          type: string
+        mime_type:
+          type: string
+      type: object
+    ParsedEndUserFileBoundingBox:
+      properties:
+        bounding_box:
+          description: Bounding box coordinates in the format 'y1,x1,y2,x2'
+          items:
+            type: number
+          type: array
+        json_pointer:
+          description: JSON pointer to the field in the parsed result
+          type: string
+        page_num:
+          description: Page number where the bounding box is located
+          type: integer
+        value:
+          description: The actual value of the field within the bounding box
+          type: string
+      required:
+      - bounding_box
+      - json_pointer
+      - page_num
+      - value
+      type: object
+    VariableDefinition:
+      properties:
+        description:
+          type: string
+        examples:
+          items:
+            type: string
+          type: array
+        key:
+          type: string
+        name:
+          type: string
+      required:
+      - description
+      - examples
+      - key
+      - name
+      type: object
     FieldValidation:
       properties:
         failure_reason:
@@ -1076,27 +1047,92 @@ components:
       - result
       - validation_type
       type: object
-    ParsedEndUserFileBoundingBox:
+    DataSourceNested:
       properties:
-        bounding_box:
-          description: Bounding box coordinates in the format 'y1,x1,y2,x2'
-          items:
-            type: number
-          type: array
-        json_pointer:
-          description: JSON pointer to the field in the parsed result
+        heron_id:
+          description: Heron ID of the data source
           type: string
-        page_num:
-          description: Page number where the bounding box is located
-          type: integer
-        value:
-          description: The actual value of the field within the bounding box
+        is_enabled:
+          description: Whether this data source is enabled
+          type: boolean
+      type: object
+    GetIsoApplication:
+      properties:
+        heron_id:
+          description: The ISO application's heron_id
+          example: iso_6hBjQT9k6KP2rLCXwjUJff
+          type: string
+        processing_status:
+          description: The processing status of the file.
+          enum:
+          - new
+          - processing
+          - processed
+          - failed
+          example: processed
           type: string
       required:
-      - bounding_box
-      - json_pointer
-      - page_num
-      - value
+      - heron_id
+      - processing_status
+      type: object
+    EndUserFileSchema:
+      properties:
+        bank_statement:
+          allOf:
+          - $ref: '#/components/schemas/PdfGet'
+          example: null
+          readOnly: true
+        created:
+          format: date-time
+          type: string
+        email:
+          allOf:
+          - $ref: '#/components/schemas/EndUserEmailSchema'
+          example: null
+          readOnly: true
+        file_class:
+          type: string
+        file_source_metadata:
+          additionalProperties: {}
+          readOnly: true
+          type:
+          - object
+          - 'null'
+        filename:
+          type: string
+        heron_id:
+          type: string
+        iso_application:
+          allOf:
+          - $ref: '#/components/schemas/GetIsoApplication'
+          readOnly: true
+        num_pages:
+          type: integer
+        page_classes:
+          additionalProperties:
+            $ref: '#/components/schemas/EndUserFilePageClasses'
+          type:
+          - object
+          - 'null'
+        parent_heron_id:
+          type:
+          - string
+          - 'null'
+        parsed_results:
+          default: []
+          items:
+            $ref: '#/components/schemas/ParsedEndUserFile'
+          readOnly: true
+          type: array
+        processing_error:
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        reference_id:
+          type: string
+        renamed_filename:
+          type: string
       type: object
   securitySchemes:
     ApiKeyAuth:

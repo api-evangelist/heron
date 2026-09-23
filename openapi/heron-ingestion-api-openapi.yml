@@ -16,9 +16,7 @@ tags:
 paths:
   /api/ingestion/crm/{crm_integration_heron_id}:
     post:
-      description: 'Receives a webhook payload from a CRM integration and syncs the end user via the ingestion pipeline. Per-CRM payload shapes are parsed by the matching CRM client; only the generic ingestion controls documented below are read directly here.
-
-        '
+      description: Receives a webhook payload from a CRM integration and syncs the end user via the ingestion pipeline. Per-CRM payload shapes are parsed by the matching CRM client; only the generic ingestion controls documented below are read directly here.
       parameters:
       - description: Heron ID of the CRM integration
         in: path
@@ -56,6 +54,8 @@ paths:
       summary: Ingest end user data from a CRM webhook
       tags:
       - Ingestion
+      operationId: postApiIngestionCrmByCrmIntegrationHeronId
+      x-operation-id-source: derived
 components:
   securitySchemes:
     ApiKeyAuth:

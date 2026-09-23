@@ -16,9 +16,7 @@ tags:
 paths:
   /api/end_user_enrichers/definitions/{enricher_definition_name}/start_enrich:
     post:
-      description: 'Dispatches an enricher task for an end user and returns immediately.
-
-        '
+      description: Dispatches an enricher task for an end user and returns immediately.
       parameters:
       - description: The name of the enricher definition to execute
         example: industry_prediction
@@ -58,6 +56,8 @@ paths:
       summary: Start enricher execution for a specific end user asynchronously
       tags:
       - EndUserEnrichers
+      operationId: postApiEndUserEnrichersDefinitionsByEnricherDefinitionNameStartEnrich
+      x-operation-id-source: derived
   /api/end_user_enrichers/fields:
     get:
       responses:
@@ -74,13 +74,13 @@ paths:
       summary: Get all fields for all enrichers for a given user
       tags:
       - EndUserEnrichers
+      operationId: getApiEndUserEnrichersFields
+      x-operation-id-source: derived
   /api/end_user_enrichers/{end_user_heron_id}/enrich:
     post:
       description: 'Executes a specified enricher for an end user and returns the enrichment result.
 
-        The enrichment result is automatically saved to the database.
-
-        '
+        The enrichment result is automatically saved to the database.'
       parameters:
       - description: The Heron ID of the end user to enrich
         example: eus_abc123
@@ -114,11 +114,11 @@ paths:
       summary: Trigger enricher execution for a specific end user
       tags:
       - EndUserEnrichers
+      operationId: postApiEndUserEnrichersByEndUserHeronIdEnrich
+      x-operation-id-source: derived
   /api/end_user_enrichers/{end_user_heron_id}/enricher_results:
     get:
-      description: 'Get all latest enrichment results for a given end user by their Heron ID.
-
-        '
+      description: Get all latest enrichment results for a given end user by their Heron ID.
       parameters:
       - in: path
         name: end_user_heron_id
@@ -139,6 +139,8 @@ paths:
       summary: Get enrichment results for an end user
       tags:
       - EndUserEnrichers
+      operationId: getApiEndUserEnrichersByEndUserHeronIdEnricherResults
+      x-operation-id-source: derived
   /api/end_user_enrichers/{end_user_heron_id}/enricher_results/{enricher_name}:
     get:
       description: Retrieve the latest result for a specific enricher and end user
@@ -171,8 +173,31 @@ paths:
       summary: Get enricher result by enricher name and end user
       tags:
       - EndUserEnrichers
+      operationId: getApiEndUserEnrichersByEndUserHeronIdEnricherResultsByEnricherName
+      x-operation-id-source: derived
 components:
   schemas:
+    EnricherFieldsSchema:
+      properties:
+        enricher_type:
+          type: string
+        fields:
+          items:
+            type: string
+          type: array
+        name:
+          type: string
+      type: object
+    StartEnrichEndUserResponseSchema:
+      properties:
+        end_user_id:
+          type: integer
+        enricher_name:
+          type: string
+      required:
+      - end_user_id
+      - enricher_name
+      type: object
     EnricherResultSchema:
       properties:
         enriched_at:
@@ -194,27 +219,6 @@ components:
       - enriched_at
       - enricher_name
       - status
-      type: object
-    EnricherFieldsSchema:
-      properties:
-        enricher_type:
-          type: string
-        fields:
-          items:
-            type: string
-          type: array
-        name:
-          type: string
-      type: object
-    StartEnrichEndUserResponseSchema:
-      properties:
-        end_user_id:
-          type: integer
-        enricher_name:
-          type: string
-      required:
-      - end_user_id
-      - enricher_name
       type: object
   securitySchemes:
     ApiKeyAuth:

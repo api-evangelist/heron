@@ -30,6 +30,8 @@ paths:
       summary: Get all file classes
       tags:
       - FileClass
+      operationId: getApiEndUserFilesFileClasses
+      x-operation-id-source: derived
   /api/users/file_class_groups:
     get:
       responses:
@@ -46,6 +48,8 @@ paths:
       summary: Get file class groups enabled for a User
       tags:
       - FileClass
+      operationId: getApiUsersFileClassGroups
+      x-operation-id-source: derived
   /api/users/file_classes:
     get:
       responses:
@@ -62,6 +66,8 @@ paths:
       summary: Get current file classes used in classification
       tags:
       - FileClass
+      operationId: getApiUsersFileClasses
+      x-operation-id-source: derived
   /api/users/file_classes/{file_class_name}:
     delete:
       parameters:
@@ -84,6 +90,8 @@ paths:
       summary: Remove a FileClass from Classification for a User
       tags:
       - FileClass
+      operationId: deleteApiUsersFileClassesByFileClassName
+      x-operation-id-source: derived
     post:
       parameters:
       - in: path
@@ -105,6 +113,8 @@ paths:
       summary: Add a FileClass to Classify for a User
       tags:
       - FileClass
+      operationId: postApiUsersFileClassesByFileClassName
+      x-operation-id-source: derived
 components:
   schemas:
     FileClassSchema:

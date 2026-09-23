@@ -31,23 +31,13 @@ paths:
           description: OK
       security:
       - ApiKeyAuth: []
-      summary: This endpoint returns merchant groups categorized as pending, custom, or rejected.
+      summary: This endpoint returns merchant groups categorized as pending, custom, or…
       tags:
       - UserMerchantGroups
+      operationId: getApiUserMerchantGroups
+      x-operation-id-source: derived
 components:
   schemas:
-    UserMerchantGroupSchema:
-      properties:
-        group_id:
-          type: string
-        merchant_heron_id:
-          type: string
-        merchant_name:
-          type: string
-      required:
-      - merchant_heron_id
-      - merchant_name
-      type: object
     UserMerchantGroupsSchema:
       properties:
         custom_merchants:
@@ -65,6 +55,18 @@ components:
           items:
             $ref: '#/components/schemas/UserMerchantGroupSchema'
           type: array
+      type: object
+    UserMerchantGroupSchema:
+      properties:
+        group_id:
+          type: string
+        merchant_heron_id:
+          type: string
+        merchant_name:
+          type: string
+      required:
+      - merchant_heron_id
+      - merchant_name
       type: object
   securitySchemes:
     ApiKeyAuth:

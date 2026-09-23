@@ -12,7 +12,7 @@ security:
 - ApiKeyAuth:
   - key_XXX
 tags:
-- name: EmailTemplates
+- name: Email Templates
 paths:
   /api/email_templates:
     get:
@@ -33,11 +33,11 @@ paths:
       - ApiKeyAuth: []
       summary: Get email templates
       tags:
-      - EmailTemplates
+      - Email Templates
+      operationId: getApiEmailTemplates
+      x-operation-id-source: derived
     post:
-      description: 'Create an email template used to send emails conditional on events like policy evaluation
-
-        '
+      description: Create an email template used to send emails conditional on events like policy evaluation
       requestBody:
         content:
           application/json:
@@ -58,12 +58,12 @@ paths:
       - ApiKeyAuth: []
       summary: Create an email template
       tags:
-      - EmailTemplates
+      - Email Templates
+      operationId: postApiEmailTemplates
+      x-operation-id-source: derived
   /api/email_templates/{heron_id}:
     patch:
-      description: 'Update an email template
-
-        '
+      description: Update an email template
       parameters:
       - in: path
         name: heron_id
@@ -90,41 +90,11 @@ paths:
       - ApiKeyAuth: []
       summary: Patch an email template
       tags:
-      - EmailTemplates
+      - Email Templates
+      operationId: patchApiEmailTemplatesByHeronId
+      x-operation-id-source: derived
 components:
   schemas:
-    EmailTemplatePatchSchema:
-      additionalProperties: true
-      properties:
-        cc_address:
-          description: The email address to CC
-          type:
-          - string
-          - 'null'
-        heron_id:
-          description: Unique identifier for the email template
-          readOnly: true
-          type: string
-        html_body:
-          description: The body of the email to send.
-          type: string
-        name:
-          description: Unique name of the email template. Used to match which email template to send. Only alphanumeric characters, underscores, and dashes are allowed.
-          maxLength: 50
-          minLength: 3
-          pattern: ^[a-zA-Z0-9_-]+$
-          type: string
-        reply_to_address:
-          description: The email address to reply to
-          type:
-          - string
-          - 'null'
-        to_address:
-          description: The email address to send the email to
-          type:
-          - string
-          - 'null'
-      type: object
     EmailTemplateSchema:
       additionalProperties: true
       properties:
@@ -159,6 +129,38 @@ components:
       required:
       - html_body
       - name
+      type: object
+    EmailTemplatePatchSchema:
+      additionalProperties: true
+      properties:
+        cc_address:
+          description: The email address to CC
+          type:
+          - string
+          - 'null'
+        heron_id:
+          description: Unique identifier for the email template
+          readOnly: true
+          type: string
+        html_body:
+          description: The body of the email to send.
+          type: string
+        name:
+          description: Unique name of the email template. Used to match which email template to send. Only alphanumeric characters, underscores, and dashes are allowed.
+          maxLength: 50
+          minLength: 3
+          pattern: ^[a-zA-Z0-9_-]+$
+          type: string
+        reply_to_address:
+          description: The email address to reply to
+          type:
+          - string
+          - 'null'
+        to_address:
+          description: The email address to send the email to
+          type:
+          - string
+          - 'null'
       type: object
   securitySchemes:
     ApiKeyAuth:

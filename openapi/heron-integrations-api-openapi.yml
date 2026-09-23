@@ -16,9 +16,7 @@ tags:
 paths:
   /api/end_users/{end_user_id_or_heron_id}/finicity/connect:
     post:
-      description: 'Create a Finicity Link for an end user and send a Finicity Connect email to the end user to initiate the connection. The end user must have sufficient end user information to create the link.
-
-        '
+      description: Create a Finicity Link for an end user and send a Finicity Connect email to the end user to initiate the connection. The end user must have sufficient end user information to create the link.
       parameters:
       - in: path
         name: end_user_id_or_heron_id
@@ -33,11 +31,11 @@ paths:
       summary: Send a Finicity Connect email to an end user
       tags:
       - Integrations
+      operationId: postApiEndUsersByEndUserIdOrHeronIdFinicityConnect
+      x-operation-id-source: derived
   /api/end_users/{end_user_id_or_heron_id}/finicity/request_cashflow_report:
     post:
-      description: 'Request a cashflow report generation for an end user. When the report is ready it will be available as EndUserFile.
-
-        '
+      description: Request a cashflow report generation for an end user. When the report is ready it will be available as EndUserFile.
       parameters:
       - in: path
         name: end_user_id_or_heron_id
@@ -58,11 +56,11 @@ paths:
       summary: Trigger a cashflow report generation for an end user
       tags:
       - Integrations
+      operationId: postApiEndUsersByEndUserIdOrHeronIdFinicityRequestCashflowReport
+      x-operation-id-source: derived
   /api/end_users/{end_user_id_or_heron_id}/finicity/request_statement_reports:
     post:
-      description: 'Request a Finicity statement reports generation for end user. Reports will be generated for each account available and each month going back in time between min_statement_index and max_statement_index. When the report is ready it will be available as EndUserFile.
-
-        '
+      description: Request a Finicity statement reports generation for end user. Reports will be generated for each account available and each month going back in time between min_statement_index and max_statement_index. When the report is ready it will be available as EndUserFile.
       parameters:
       - in: path
         name: end_user_id_or_heron_id
@@ -83,11 +81,11 @@ paths:
       summary: Trigger a statement reports generation for an end user
       tags:
       - Integrations
+      operationId: postApiEndUsersByEndUserIdOrHeronIdFinicityRequestStatementReports
+      x-operation-id-source: derived
   /api/end_users/{end_user_id_or_heron_id}/finicity/request_voe_transactions_report:
     post:
-      description: 'Request a Finicity VOE transactions report generation for an end user. When the report is ready it will be available as an EndUserFile.
-
-        '
+      description: Request a Finicity VOE transactions report generation for an end user. When the report is ready it will be available as an EndUserFile.
       parameters:
       - in: path
         name: end_user_id_or_heron_id
@@ -108,6 +106,8 @@ paths:
       summary: Trigger a Finicity VOE transactions report generation for an end user
       tags:
       - Integrations
+      operationId: postApiEndUsersByEndUserIdOrHeronIdFinicityRequestVoeTransactionsReport
+      x-operation-id-source: derived
   /api/integration_links/{item_id}:
     put:
       description: Allows refreshing the access_token of an existing Integration Link
@@ -142,6 +142,8 @@ paths:
       summary: Update an Integration Link
       tags:
       - Integrations
+      operationId: putApiIntegrationLinksByItemId
+      x-operation-id-source: derived
   /api/integrations:
     get:
       description: Get a list of Integrations
@@ -162,6 +164,8 @@ paths:
       summary: List Integrations
       tags:
       - Integrations
+      operationId: getApiIntegrations
+      x-operation-id-source: derived
     post:
       description: Create an integration e.g. with Plaid
       requestBody:
@@ -188,6 +192,8 @@ paths:
       summary: Create an integration
       tags:
       - Integrations
+      operationId: postApiIntegrations
+      x-operation-id-source: derived
   /api/integrations/{heron_id}:
     put:
       description: Update an Integration
@@ -222,6 +228,8 @@ paths:
       summary: Update Integration
       tags:
       - Integrations
+      operationId: putApiIntegrationsByHeronId
+      x-operation-id-source: derived
   /api/integrations/{heron_id}/links:
     delete:
       description: Soft-deletes of an integration link (sync is disabled)
@@ -246,6 +254,8 @@ paths:
       summary: (Soft-)Delete an integration link
       tags:
       - Integrations
+      operationId: deleteApiIntegrationsByHeronIdLinks
+      x-operation-id-source: derived
     get:
       description: Get a list of IntegrationLinks for an Integration filtered by end user
       parameters:
@@ -278,10 +288,10 @@ paths:
       summary: Get IntegrationLinks by Integration
       tags:
       - Integrations
+      operationId: getApiIntegrationsByHeronIdLinks
+      x-operation-id-source: derived
     post:
-      description: 'Create a Link for an active Integration every time a customer connects their bank. In Plaid, this is a Plaid Link every time a customer connects their bank. For Plaid, call this after exchanging a public token for an Item access_token.
-
-        '
+      description: Create a Link for an active Integration every time a customer connects their bank. In Plaid, this is a Plaid Link every time a customer connects their bank. For Plaid, call this after exchanging a public token for an Item access_token.
       parameters:
       - in: path
         name: heron_id
@@ -309,10 +319,10 @@ paths:
       summary: Create an integration Link
       tags:
       - Integrations
+      operationId: postApiIntegrationsByHeronIdLinks
+      x-operation-id-source: derived
     put:
-      description: 'Refresh assets reports for an integration and specific end user. This will trigger a refresh operation for all active Plaid assets report links associated with the integration and end user.
-
-        '
+      description: Refresh assets reports for an integration and specific end user. This will trigger a refresh operation for all active Plaid assets report links associated with the integration and end user.
       parameters:
       - description: The Integration's heron_id
         in: path
@@ -346,6 +356,8 @@ paths:
       summary: Refresh assets reports for integration links
       tags:
       - Integrations
+      operationId: putApiIntegrationsByHeronIdLinks
+      x-operation-id-source: derived
   /api/integrations/{heron_id}/links/{link_item_id}/refresh:
     post:
       description: Trigger a refresh operation for an IntegrationLink
@@ -377,64 +389,10 @@ paths:
       summary: Refresh an IntegrationLink
       tags:
       - Integrations
+      operationId: postApiIntegrationsByHeronIdLinksByLinkItemIdRefresh
+      x-operation-id-source: derived
 components:
   schemas:
-    IntegrationSchema:
-      properties:
-        base_url:
-          description: Base URL of the API integration. For Google Drive, use root_dir_path in client_auth instead.
-          example: https://sandbox.plaid.com
-          format: url
-          type:
-          - string
-          - 'null'
-        client_auth:
-          additionalProperties: {}
-          description: Client-specific authentication settings depending on the integration type
-          type: object
-          writeOnly: true
-        client_id:
-          description: Client ID for API access (this is encrypted in transit and at-rest with a custom key). Required for Plaid integration
-          type:
-          - string
-          - 'null'
-        client_secret:
-          description: Client Secret for API access (this is encrypted in transit and at-rest with a custom key). Required for Plaid integration
-          type:
-          - string
-          - 'null'
-        heron_id:
-          readOnly: true
-          type: string
-        name:
-          description: A name for your integration
-          example: Plaid Prod
-          type: string
-        resource:
-          description: For integrations with multiple available resources, the specific resource
-          enum:
-          - transaction
-          - assets_report
-          - end_user_application
-          - invoice_factoring_processing
-          - end_user_files
-          - funder_decision
-          type: string
-        type:
-          description: The integration type, a specific provider
-          type: string
-        webhook_url:
-          description: URL provided by you to which we'll forward all webhooks (optional)
-          example: https://your-server.yourdomain.com/hooks
-          format: url
-          type:
-          - string
-          - 'null'
-      required:
-      - name
-      - resource
-      - type
-      type: object
     FinicityRequestStatementReportsSchema:
       properties:
         max_statement_index:
@@ -443,6 +401,56 @@ components:
         min_statement_index:
           default: 1
           type: integer
+      type: object
+    FinicityRequestVoeTransactionsReportSchema:
+      properties:
+        from_date:
+          format: date-time
+          type: string
+      type: object
+    RefreshAssetsReportsResponseSchema:
+      properties:
+        failed_links:
+          description: Array of item_ids that failed to refresh
+          example:
+          - item_123
+          - item_456
+          items:
+            type: string
+          type: array
+        processed_links:
+          description: Number of links processed for refresh
+          example: 2
+          type: integer
+      required:
+      - failed_links
+      - processed_links
+      type: object
+    FinicityRequestCashflowReportSchema:
+      properties:
+        applicant_is_personal_guarantor:
+          type: boolean
+        for_cra_purpose:
+          type: boolean
+        user_type:
+          enum:
+          - personal
+          - business
+          type: string
+      required:
+      - applicant_is_personal_guarantor
+      - for_cra_purpose
+      - user_type
+      type: object
+    IntegrationLinkUpdateSchema:
+      properties:
+        access_token:
+          description: The generated token that grants access to the bank (this is encrypted in transit and at-rest with a custom key)
+          example: access-sandbox-de3ce8ef-33f8-452c-a685-8671031fc0f6
+          type: string
+          writeOnly: true
+      required:
+      - access_token
       type: object
     IntegrationLinkNewSchema:
       properties:
@@ -590,55 +598,61 @@ components:
       - end_user_id
       - item_id
       type: object
-    FinicityRequestVoeTransactionsReportSchema:
+    IntegrationSchema:
       properties:
-        from_date:
-          format: date-time
-          type: string
-      type: object
-    FinicityRequestCashflowReportSchema:
-      properties:
-        applicant_is_personal_guarantor:
-          type: boolean
-        for_cra_purpose:
-          type: boolean
-        user_type:
-          enum:
-          - personal
-          - business
-          type: string
-      required:
-      - applicant_is_personal_guarantor
-      - for_cra_purpose
-      - user_type
-      type: object
-    RefreshAssetsReportsResponseSchema:
-      properties:
-        failed_links:
-          description: Array of item_ids that failed to refresh
-          example:
-          - item_123
-          - item_456
-          items:
-            type: string
-          type: array
-        processed_links:
-          description: Number of links processed for refresh
-          example: 2
-          type: integer
-      required:
-      - failed_links
-      - processed_links
-      type: object
-    IntegrationLinkUpdateSchema:
-      properties:
-        access_token:
-          description: The generated token that grants access to the bank (this is encrypted in transit and at-rest with a custom key)
-          example: access-sandbox-de3ce8ef-33f8-452c-a685-8671031fc0f6
-          type: string
+        base_url:
+          description: Base URL of the API integration. For Google Drive, use root_dir_path in client_auth instead.
+          example: https://sandbox.plaid.com
+          format: url
+          type:
+          - string
+          - 'null'
+        client_auth:
+          additionalProperties: {}
+          description: Client-specific authentication settings depending on the integration type
+          type: object
           writeOnly: true
+        client_id:
+          description: Client ID for API access (this is encrypted in transit and at-rest with a custom key). Required for Plaid integration
+          type:
+          - string
+          - 'null'
+        client_secret:
+          description: Client Secret for API access (this is encrypted in transit and at-rest with a custom key). Required for Plaid integration
+          type:
+          - string
+          - 'null'
+        heron_id:
+          readOnly: true
+          type: string
+        name:
+          description: A name for your integration
+          example: Plaid Prod
+          type: string
+        resource:
+          description: For integrations with multiple available resources, the specific resource
+          enum:
+          - transaction
+          - assets_report
+          - end_user_application
+          - invoice_factoring_processing
+          - end_user_files
+          - funder_decision
+          type: string
+        type:
+          description: The integration type, a specific provider
+          type: string
+        webhook_url:
+          description: URL provided by you to which we'll forward all webhooks (optional)
+          example: https://your-server.yourdomain.com/hooks
+          format: url
+          type:
+          - string
+          - 'null'
       required:
-      - access_token
+      - name
+      - resource
+      - type
       type: object
   securitySchemes:
     ApiKeyAuth:

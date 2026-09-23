@@ -36,6 +36,8 @@ paths:
       summary: Get categories
       tags:
       - Categories
+      operationId: getApiCategories
+      x-operation-id-source: derived
 components:
   schemas:
     Category:

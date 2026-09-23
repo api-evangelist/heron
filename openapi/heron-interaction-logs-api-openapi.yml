@@ -36,18 +36,10 @@ paths:
       tags:
       - Interaction Logs
       x-hidden: true
+      operationId: postApiInteractionLogs
+      x-operation-id-source: derived
 components:
   schemas:
-    InteractionLogResponseSchema:
-      properties:
-        created:
-          format: date-time
-          readOnly: true
-          type: string
-        heron_id:
-          readOnly: true
-          type: string
-      type: object
     CreateInteractionLogSchema:
       properties:
         attributes:
@@ -74,6 +66,16 @@ components:
       required:
       - name
       - session_uuid
+      type: object
+    InteractionLogResponseSchema:
+      properties:
+        created:
+          format: date-time
+          readOnly: true
+          type: string
+        heron_id:
+          readOnly: true
+          type: string
       type: object
   securitySchemes:
     ApiKeyAuth:

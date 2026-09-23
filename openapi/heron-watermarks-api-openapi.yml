@@ -32,6 +32,8 @@ paths:
       summary: Retrieve user logo
       tags:
       - Watermarks
+      operationId: getApiWatermarksLogo
+      x-operation-id-source: derived
     post:
       description: Upload a logo file for the current user. The file is validated for security and stored in GCS.
       requestBody:
@@ -56,6 +58,8 @@ paths:
       summary: Upload user logo
       tags:
       - Watermarks
+      operationId: postApiWatermarksLogo
+      x-operation-id-source: derived
 components:
   schemas:
     UserLogoFileSchema:

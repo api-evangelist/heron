@@ -18,9 +18,7 @@ paths:
     post:
       description: 'Create a new broker submission with end user details.
 
-        **Authentication**: Requires a broker API key in the `x-api-key` header. Generate keys using the `/api/broker_submissions/api_keys/generate` endpoint.
-
-        '
+        **Authentication**: Requires a broker API key in the `x-api-key` header. Generate keys using the `/api/broker_submissions/api_keys/generate` endpoint.'
       requestBody:
         content:
           application/json:
@@ -43,11 +41,11 @@ paths:
       summary: Create broker submission
       tags:
       - BrokerSubmissions
+      operationId: postApiBrokerSubmissions
+      x-operation-id-source: derived
   /api/broker_submissions/api_keys:
     get:
-      description: 'Retrieve all Broker API keys associated with the authenticated user''s funder account. Returns a list of broker-funder relationships with their corresponding API keys.
-
-        '
+      description: Retrieve all Broker API keys associated with the authenticated user's funder account. Returns a list of broker-funder relationships with their corresponding API keys.
       responses:
         '200':
           content:
@@ -69,14 +67,14 @@ paths:
           description: OK
         '404':
           description: Funder account not found for the authenticated user
-      summary: List broker API keys for a given user.
+      summary: List broker API keys for a given user
       tags:
       - BrokerSubmissions
+      operationId: getApiBrokerSubmissionsApiKeys
+      x-operation-id-source: derived
   /api/broker_submissions/api_keys/generate:
     post:
-      description: 'Create a new API key for a broker-funder relationship. The broker is identified by email domain. If the funder account or broker-funder relationship doesn''t exist, they will be created automatically. Returns an error if an API key already exists for this relationship.
-
-        '
+      description: Create a new API key for a broker-funder relationship. The broker is identified by email domain. If the funder account or broker-funder relationship doesn't exist, they will be created automatically. Returns an error if an API key already exists for this relationship.
       requestBody:
         content:
           application/json:
@@ -101,11 +99,11 @@ paths:
       summary: Generate broker API key
       tags:
       - BrokerSubmissions
+      operationId: postApiBrokerSubmissionsApiKeysGenerate
+      x-operation-id-source: derived
   /api/broker_submissions/api_keys/{broker_funder_api_key_heron_id}:
     delete:
-      description: 'Delete an existing API key for a broker-funder relationship. The authenticated user must own the funder account associated with the API key.
-
-        '
+      description: Delete an existing API key for a broker-funder relationship. The authenticated user must own the funder account associated with the API key.
       parameters:
       - description: The unique identifier of the API key to delete
         in: path
@@ -121,13 +119,13 @@ paths:
       summary: Delete broker API key
       tags:
       - BrokerSubmissions
+      operationId: deleteApiBrokerSubmissionsApiKeysByBrokerFunderApiKeyHeronId
+      x-operation-id-source: derived
   /api/broker_submissions/{submission_heron_id}/files:
     post:
       description: 'Upload one or more PDF files for a specified broker submission.
 
-        Authenticate by passing a broker API key in the `x-api-key` header. Generate keys via the `/api/broker_submissions/api_keys/generate` endpoint.
-
-        '
+        Authenticate by passing a broker API key in the `x-api-key` header. Generate keys via the `/api/broker_submissions/api_keys/generate` endpoint.'
       parameters:
       - description: The unique identifier for the broker submission to upload files to
         in: path
@@ -293,13 +291,13 @@ paths:
       summary: Upload PDF files for broker submission
       tags:
       - BrokerSubmissions
+      operationId: postApiBrokerSubmissionsBySubmissionHeronIdFiles
+      x-operation-id-source: derived
   /api/broker_submissions/{submission_heron_id}/update_information:
     post:
       description: 'Add company and owner details to existing broker submission.
 
-        **Authentication**: Requires a broker API key in the `x-api-key` header. Generate keys using the `/api/broker_submissions/api_keys/generate` endpoint.
-
-        '
+        **Authentication**: Requires a broker API key in the `x-api-key` header. Generate keys using the `/api/broker_submissions/api_keys/generate` endpoint.'
       parameters:
       - in: path
         name: submission_heron_id
@@ -324,8 +322,112 @@ paths:
       summary: Add details to broker submission
       tags:
       - BrokerSubmissions
+      operationId: postApiBrokerSubmissionsBySubmissionHeronIdUpdateInformation
+      x-operation-id-source: derived
 components:
   schemas:
+    Address:
+      properties:
+        city:
+          type:
+          - string
+          - 'null'
+        line_1:
+          type:
+          - string
+          - 'null'
+        line_2:
+          type:
+          - string
+          - 'null'
+        state:
+          type:
+          - string
+          - 'null'
+        zip:
+          type:
+          - string
+          - 'null'
+      type: object
+    CreateBrokerFunderApiKeySchema:
+      properties:
+        email:
+          description: Broker email address
+          format: email
+          type: string
+      required:
+      - email
+      type: object
+    Owner:
+      properties:
+        credit_score:
+          type:
+          - integer
+          - 'null'
+        date_of_birth:
+          example: '1990-01-01'
+          format: date
+          type:
+          - string
+          - 'null'
+        email_address:
+          type:
+          - string
+          - 'null'
+        first_name:
+          type:
+          - string
+          - 'null'
+        has_signed:
+          type:
+          - boolean
+          - 'null'
+        home_address:
+          $ref: '#/components/schemas/Address'
+        home_phone:
+          type:
+          - string
+          - 'null'
+        last_name:
+          type:
+          - string
+          - 'null'
+        middle_name:
+          type:
+          - string
+          - 'null'
+        mobile_phone:
+          type:
+          - string
+          - 'null'
+        ownership_percentage:
+          description: Percentage of ownership
+          example: 100
+          type:
+          - number
+          - 'null'
+        prefix:
+          description: Name prefix
+          example: Mr
+          type:
+          - string
+          - 'null'
+        signed_date:
+          format: date
+          type:
+          - string
+          - 'null'
+        social_security_number:
+          type:
+          - string
+          - 'null'
+        suffix:
+          description: Generational or professional suffix
+          example: Jr
+          type:
+          - string
+          - 'null'
+      type: object
     EndUserInformationPatchSchema:
       properties:
         amount_requested:
@@ -415,76 +517,6 @@ components:
           - string
           - 'null'
       type: object
-    Owner:
-      properties:
-        credit_score:
-          type:
-          - integer
-          - 'null'
-        date_of_birth:
-          example: '1990-01-01'
-          format: date
-          type:
-          - string
-          - 'null'
-        email_address:
-          type:
-          - string
-          - 'null'
-        first_name:
-          type:
-          - string
-          - 'null'
-        has_signed:
-          type:
-          - boolean
-          - 'null'
-        home_address:
-          $ref: '#/components/schemas/Address'
-        home_phone:
-          type:
-          - string
-          - 'null'
-        last_name:
-          type:
-          - string
-          - 'null'
-        middle_name:
-          type:
-          - string
-          - 'null'
-        mobile_phone:
-          type:
-          - string
-          - 'null'
-        ownership_percentage:
-          description: Percentage of ownership
-          example: 100
-          type:
-          - number
-          - 'null'
-        prefix:
-          description: Name prefix
-          example: Mr
-          type:
-          - string
-          - 'null'
-        signed_date:
-          format: date
-          type:
-          - string
-          - 'null'
-        social_security_number:
-          type:
-          - string
-          - 'null'
-        suffix:
-          description: Generational or professional suffix
-          example: Jr
-          type:
-          - string
-          - 'null'
-      type: object
     CreateBrokerSubmissionSchema:
       properties:
         name:
@@ -493,15 +525,6 @@ components:
           type: string
       required:
       - name
-      type: object
-    CreateBrokerFunderApiKeySchema:
-      properties:
-        email:
-          description: Broker email address
-          format: email
-          type: string
-      required:
-      - email
       type: object
     EndUserInformationSchema:
       properties:
@@ -599,29 +622,6 @@ components:
           - string
           - 'null'
         type_of_business_entity:
-          type:
-          - string
-          - 'null'
-      type: object
-    Address:
-      properties:
-        city:
-          type:
-          - string
-          - 'null'
-        line_1:
-          type:
-          - string
-          - 'null'
-        line_2:
-          type:
-          - string
-          - 'null'
-        state:
-          type:
-          - string
-          - 'null'
-        zip:
           type:
           - string
           - 'null'

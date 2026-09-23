@@ -18,9 +18,7 @@ paths:
     get:
       description: 'Returns funders whose name or aliases fuzzy-match `q`, capped at `limit` (max 50).
 
-        Requires `q` (min 3 characters); bulk listing is no longer supported.
-
-        '
+        Requires `q` (min 3 characters); bulk listing is no longer supported.'
       parameters:
       - description: Funder name (or alias) prefix/fuzzy search term.
         in: query
@@ -52,6 +50,8 @@ paths:
       summary: Search funders by name
       tags:
       - Funders
+      operationId: getApiFunders
+      x-operation-id-source: derived
   /api/funders/linked:
     get:
       description: Get a list of funders linked to the current user
@@ -72,11 +72,11 @@ paths:
       summary: List your linked funders
       tags:
       - Funders
+      operationId: getApiFundersLinked
+      x-operation-id-source: derived
   /api/funders/search/:
     get:
-      description: 'Search the Heron funder database by name using fuzzy matching. Returns a lightweight list of matching funders for the frontend picker UI.
-
-        '
+      description: Search the Heron funder database by name using fuzzy matching. Returns a lightweight list of matching funders for the frontend picker UI.
       parameters:
       - description: Funder name to search for (e.g. 'iwoca', 'Funding Circle')
         in: query
@@ -98,6 +98,8 @@ paths:
       summary: Search funders by name
       tags:
       - Funders
+      operationId: getApiFundersSearch
+      x-operation-id-source: derived
   /api/funders/{heron_id}:
     get:
       description: Get details of a specific funder by heron_id
@@ -125,8 +127,25 @@ paths:
       summary: Get a single funder
       tags:
       - Funders
+      operationId: getApiFundersByHeronId
+      x-operation-id-source: derived
 components:
   schemas:
+    FunderSearchResultSchema:
+      additionalProperties: false
+      properties:
+        heron_id:
+          readOnly: true
+          type: string
+        logo_url:
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        name:
+          readOnly: true
+          type: string
+      type: object
     Funder:
       additionalProperties: false
       properties:
@@ -210,21 +229,6 @@ components:
           type:
           - string
           - 'null'
-      type: object
-    FunderSearchResultSchema:
-      additionalProperties: false
-      properties:
-        heron_id:
-          readOnly: true
-          type: string
-        logo_url:
-          readOnly: true
-          type:
-          - string
-          - 'null'
-        name:
-          readOnly: true
-          type: string
       type: object
   securitySchemes:
     ApiKeyAuth:

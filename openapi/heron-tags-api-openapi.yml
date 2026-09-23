@@ -42,10 +42,10 @@ paths:
       summary: List an end user's tags
       tags:
       - Tags
+      operationId: getApiEndUsersByEndUserIdOrHeronIdTags
+      x-operation-id-source: derived
     post:
-      description: 'Add the given tags to the end user, leaving any tags already applied in place. Re-sending a tag that is already applied is a no-op, so retries are safe. Every tag heron_id must exist, otherwise none are applied.
-
-        '
+      description: Add the given tags to the end user, leaving any tags already applied in place. Re-sending a tag that is already applied is a no-op, so retries are safe. Every tag heron_id must exist, otherwise none are applied.
       parameters:
       - in: path
         name: end_user_id_or_heron_id
@@ -79,10 +79,10 @@ paths:
       summary: Add tags to an end user
       tags:
       - Tags
+      operationId: postApiEndUsersByEndUserIdOrHeronIdTags
+      x-operation-id-source: derived
     put:
-      description: 'Set the end user''s tags to exactly the tags given, adding and removing as needed. Send an empty list to clear every tag. Every tag heron_id must exist, otherwise nothing changes.
-
-        '
+      description: Set the end user's tags to exactly the tags given, adding and removing as needed. Send an empty list to clear every tag. Every tag heron_id must exist, otherwise nothing changes.
       parameters:
       - in: path
         name: end_user_id_or_heron_id
@@ -116,11 +116,11 @@ paths:
       summary: Replace an end user's tags
       tags:
       - Tags
+      operationId: putApiEndUsersByEndUserIdOrHeronIdTags
+      x-operation-id-source: derived
   /api/end_users/{end_user_id_or_heron_id}/tags/{tag_heron_id}:
     delete:
-      description: 'Remove one tag from the end user. Removing a tag that is not applied succeeds, so retries are safe. The tag itself is not deleted.
-
-        '
+      description: Remove one tag from the end user. Removing a tag that is not applied succeeds, so retries are safe. The tag itself is not deleted.
       parameters:
       - in: path
         name: end_user_id_or_heron_id
@@ -144,6 +144,8 @@ paths:
       summary: Remove a tag from an end user
       tags:
       - Tags
+      operationId: deleteApiEndUsersByEndUserIdOrHeronIdTagsByTagHeronId
+      x-operation-id-source: derived
   /api/tags:
     get:
       description: Return every tag on your account, excluding deleted ones.
@@ -164,10 +166,10 @@ paths:
       summary: List tags
       tags:
       - Tags
+      operationId: getApiTags
+      x-operation-id-source: derived
     post:
-      description: 'Create a tag. Names are normalized to lowercase. They must contain 1-140 alphanumeric characters plus _ - : and are unique to your account (case-insensitive).
-
-        '
+      description: 'Create a tag. Names are normalized to lowercase. They must contain 1-140 alphanumeric characters plus _ - : and are unique to your account (case-insensitive).'
       requestBody:
         content:
           application/json:
@@ -193,11 +195,11 @@ paths:
       summary: Create a tag
       tags:
       - Tags
+      operationId: postApiTags
+      x-operation-id-source: derived
   /api/tags/{heron_id}:
     delete:
-      description: 'Delete a tag. It is removed from everything it is currently applied to and no longer appears in tag lists.
-
-        '
+      description: Delete a tag. It is removed from everything it is currently applied to and no longer appears in tag lists.
       parameters:
       - in: path
         name: heron_id
@@ -214,6 +216,8 @@ paths:
       summary: Delete a tag
       tags:
       - Tags
+      operationId: deleteApiTagsByHeronId
+      x-operation-id-source: derived
     get:
       description: Return a single tag by its heron_id. Deleted tags return 404.
       parameters:
@@ -239,10 +243,10 @@ paths:
       summary: Get a tag
       tags:
       - Tags
+      operationId: getApiTagsByHeronId
+      x-operation-id-source: derived
     patch:
-      description: 'Update a tag''s name, description, or color. Only the fields you send are changed; send null to clear the description or color.
-
-        '
+      description: Update a tag's name, description, or color. Only the fields you send are changed; send null to clear the description or color.
       parameters:
       - in: path
         name: heron_id
@@ -276,8 +280,20 @@ paths:
       summary: Update a tag
       tags:
       - Tags
+      operationId: patchApiTagsByHeronId
+      x-operation-id-source: derived
 components:
   schemas:
+    EndUserTagsSchema:
+      properties:
+        tags:
+          description: Heron IDs of the tags to apply to this end user.
+          items:
+            type: string
+          type: array
+      required:
+      - tags
+      type: object
     TagPatchSchema:
       properties:
         color:
@@ -293,16 +309,6 @@ components:
         name:
           description: 'Identifier normalized to lowercase: alphanumeric plus ''_'', ''-'', '':'', up to 140 chars. Unique to your account (case-insensitive).'
           type: string
-      type: object
-    EndUserTagsSchema:
-      properties:
-        tags:
-          description: Heron IDs of the tags to apply to this end user.
-          items:
-            type: string
-          type: array
-      required:
-      - tags
       type: object
     TagSchema:
       properties:

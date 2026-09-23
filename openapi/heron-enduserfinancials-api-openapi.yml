@@ -47,6 +47,8 @@ paths:
       summary: Get EndUser's combined financials
       tags:
       - EndUserFinancials
+      operationId: getApiEndUsersByEndUserIdOrHeronIdCombinedFinancials
+      x-operation-id-source: derived
 components:
   schemas:
     FinancialsValue:

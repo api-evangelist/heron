@@ -16,9 +16,7 @@ tags:
 paths:
   /api/auth/environments:
     get:
-      description: 'Get all available environments for the current user
-
-        '
+      description: Get all available environments for the current user
       responses:
         '200':
           content:
@@ -32,23 +30,10 @@ paths:
       tags:
       - Authentication
       x-hidden: true
+      operationId: getApiAuthEnvironments
+      x-operation-id-source: derived
 components:
   schemas:
-    AvailableEnvironmentsEnvironment:
-      properties:
-        alias:
-          description: Alias for the environment
-          example: Development
-          type: string
-        environment:
-          description: Environment name
-          example: dev
-          type: string
-        username:
-          description: Name of the environment
-          example: dev
-          type: string
-      type: object
     AvailableEnvironments:
       properties:
         default_environment:
@@ -72,6 +57,21 @@ components:
             - $ref: '#/components/schemas/AvailableEnvironmentsOrganization'
             description: List of organizations available to the user
           type: array
+      type: object
+    AvailableEnvironmentsEnvironment:
+      properties:
+        alias:
+          description: Alias for the environment
+          example: Development
+          type: string
+        environment:
+          description: Environment name
+          example: dev
+          type: string
+        username:
+          description: Name of the environment
+          example: dev
+          type: string
       type: object
     AvailableEnvironmentsOrganization:
       properties:

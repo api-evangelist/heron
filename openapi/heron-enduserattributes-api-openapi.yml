@@ -37,6 +37,8 @@ paths:
       summary: Get EndUser attribute values
       tags:
       - EndUserAttributes
+      operationId: getApiEndUsersByEndUserHeronIdCompanyAttributes
+      x-operation-id-source: derived
 components:
   schemas:
     CompanyAttribute:

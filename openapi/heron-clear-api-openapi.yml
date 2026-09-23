@@ -44,6 +44,8 @@ paths:
       tags:
       - Clear
       x-hidden: true
+      operationId: postApiAdminClearReport
+      x-operation-id-source: derived
   /api/admin/clear/search:
     post:
       requestBody:
@@ -72,22 +74,10 @@ paths:
       tags:
       - Clear
       x-hidden: true
+      operationId: postApiAdminClearSearch
+      x-operation-id-source: derived
 components:
   schemas:
-    ClearSearchRequestSchema:
-      additionalProperties: false
-      properties:
-        criteria:
-          $ref: '#/components/schemas/ClearSearchCriteria'
-        subject_type:
-          enum:
-          - business
-          - person
-          type: string
-      required:
-      - criteria
-      - subject_type
-      type: object
     ClearReportRequestSchema:
       additionalProperties: false
       properties:
@@ -145,6 +135,20 @@ components:
         zip_code:
           minLength: 1
           type: string
+      type: object
+    ClearSearchRequestSchema:
+      additionalProperties: false
+      properties:
+        criteria:
+          $ref: '#/components/schemas/ClearSearchCriteria'
+        subject_type:
+          enum:
+          - business
+          - person
+          type: string
+      required:
+      - criteria
+      - subject_type
       type: object
   securitySchemes:
     ApiKeyAuth:

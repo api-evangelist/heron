@@ -16,9 +16,7 @@ tags:
 paths:
   /api/analytics/decline:
     get:
-      description: 'Returns aggregated decline analytics for end users within a date range, including total end users, total declined, and per-check pass/fail/missing counts. Only the latest policy evaluation per end user is considered.
-
-        '
+      description: Returns aggregated decline analytics for end users within a date range, including total end users, total declined, and per-check pass/fail/missing counts. Only the latest policy evaluation per end user is considered.
       parameters:
       - description: Start of the date range (filters by end_user created date)
         in: query
@@ -70,6 +68,8 @@ paths:
       summary: Get decline analytics for a user
       tags:
       - Analytics
+      operationId: getApiAnalyticsDecline
+      x-operation-id-source: derived
 components:
   securitySchemes:
     ApiKeyAuth:

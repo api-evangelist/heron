@@ -34,6 +34,8 @@ paths:
       summary: List CRM Integrations
       tags:
       - CrmIntegrations
+      operationId: getApiCrmIntegrations
+      x-operation-id-source: derived
     post:
       description: Create a CRM integration, e.g., with Salesforce
       requestBody:
@@ -57,6 +59,8 @@ paths:
       summary: Create a CRM integration
       tags:
       - CrmIntegrations
+      operationId: postApiCrmIntegrations
+      x-operation-id-source: derived
   /api/crm_integrations/{heron_id}:
     patch:
       description: patch a CRM integration
@@ -84,8 +88,165 @@ paths:
       summary: Patch a CRM integration
       tags:
       - CrmIntegrations
+      operationId: patchApiCrmIntegrationsByHeronId
+      x-operation-id-source: derived
 components:
   schemas:
+    CrmPolicyEvaluationConfig:
+      properties:
+        external_object_name:
+          description: The object to write policy evaluation results to
+          example: Opportunity
+          type: string
+        failure_reason_external_name:
+          description: The field to write policy evaluation failure reason to
+          example: Failure_Reason__c
+          type: string
+        result_external_name:
+          description: The field to write policy evaluation results
+          example: Submission_Result_from_Heron__c
+          type: string
+      required:
+      - external_object_name
+      type: object
+    CrmIntegrationPatchSchema:
+      additionalProperties: true
+      properties:
+        auth:
+          additionalProperties: {}
+          description: Authentication details for the CRM integration
+          type: object
+          writeOnly: true
+        config:
+          allOf:
+          - $ref: '#/components/schemas/CrmConfig'
+          description: The configuration for the CRM integration
+        failure_notification_channel:
+          description: The channel to send failure notifications to
+          type:
+          - string
+          - 'null'
+        heron_id:
+          readOnly: true
+          type: string
+        instance_url:
+          description: Base URL of the CRM integration
+          example: https://sandbox.salesforce.com
+          format: url
+          type: string
+        is_enabled:
+          default: true
+          description: Whether the integration is enabled
+          example: true
+          type: boolean
+        is_live:
+          default: true
+          description: Whether the integration is live
+          example: true
+          type: boolean
+        provider:
+          description: The CRM provider
+          type: string
+        secret:
+          description: A secret key for the CRM integration
+          type: string
+          writeOnly: true
+      type: object
+    CrmStaticData:
+      properties:
+        key:
+          description: The key of the static data
+          example: status
+          type: string
+        value:
+          description: The value of the static data
+          example: active
+      required:
+      - key
+      - value
+      type: object
+    CrmValueMapping:
+      properties:
+        default_value:
+          description: The default value to use when no match is found
+          example: Default
+          type:
+          - string
+          - 'null'
+        description:
+          description: A human-readable description of the value mapping
+          example: The status of the company
+          type:
+          - string
+          - 'null'
+        mapping:
+          additionalProperties: {}
+          description: The mapping of values
+          example:
+            CA: California
+            NY: New York
+          type: object
+        name:
+          description: The name of the value mapping
+          example: Status
+          type: string
+        use_partial_match:
+          default: false
+          description: Whether to use partial match when mapping values
+          type: boolean
+      required:
+      - mapping
+      - name
+      type: object
+    CrmIntegrationSchema:
+      additionalProperties: true
+      properties:
+        auth:
+          additionalProperties: {}
+          description: Authentication details for the CRM integration
+          type: object
+          writeOnly: true
+        config:
+          allOf:
+          - $ref: '#/components/schemas/CrmConfig'
+          description: The configuration for the CRM integration
+        failure_notification_channel:
+          description: The channel to send failure notifications to
+          type:
+          - string
+          - 'null'
+        heron_id:
+          readOnly: true
+          type: string
+        instance_url:
+          description: Base URL of the CRM integration
+          example: https://sandbox.salesforce.com
+          format: url
+          type: string
+        is_enabled:
+          default: true
+          description: Whether the integration is enabled
+          example: true
+          type: boolean
+        is_live:
+          default: true
+          description: Whether the integration is live
+          example: true
+          type: boolean
+        provider:
+          description: The CRM provider
+          type: string
+        secret:
+          description: A secret key for the CRM integration
+          type: string
+          writeOnly: true
+      required:
+      - auth
+      - config
+      - instance_url
+      - provider
+      - secret
+      type: object
     CrmFieldMapping:
       properties:
         external_lookup_field_name:
@@ -160,95 +321,6 @@ components:
       required:
       - field_name
       type: object
-    CrmStaticData:
-      properties:
-        key:
-          description: The key of the static data
-          example: status
-          type: string
-        value:
-          description: The value of the static data
-          example: active
-      required:
-      - key
-      - value
-      type: object
-    CrmValueMapping:
-      properties:
-        default_value:
-          description: The default value to use when no match is found
-          example: Default
-          type:
-          - string
-          - 'null'
-        description:
-          description: A human-readable description of the value mapping
-          example: The status of the company
-          type:
-          - string
-          - 'null'
-        mapping:
-          additionalProperties: {}
-          description: The mapping of values
-          example:
-            CA: California
-            NY: New York
-          type: object
-        name:
-          description: The name of the value mapping
-          example: Status
-          type: string
-        use_partial_match:
-          default: false
-          description: Whether to use partial match when mapping values
-          type: boolean
-      required:
-      - mapping
-      - name
-      type: object
-    CrmObjectConfig:
-      properties:
-        description:
-          description: Human-readable description of the object
-          example: A company or person
-          type:
-          - string
-          - 'null'
-        external_lookup_config:
-          allOf:
-          - $ref: '#/components/schemas/CrmExternalLookupConfig'
-          description: Configuration for external lookup
-        external_name:
-          description: The exact name of the object in the CRM
-          example: Account
-          type: string
-        field_mappings:
-          description: Mapping for Heron fields to object fields in CRM
-          items:
-            $ref: '#/components/schemas/CrmFieldMapping'
-          type: array
-        is_optional:
-          default: false
-          description: Whether the object is optional. Optional means that if object fails it will not stop execution of CRM sync
-          type: boolean
-        key:
-          description: key should be unique among objects within an integration
-          example: Account
-          type: string
-        required_ids:
-          description: List of object ids that new object needs
-          items:
-            $ref: '#/components/schemas/CrmObjectId'
-          type: array
-        static_data:
-          description: Stores static data used by the integration, for example status fields
-          items:
-            $ref: '#/components/schemas/CrmStaticData'
-          type: array
-      required:
-      - external_name
-      - key
-      type: object
     CrmConfig:
       properties:
         child_file_filtering_enabled:
@@ -294,55 +366,6 @@ components:
             $ref: '#/components/schemas/CrmValueMapping'
           type: array
       type: object
-    CrmIntegrationSchema:
-      additionalProperties: true
-      properties:
-        auth:
-          additionalProperties: {}
-          description: Authentication details for the CRM integration
-          type: object
-          writeOnly: true
-        config:
-          allOf:
-          - $ref: '#/components/schemas/CrmConfig'
-          description: The configuration for the CRM integration
-        failure_notification_channel:
-          description: The channel to send failure notifications to
-          type:
-          - string
-          - 'null'
-        heron_id:
-          readOnly: true
-          type: string
-        instance_url:
-          description: Base URL of the CRM integration
-          example: https://sandbox.salesforce.com
-          format: url
-          type: string
-        is_enabled:
-          default: true
-          description: Whether the integration is enabled
-          example: true
-          type: boolean
-        is_live:
-          default: true
-          description: Whether the integration is live
-          example: true
-          type: boolean
-        provider:
-          description: The CRM provider
-          type: string
-        secret:
-          description: A secret key for the CRM integration
-          type: string
-          writeOnly: true
-      required:
-      - auth
-      - config
-      - instance_url
-      - provider
-      - secret
-      type: object
     CrmObjectId:
       properties:
         alias:
@@ -382,65 +405,48 @@ components:
           - DESC
           type: string
       type: object
-    CrmIntegrationPatchSchema:
-      additionalProperties: true
+    CrmObjectConfig:
       properties:
-        auth:
-          additionalProperties: {}
-          description: Authentication details for the CRM integration
-          type: object
-          writeOnly: true
-        config:
-          allOf:
-          - $ref: '#/components/schemas/CrmConfig'
-          description: The configuration for the CRM integration
-        failure_notification_channel:
-          description: The channel to send failure notifications to
+        description:
+          description: Human-readable description of the object
+          example: A company or person
           type:
           - string
           - 'null'
-        heron_id:
-          readOnly: true
+        external_lookup_config:
+          allOf:
+          - $ref: '#/components/schemas/CrmExternalLookupConfig'
+          description: Configuration for external lookup
+        external_name:
+          description: The exact name of the object in the CRM
+          example: Account
           type: string
-        instance_url:
-          description: Base URL of the CRM integration
-          example: https://sandbox.salesforce.com
-          format: url
-          type: string
-        is_enabled:
-          default: true
-          description: Whether the integration is enabled
-          example: true
+        field_mappings:
+          description: Mapping for Heron fields to object fields in CRM
+          items:
+            $ref: '#/components/schemas/CrmFieldMapping'
+          type: array
+        is_optional:
+          default: false
+          description: Whether the object is optional. Optional means that if object fails it will not stop execution of CRM sync
           type: boolean
-        is_live:
-          default: true
-          description: Whether the integration is live
-          example: true
-          type: boolean
-        provider:
-          description: The CRM provider
+        key:
+          description: key should be unique among objects within an integration
+          example: Account
           type: string
-        secret:
-          description: A secret key for the CRM integration
-          type: string
-          writeOnly: true
-      type: object
-    CrmPolicyEvaluationConfig:
-      properties:
-        external_object_name:
-          description: The object to write policy evaluation results to
-          example: Opportunity
-          type: string
-        failure_reason_external_name:
-          description: The field to write policy evaluation failure reason to
-          example: Failure_Reason__c
-          type: string
-        result_external_name:
-          description: The field to write policy evaluation results
-          example: Submission_Result_from_Heron__c
-          type: string
+        required_ids:
+          description: List of object ids that new object needs
+          items:
+            $ref: '#/components/schemas/CrmObjectId'
+          type: array
+        static_data:
+          description: Stores static data used by the integration, for example status fields
+          items:
+            $ref: '#/components/schemas/CrmStaticData'
+          type: array
       required:
-      - external_object_name
+      - external_name
+      - key
       type: object
   securitySchemes:
     ApiKeyAuth:

@@ -16,9 +16,6 @@ tags:
 paths:
   /api/data_source_accounts/{dsa_heron_id_to_update}/update_number:
     post:
-      description: 'Update a data source account''s account number
-
-        '
       parameters:
       - in: path
         name: dsa_heron_id_to_update
@@ -43,11 +40,10 @@ paths:
       summary: Update a data source account's account number
       tags:
       - EndUserDataSourceAccounts
+      operationId: postApiDataSourceAccountsByDsaHeronIdToUpdateUpdateNumber
+      x-operation-id-source: derived
   /api/data_source_accounts/{heron_id}:
     put:
-      description: 'Update a data source account
-
-        '
       parameters:
       - in: path
         name: heron_id
@@ -72,6 +68,8 @@ paths:
       summary: Update a data source account
       tags:
       - EndUserDataSourceAccounts
+      operationId: putApiDataSourceAccountsByHeronId
+      x-operation-id-source: derived
   /api/end_users/{end_user_id_or_heron_id}/data_source_accounts/disable_duplicates:
     post:
       parameters:
@@ -104,36 +102,10 @@ paths:
       summary: Disable duplicate data source accounts for an end user
       tags:
       - EndUserDataSourceAccounts
+      operationId: postApiEndUsersByEndUserIdOrHeronIdDataSourceAccountsDisableDuplicates
+      x-operation-id-source: derived
 components:
   schemas:
-    AccountBalance:
-      properties:
-        closing_amount:
-          allOf:
-          - $ref: '#/components/schemas/Money'
-          description: The closing balance for the day
-          example: 25000.45
-        currency:
-          description: Currency of the balance
-          example: USD
-          type: string
-        date:
-          description: Date of the balance
-          example: '2022-01-01'
-          format: date
-          type: string
-      required:
-      - closing_amount
-      type: object
-    DataSourceAccountUpdateNumberSchema:
-      properties:
-        source_dsa_heron_id:
-          description: The Heron ID of the data source account containing the number we want to update to
-          example: dsa_8w6V5CuRESc7G5yx3mXF54
-          type: string
-      required:
-      - source_dsa_heron_id
-      type: object
     EndUserDataSourceAccount:
       properties:
         account_id:
@@ -236,6 +208,41 @@ components:
       required:
       - is_enabled
       type: object
+    DataSourceAccountUpdateNumberSchema:
+      properties:
+        source_dsa_heron_id:
+          description: The Heron ID of the data source account containing the number we want to update to
+          example: dsa_8w6V5CuRESc7G5yx3mXF54
+          type: string
+      required:
+      - source_dsa_heron_id
+      type: object
+    AccountBalance:
+      properties:
+        closing_amount:
+          allOf:
+          - $ref: '#/components/schemas/Money'
+          description: The closing balance for the day
+          example: 25000.45
+        currency:
+          description: Currency of the balance
+          example: USD
+          type: string
+        date:
+          description: Date of the balance
+          example: '2022-01-01'
+          format: date
+          type: string
+      required:
+      - closing_amount
+      type: object
+    EndUserDataSourceAccountUpdateSchema:
+      properties:
+        is_enabled:
+          description: Whether or not the account is enabled. If disabled, hides related transactions from analytics
+          example: true
+          type: boolean
+      type: object
     Money:
       properties:
         amount:
@@ -246,13 +253,6 @@ components:
           description: The currency of the money
           example: USD
           type: string
-      type: object
-    EndUserDataSourceAccountUpdateSchema:
-      properties:
-        is_enabled:
-          description: Whether or not the account is enabled. If disabled, hides related transactions from analytics
-          example: true
-          type: boolean
       type: object
   securitySchemes:
     ApiKeyAuth:

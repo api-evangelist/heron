@@ -74,6 +74,8 @@ paths:
       summary: Bulk create category feedback for an end user
       tags:
       - EnrichmentFeedback
+      operationId: postApiEndUsersByEndUserIdOrHeronIdBulkCategoryFeedback
+      x-operation-id-source: derived
   /api/end_users/{end_user_id_or_heron_id}/merchant_feedback:
     post:
       description: Provide bulk feedback on Transaction Merchants for a specified end user
@@ -114,6 +116,8 @@ paths:
       summary: Bulk create merchant feedback for an end user
       tags:
       - EnrichmentFeedback
+      operationId: postApiEndUsersByEndUserIdOrHeronIdMerchantFeedback
+      x-operation-id-source: derived
   /api/end_users/{end_user_id_or_heron_id}/merchant_feedback/revert:
     post:
       description: Revert merchant feedback annotations created by the feedback_client annotator
@@ -153,6 +157,8 @@ paths:
       summary: Revert merchant feedback for an end user
       tags:
       - EnrichmentFeedback
+      operationId: postApiEndUsersByEndUserIdOrHeronIdMerchantFeedbackRevert
+      x-operation-id-source: derived
   /api/transactions/{heron_id}/feedback:
     put:
       description: Provide feedback on a Transaction's Categories and Merchants
@@ -185,36 +191,47 @@ paths:
       summary: Create category, merchant feedback
       tags:
       - EnrichmentFeedback
+      operationId: putApiTransactionsByHeronIdFeedback
+      x-operation-id-source: derived
 components:
   schemas:
-    EndUserBulkMerchantFeedback:
+    EndUserMerchantFeedbackRevert:
       properties:
-        merchant:
-          $ref: '#/components/schemas/MerchantFeedback1'
         transaction_heron_ids:
-          description: List of transaction heron IDs
+          description: List of transaction heron IDs to revert merchant feedback
           items:
-            example: txn_oNMLQFGrd4gNvYCtUjqr8u
+            example: txn_kykFaRW4AduwY9fsHE65S9
             type: string
           type: array
       required:
-      - merchant
       - transaction_heron_ids
       type: object
-    MerchantFeedback:
+    EndUserBulkCategoryFeedback:
       properties:
-        heron_id:
-          description: heron_id of the correct merchant
-          example: mrc_cGt7XxoNoTY8Y2uKYp5Urp
-          type: string
-        is_correct:
-          default: false
-          example: false
-          type: boolean
-        name:
-          description: name of the correct merchant
-          example: Spotify
-          type: string
+        category:
+          $ref: '#/components/schemas/CategoryFeedback'
+        source:
+          description: your identifier for where the feedback comes from e.g. bob_the_underwriter
+          maxLength: 120
+          type:
+          - string
+          - 'null'
+        transaction_heron_ids:
+          default: []
+          description: List of transaction heron IDs
+          items:
+            example: txn_3VTv4ULZRwijE3Yena9QxY
+            type: string
+          type: array
+        transaction_reference_ids:
+          default: []
+          description: List of transaction reference IDs
+          items:
+            example: your_reference_id
+            type: string
+          type: array
+      required:
+      - category
       type: object
     MerchantFeedback1:
       properties:
@@ -276,16 +293,20 @@ components:
           - string
           - 'null'
       type: object
-    EndUserMerchantFeedbackRevert:
+    MerchantFeedback:
       properties:
-        transaction_heron_ids:
-          description: List of transaction heron IDs to revert merchant feedback
-          items:
-            example: txn_kykFaRW4AduwY9fsHE65S9
-            type: string
-          type: array
-      required:
-      - transaction_heron_ids
+        heron_id:
+          description: heron_id of the correct merchant
+          example: mrc_cGt7XxoNoTY8Y2uKYp5Urp
+          type: string
+        is_correct:
+          default: false
+          example: false
+          type: boolean
+        name:
+          description: name of the correct merchant
+          example: Spotify
+          type: string
       type: object
     CategoryFeedback:
       properties:
@@ -298,32 +319,19 @@ components:
           example: Insurance
           type: string
       type: object
-    EndUserBulkCategoryFeedback:
+    EndUserBulkMerchantFeedback:
       properties:
-        category:
-          $ref: '#/components/schemas/CategoryFeedback'
-        source:
-          description: your identifier for where the feedback comes from e.g. bob_the_underwriter
-          maxLength: 120
-          type:
-          - string
-          - 'null'
+        merchant:
+          $ref: '#/components/schemas/MerchantFeedback1'
         transaction_heron_ids:
-          default: []
           description: List of transaction heron IDs
           items:
-            example: txn_3VTv4ULZRwijE3Yena9QxY
-            type: string
-          type: array
-        transaction_reference_ids:
-          default: []
-          description: List of transaction reference IDs
-          items:
-            example: your_reference_id
+            example: txn_oNMLQFGrd4gNvYCtUjqr8u
             type: string
           type: array
       required:
-      - category
+      - merchant
+      - transaction_heron_ids
       type: object
   securitySchemes:
     ApiKeyAuth:

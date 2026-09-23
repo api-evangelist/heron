@@ -16,9 +16,7 @@ tags:
 paths:
   /api/end_user_queries/execute:
     post:
-      description: 'Execute saved SQL queries by name for a specific end user and return results
-
-        '
+      description: Execute saved SQL queries by name for a specific end user and return results
       requestBody:
         content:
           application/json:
@@ -74,6 +72,8 @@ paths:
       tags:
       - EndUserQueries
       x-hidden: true
+      operationId: postApiEndUserQueriesExecute
+      x-operation-id-source: derived
 components:
   securitySchemes:
     ApiKeyAuth:

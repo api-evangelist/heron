@@ -16,9 +16,7 @@ tags:
 paths:
   /api/funder_integrations/:
     get:
-      description: 'Returns one entry per linked integration (API/portal) funder, with its current state, configuration, and last test result.
-
-        '
+      description: Returns one entry per linked integration (API/portal) funder, with its current state, configuration, and last test result.
       responses:
         '200':
           content:
@@ -33,10 +31,10 @@ paths:
       summary: List funder integration states for the current broker
       tags:
       - Funder Integrations
+      operationId: getApiFunderIntegrations
+      x-operation-id-source: derived
     post:
-      description: 'Links a funder the broker can configure. Returns the new entry in the same shape as `GET /api/funder_integrations/`.
-
-        '
+      description: Links a funder the broker can configure. Returns the new entry in the same shape as `GET /api/funder_integrations/`.
       requestBody:
         content:
           application/json:
@@ -61,11 +59,11 @@ paths:
       summary: Link a funder to the current broker for self-service
       tags:
       - Funder Integrations
+      operationId: postApiFunderIntegrations
+      x-operation-id-source: derived
   /api/funder_integrations/candidates/:
     get:
-      description: 'Returns the funders the broker can link but hasn''t yet, sorted alphabetically.
-
-        '
+      description: Returns the funders the broker can link but hasn't yet, sorted alphabetically.
       responses:
         '200':
           content:
@@ -80,11 +78,11 @@ paths:
       summary: List funders available for self-service that the broker hasn't linked yet
       tags:
       - Funder Integrations
+      operationId: getApiFunderIntegrationsCandidates
+      x-operation-id-source: derived
   /api/funder_integrations/{funder_heron_id}/:
     delete:
-      description: 'With an `environment`, deletes that environment''s saved integration. With `remove=true`, removes the funder entirely. Exactly one of the two must be given: full removal is destructive (scrubs credentials and deletes the funder''s policies row), so it must be requested explicitly — an absent or mistyped `environment` must never escalate into it.
-
-        '
+      description: 'With an `environment`, deletes that environment''s saved integration. With `remove=true`, removes the funder entirely. Exactly one of the two must be given: full removal is destructive (scrubs credentials and deletes the funder''s policies row), so it must be requested explicitly — an absent or mistyped `environment` must never escalate into it.'
       parameters:
       - in: path
         name: funder_heron_id
@@ -118,10 +116,10 @@ paths:
       summary: Remove a funder, or delete one environment's saved integration
       tags:
       - Funder Integrations
+      operationId: deleteApiFunderIntegrationsByFunderHeronId
+      x-operation-id-source: derived
     patch:
-      description: 'Saves the funder''s submission email address and CC list, and optionally switches its submission channel (integration or email). An omitted or null `channel` keeps the current channel, so email-field saves can never change how deals are routed. Returns the updated funder entry.
-
-        '
+      description: Saves the funder's submission email address and CC list, and optionally switches its submission channel (integration or email). An omitted or null `channel` keeps the current channel, so email-field saves can never change how deals are routed. Returns the updated funder entry.
       parameters:
       - in: path
         name: funder_heron_id
@@ -150,10 +148,10 @@ paths:
       summary: Update a funder's submission channel and email configuration
       tags:
       - Funder Integrations
+      operationId: patchApiFunderIntegrationsByFunderHeronId
+      x-operation-id-source: derived
     put:
-      description: 'Saves the funder''s staging or production configuration.
-
-        '
+      description: Saves the funder's staging or production configuration.
       parameters:
       - in: path
         name: funder_heron_id
@@ -178,11 +176,11 @@ paths:
       summary: Save staging or production form values for a funder integration
       tags:
       - Funder Integrations
+      operationId: putApiFunderIntegrationsByFunderHeronId
+      x-operation-id-source: derived
   /api/funder_integrations/{funder_heron_id}/test/:
     post:
-      description: 'Submits the synthetic test end user to the selected funder environment. Returns the funder submission Heron ID. Frontend polls `/funder_submissions/{id}/` for the result.
-
-        '
+      description: Submits the synthetic test end user to the selected funder environment. Returns the funder submission Heron ID. Frontend polls `/funder_submissions/{id}/` for the result.
       parameters:
       - in: path
         name: funder_heron_id
@@ -213,8 +211,109 @@ paths:
       summary: Trigger a staging or production test submission for this funder
       tags:
       - Funder Integrations
+      operationId: postApiFunderIntegrationsByFunderHeronIdTest
+      x-operation-id-source: derived
 components:
   schemas:
+    TriggerTestRequestSchema:
+      properties:
+        environment:
+          default: staging
+          enum:
+          - staging
+          - production
+      type: object
+    UpdateFunderIntegrationRequestSchema:
+      properties:
+        channel:
+          enum:
+          - integration
+          - email
+          - null
+        submission_cc_email_addresses:
+          items:
+            type: string
+          type:
+          - array
+          - 'null'
+        submission_email_address:
+          type:
+          - string
+          - 'null'
+      type: object
+    FormField:
+      properties:
+        field_type:
+          enum:
+          - text
+          - password
+        label:
+          type: string
+        name:
+          type: string
+        required:
+          type: boolean
+      required:
+      - field_type
+      - label
+      - name
+      - required
+      type: object
+    IntegrationEnvironment:
+      properties:
+        has_credentials:
+          type: boolean
+        last_test_attempted_at:
+          format: date-time
+          type:
+          - string
+          - 'null'
+        last_test_deal_id:
+          type:
+          - string
+          - 'null'
+        last_test_status:
+          enum:
+          - not_run
+          - in_progress
+          - succeeded
+          - failed
+        last_test_status_message:
+          type:
+          - string
+          - 'null'
+      required:
+      - has_credentials
+      - last_test_status
+      type: object
+    SaveFunderIntegrationRequestSchema:
+      properties:
+        environment:
+          enum:
+          - staging
+          - production
+        form_values:
+          additionalProperties:
+            type: string
+          type: object
+      required:
+      - environment
+      - form_values
+      type: object
+    FunderCandidateSchema:
+      properties:
+        funder_heron_id:
+          type: string
+        funder_logo_url:
+          type:
+          - string
+          - 'null'
+        funder_name:
+          type: string
+      required:
+      - funder_heron_id
+      - funder_name
+      type: object
     FunderIntegrationViewSchema:
       properties:
         channel:
@@ -282,54 +381,6 @@ components:
       - state
       - supports_staging
       type: object
-    FunderCandidateSchema:
-      properties:
-        funder_heron_id:
-          type: string
-        funder_logo_url:
-          type:
-          - string
-          - 'null'
-        funder_name:
-          type: string
-      required:
-      - funder_heron_id
-      - funder_name
-      type: object
-    IntegrationEnvironment:
-      properties:
-        has_credentials:
-          type: boolean
-        last_test_attempted_at:
-          format: date-time
-          type:
-          - string
-          - 'null'
-        last_test_deal_id:
-          type:
-          - string
-          - 'null'
-        last_test_status:
-          enum:
-          - not_run
-          - in_progress
-          - succeeded
-          - failed
-        last_test_status_message:
-          type:
-          - string
-          - 'null'
-      required:
-      - has_credentials
-      - last_test_status
-      type: object
-    TriggerTestResponseSchema:
-      properties:
-        funder_submission_heron_id:
-          type: string
-      required:
-      - funder_submission_heron_id
-      type: object
     AddFunderIntegrationRequestSchema:
       properties:
         funder_heron_id:
@@ -337,31 +388,12 @@ components:
       required:
       - funder_heron_id
       type: object
-    TriggerTestRequestSchema:
+    TriggerTestResponseSchema:
       properties:
-        environment:
-          default: staging
-          enum:
-          - staging
-          - production
-      type: object
-    FormField:
-      properties:
-        field_type:
-          enum:
-          - text
-          - password
-        label:
+        funder_submission_heron_id:
           type: string
-        name:
-          type: string
-        required:
-          type: boolean
       required:
-      - field_type
-      - label
-      - name
-      - required
+      - funder_submission_heron_id
       type: object
     FunderIntegrationConfig:
       properties:
@@ -377,38 +409,6 @@ components:
       - display_name
       - form_fields
       - supports_staging
-      type: object
-    SaveFunderIntegrationRequestSchema:
-      properties:
-        environment:
-          enum:
-          - staging
-          - production
-        form_values:
-          additionalProperties:
-            type: string
-          type: object
-      required:
-      - environment
-      - form_values
-      type: object
-    UpdateFunderIntegrationRequestSchema:
-      properties:
-        channel:
-          enum:
-          - integration
-          - email
-          - null
-        submission_cc_email_addresses:
-          items:
-            type: string
-          type:
-          - array
-          - 'null'
-        submission_email_address:
-          type:
-          - string
-          - 'null'
       type: object
   securitySchemes:
     ApiKeyAuth:

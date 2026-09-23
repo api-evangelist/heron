@@ -16,9 +16,7 @@ tags:
 paths:
   /api/webhooks:
     get:
-      description: 'Get webhook
-
-        '
+      description: Get webhook
       responses:
         '200':
           content:
@@ -36,10 +34,9 @@ paths:
       summary: Get webhooks
       tags:
       - Webhooks
+      operationId: getApiWebhooks
+      x-operation-id-source: derived
     post:
-      description: 'Create a webhook
-
-        '
       requestBody:
         content:
           application/json:
@@ -61,11 +58,10 @@ paths:
       summary: Create a webhook
       tags:
       - Webhooks
+      operationId: postApiWebhooks
+      x-operation-id-source: derived
   /api/webhooks/topics:
     get:
-      description: 'Get webhook topics
-
-        '
       responses:
         '200':
           content:
@@ -83,11 +79,11 @@ paths:
       summary: Get webhook topics
       tags:
       - Webhooks
+      operationId: getApiWebhooksTopics
+      x-operation-id-source: derived
   /api/webhooks/{heron_id}:
     delete:
-      description: 'Delete a webhook by its heron_id. The webhook must belong to the authenticated user.
-
-        '
+      description: Delete a webhook by its heron_id. The webhook must belong to the authenticated user.
       parameters:
       - description: The heron_id of the webhook to delete
         in: path
@@ -121,10 +117,9 @@ paths:
       summary: Delete a webhook
       tags:
       - Webhooks
+      operationId: deleteApiWebhooksByHeronId
+      x-operation-id-source: derived
     put:
-      description: 'Update a webhook
-
-        '
       parameters:
       - in: path
         name: heron_id
@@ -152,9 +147,11 @@ paths:
       summary: Update a webhook
       tags:
       - Webhooks
+      operationId: putApiWebhooksByHeronId
+      x-operation-id-source: derived
 components:
   schemas:
-    WebhookUpdateSchema:
+    WebhookSchema:
       properties:
         headers:
           additionalProperties: {}
@@ -228,7 +225,7 @@ components:
           format: url
           type: string
       type: object
-    WebhookSchema:
+    WebhookUpdateSchema:
       properties:
         headers:
           additionalProperties: {}
