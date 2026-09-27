@@ -41,6 +41,17 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
+    CompanyAttributeValueSchema:
+      properties:
+        attribute:
+          $ref: '#/components/schemas/CompanyAttribute'
+        availability:
+          enum:
+          - available
+          - partially_available
+          - not_available
+        value: {}
+      type: object
     CompanyAttribute:
       properties:
         label:
@@ -54,17 +65,6 @@ components:
           - date
           - datetime
           - bool
-      type: object
-    CompanyAttributeValueSchema:
-      properties:
-        attribute:
-          $ref: '#/components/schemas/CompanyAttribute'
-        availability:
-          enum:
-          - available
-          - partially_available
-          - not_available
-        value: {}
       type: object
   securitySchemes:
     ApiKeyAuth:

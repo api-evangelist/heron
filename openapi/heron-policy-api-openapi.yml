@@ -89,85 +89,7 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    CompositeCheck:
-      properties:
-        auto_decline:
-          default: false
-          type: boolean
-        checks:
-          items:
-            $ref: '#/components/schemas/Check'
-          type: array
-        decline_description:
-          type:
-          - string
-          - 'null'
-        email_template_name:
-          type:
-          - string
-          - 'null'
-        ignore_metric_availability:
-          default: false
-          type: boolean
-        is_mandatory:
-          default: false
-          type: boolean
-        on_failure:
-          default: fail
-          enum:
-          - fail
-          - review_required
-        pass_description:
-          type:
-          - string
-          - 'null'
-        type:
-          enum:
-          - AND
-          - OR
-      type: object
-    AttributeEvidence:
-      properties:
-        record_indices:
-          items:
-            type: integer
-          type:
-          - array
-          - 'null'
-        section:
-          type:
-          - string
-          - 'null'
-        source_id:
-          type:
-          - string
-          - 'null'
-        source_type:
-          type: string
-      type: object
-    Policy:
-      properties:
-        checks:
-          items:
-            $ref: '#/components/schemas/Check'
-          type: array
-        display_order:
-          type:
-          - integer
-          - 'null'
-        heron_id:
-          type: string
-        name:
-          type: string
-        use_case:
-          enum:
-          - background_check
-          - cashflow
-      required:
-      - heron_id
-      - name
-      type: object
-    NumericCheck:
+    DateCheck:
       properties:
         auto_decline:
           default: false
@@ -199,10 +121,64 @@ components:
           enum:
           - equal
           - not_equal
-          - greater_than
-          - greater_than_or_equal
-          - less_than
-          - less_than_or_equal
+          - before
+          - before_or_on
+          - after
+          - after_or_on
+        value:
+          format: date
+          type: string
+      type: object
+    StringCheck:
+      properties:
+        auto_decline:
+          default: false
+          type: boolean
+        decline_description:
+          type:
+          - string
+          - 'null'
+        email_template_name:
+          type:
+          - string
+          - 'null'
+        ignore_metric_availability:
+          default: false
+          type: boolean
+        is_mandatory:
+          default: false
+          type: boolean
+        on_failure:
+          default: fail
+          enum:
+          - fail
+          - review_required
+        pass_description:
+          type:
+          - string
+          - 'null'
+        type:
+          enum:
+          - equal
+          - not_equal
+          - starts_with
+          - starts_with_any_of
+          - does_not_start_with_any_of
+          - contains
+          - does_not_start_with
+          - does_not_contain
+          - is_in
+          - is_not_in
+        value:
+          type: string
+      type: object
+    CompanyAttributeValue:
+      properties:
+        attribute_label:
+          type: string
+        evidence:
+          allOf:
+          - $ref: '#/components/schemas/AttributeEvidence'
         value:
           type: string
       type: object
@@ -247,28 +223,136 @@ components:
           - object
           - 'null'
       type: object
-    CheckEvaluation:
+    Policy:
       properties:
-        attribute_value:
-          allOf:
-          - $ref: '#/components/schemas/CompanyAttributeValue'
-        check:
-          allOf:
-          - $ref: '#/components/schemas/Check'
-        evaluations:
+        checks:
           items:
-            $ref: '#/components/schemas/CheckEvaluation'
+            $ref: '#/components/schemas/Check'
+          type: array
+        display_order:
+          type:
+          - integer
+          - 'null'
+        heron_id:
+          type: string
+        name:
+          type: string
+        use_case:
+          enum:
+          - background_check
+          - cashflow
+      required:
+      - heron_id
+      - name
+      type: object
+    AttributeEvidence:
+      properties:
+        record_indices:
+          items:
+            type: integer
           type:
           - array
           - 'null'
+        section:
+          type:
+          - string
+          - 'null'
+        source_id:
+          type:
+          - string
+          - 'null'
+        source_type:
+          type: string
+      type: object
+    PolicySchema:
+      properties:
+        checks:
+          items:
+            $ref: '#/components/schemas/Check'
+          type: array
+        display_order:
+          type:
+          - integer
+          - 'null'
+        heron_id:
+          type: string
+        name:
+          type: string
+        use_case:
+          enum:
+          - background_check
+          - cashflow
+      required:
+      - heron_id
+      - name
+      type: object
+    SQLCheck:
+      properties:
+        auto_decline:
+          default: false
+          type: boolean
+        column_name:
+          type: string
+        decline_description:
+          type:
+          - string
+          - 'null'
+        email_template_name:
+          type:
+          - string
+          - 'null'
+        ignore_metric_availability:
+          default: false
+          type: boolean
+        is_mandatory:
+          default: false
+          type: boolean
+        on_failure:
+          default: fail
+          enum:
+          - fail
+          - review_required
+        pass_description:
+          type:
+          - string
+          - 'null'
+        query_name:
+          type: string
+      required:
+      - column_name
+      - query_name
+      type: object
+    ProgressPolicySchema:
+      properties:
+        end_user_heron_id:
+          type: string
+      required:
+      - end_user_heron_id
+      type: object
+    PolicyEvaluationSchema:
+      properties:
+        failed_checks:
+          items:
+            $ref: '#/components/schemas/CheckEvaluation'
+          type: array
+        missing_data_checks:
+          items:
+            $ref: '#/components/schemas/CheckEvaluation'
+          type: array
+        passed_checks:
+          items:
+            $ref: '#/components/schemas/CheckEvaluation'
+          type: array
+        policy:
+          $ref: '#/components/schemas/Policy'
         result:
           enum:
-          - pass
+          - passed
           - failed
           - review_required
           - missing_data
       type: object
-    DateCheck:
+    BooleanCheck:
       properties:
         auto_decline:
           default: false
@@ -296,27 +380,29 @@ components:
           type:
           - string
           - 'null'
-        type:
-          enum:
-          - equal
-          - not_equal
-          - before
-          - before_or_on
-          - after
-          - after_or_on
         value:
-          format: date
-          type: string
+          type: boolean
       type: object
-    CompanyAttributeValue:
+    CheckEvaluation:
       properties:
-        attribute_label:
-          type: string
-        evidence:
+        attribute_value:
           allOf:
-          - $ref: '#/components/schemas/AttributeEvidence'
-        value:
-          type: string
+          - $ref: '#/components/schemas/CompanyAttributeValue'
+        check:
+          allOf:
+          - $ref: '#/components/schemas/Check'
+        evaluations:
+          items:
+            $ref: '#/components/schemas/CheckEvaluation'
+          type:
+          - array
+          - 'null'
+        result:
+          enum:
+          - pass
+          - failed
+          - review_required
+          - missing_data
       type: object
     EnhancedSQLCheck:
       properties:
@@ -377,7 +463,44 @@ components:
       - data_type
       - query_name
       type: object
-    StringCheck:
+    CompositeCheck:
+      properties:
+        auto_decline:
+          default: false
+          type: boolean
+        checks:
+          items:
+            $ref: '#/components/schemas/Check'
+          type: array
+        decline_description:
+          type:
+          - string
+          - 'null'
+        email_template_name:
+          type:
+          - string
+          - 'null'
+        ignore_metric_availability:
+          default: false
+          type: boolean
+        is_mandatory:
+          default: false
+          type: boolean
+        on_failure:
+          default: fail
+          enum:
+          - fail
+          - review_required
+        pass_description:
+          type:
+          - string
+          - 'null'
+        type:
+          enum:
+          - AND
+          - OR
+      type: object
+    NumericCheck:
       properties:
         auto_decline:
           default: false
@@ -409,113 +532,12 @@ components:
           enum:
           - equal
           - not_equal
-          - starts_with
-          - starts_with_any_of
-          - does_not_start_with_any_of
-          - contains
-          - does_not_start_with
-          - does_not_contain
-          - is_in
-          - is_not_in
+          - greater_than
+          - greater_than_or_equal
+          - less_than
+          - less_than_or_equal
         value:
           type: string
-      type: object
-    BooleanCheck:
-      properties:
-        auto_decline:
-          default: false
-          type: boolean
-        decline_description:
-          type:
-          - string
-          - 'null'
-        email_template_name:
-          type:
-          - string
-          - 'null'
-        ignore_metric_availability:
-          default: false
-          type: boolean
-        is_mandatory:
-          default: false
-          type: boolean
-        on_failure:
-          default: fail
-          enum:
-          - fail
-          - review_required
-        pass_description:
-          type:
-          - string
-          - 'null'
-        value:
-          type: boolean
-      type: object
-    PolicyEvaluationSchema:
-      properties:
-        failed_checks:
-          items:
-            $ref: '#/components/schemas/CheckEvaluation'
-          type: array
-        missing_data_checks:
-          items:
-            $ref: '#/components/schemas/CheckEvaluation'
-          type: array
-        passed_checks:
-          items:
-            $ref: '#/components/schemas/CheckEvaluation'
-          type: array
-        policy:
-          $ref: '#/components/schemas/Policy'
-        result:
-          enum:
-          - passed
-          - failed
-          - review_required
-          - missing_data
-      type: object
-    ProgressPolicySchema:
-      properties:
-        end_user_heron_id:
-          type: string
-      required:
-      - end_user_heron_id
-      type: object
-    SQLCheck:
-      properties:
-        auto_decline:
-          default: false
-          type: boolean
-        column_name:
-          type: string
-        decline_description:
-          type:
-          - string
-          - 'null'
-        email_template_name:
-          type:
-          - string
-          - 'null'
-        ignore_metric_availability:
-          default: false
-          type: boolean
-        is_mandatory:
-          default: false
-          type: boolean
-        on_failure:
-          default: fail
-          enum:
-          - fail
-          - review_required
-        pass_description:
-          type:
-          - string
-          - 'null'
-        query_name:
-          type: string
-      required:
-      - column_name
-      - query_name
       type: object
     Check:
       properties:
@@ -555,28 +577,6 @@ components:
         string_check:
           allOf:
           - $ref: '#/components/schemas/StringCheck'
-      type: object
-    PolicySchema:
-      properties:
-        checks:
-          items:
-            $ref: '#/components/schemas/Check'
-          type: array
-        display_order:
-          type:
-          - integer
-          - 'null'
-        heron_id:
-          type: string
-        name:
-          type: string
-        use_case:
-          enum:
-          - background_check
-          - cashflow
-      required:
-      - heron_id
-      - name
       type: object
   securitySchemes:
     ApiKeyAuth:

@@ -215,6 +215,13 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
+    TriggerTestResponseSchema:
+      properties:
+        funder_submission_heron_id:
+          type: string
+      required:
+      - funder_submission_heron_id
+      type: object
     TriggerTestRequestSchema:
       properties:
         environment:
@@ -222,97 +229,6 @@ components:
           enum:
           - staging
           - production
-      type: object
-    UpdateFunderIntegrationRequestSchema:
-      properties:
-        channel:
-          enum:
-          - integration
-          - email
-          - null
-        submission_cc_email_addresses:
-          items:
-            type: string
-          type:
-          - array
-          - 'null'
-        submission_email_address:
-          type:
-          - string
-          - 'null'
-      type: object
-    FormField:
-      properties:
-        field_type:
-          enum:
-          - text
-          - password
-        label:
-          type: string
-        name:
-          type: string
-        required:
-          type: boolean
-      required:
-      - field_type
-      - label
-      - name
-      - required
-      type: object
-    IntegrationEnvironment:
-      properties:
-        has_credentials:
-          type: boolean
-        last_test_attempted_at:
-          format: date-time
-          type:
-          - string
-          - 'null'
-        last_test_deal_id:
-          type:
-          - string
-          - 'null'
-        last_test_status:
-          enum:
-          - not_run
-          - in_progress
-          - succeeded
-          - failed
-        last_test_status_message:
-          type:
-          - string
-          - 'null'
-      required:
-      - has_credentials
-      - last_test_status
-      type: object
-    SaveFunderIntegrationRequestSchema:
-      properties:
-        environment:
-          enum:
-          - staging
-          - production
-        form_values:
-          additionalProperties:
-            type: string
-          type: object
-      required:
-      - environment
-      - form_values
-      type: object
-    FunderCandidateSchema:
-      properties:
-        funder_heron_id:
-          type: string
-        funder_logo_url:
-          type:
-          - string
-          - 'null'
-        funder_name:
-          type: string
-      required:
-      - funder_heron_id
-      - funder_name
       type: object
     FunderIntegrationViewSchema:
       properties:
@@ -381,19 +297,53 @@ components:
       - state
       - supports_staging
       type: object
+    IntegrationEnvironment:
+      properties:
+        has_credentials:
+          type: boolean
+        last_test_attempted_at:
+          format: date-time
+          type:
+          - string
+          - 'null'
+        last_test_deal_id:
+          type:
+          - string
+          - 'null'
+        last_test_status:
+          enum:
+          - not_run
+          - in_progress
+          - succeeded
+          - failed
+        last_test_status_message:
+          type:
+          - string
+          - 'null'
+      required:
+      - has_credentials
+      - last_test_status
+      type: object
+    FunderCandidateSchema:
+      properties:
+        funder_heron_id:
+          type: string
+        funder_logo_url:
+          type:
+          - string
+          - 'null'
+        funder_name:
+          type: string
+      required:
+      - funder_heron_id
+      - funder_name
+      type: object
     AddFunderIntegrationRequestSchema:
       properties:
         funder_heron_id:
           type: string
       required:
       - funder_heron_id
-      type: object
-    TriggerTestResponseSchema:
-      properties:
-        funder_submission_heron_id:
-          type: string
-      required:
-      - funder_submission_heron_id
       type: object
     FunderIntegrationConfig:
       properties:
@@ -409,6 +359,56 @@ components:
       - display_name
       - form_fields
       - supports_staging
+      type: object
+    FormField:
+      properties:
+        field_type:
+          enum:
+          - text
+          - password
+        label:
+          type: string
+        name:
+          type: string
+        required:
+          type: boolean
+      required:
+      - field_type
+      - label
+      - name
+      - required
+      type: object
+    SaveFunderIntegrationRequestSchema:
+      properties:
+        environment:
+          enum:
+          - staging
+          - production
+        form_values:
+          additionalProperties:
+            type: string
+          type: object
+      required:
+      - environment
+      - form_values
+      type: object
+    UpdateFunderIntegrationRequestSchema:
+      properties:
+        channel:
+          enum:
+          - integration
+          - email
+          - null
+        submission_cc_email_addresses:
+          items:
+            type: string
+          type:
+          - array
+          - 'null'
+        submission_email_address:
+          type:
+          - string
+          - 'null'
       type: object
   securitySchemes:
     ApiKeyAuth:

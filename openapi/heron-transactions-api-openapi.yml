@@ -510,6 +510,120 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
+    TransactionPostOutput:
+      properties:
+        account_id:
+          description: Your unique ID for account associated with transaction
+          example: checking_account_202348
+          maxLength: 400
+          type:
+          - string
+          - 'null'
+        amount:
+          description: Amount. Inflows to an account should be positive, and outflows from an account should be negative. If using Plaid, please flip the amount sign for all transactions.
+          example: -42.42
+          type: number
+        balance:
+          description: The running balance of the account after transaction ocurred
+          example: 423.0
+          type:
+          - number
+          - 'null'
+        categories:
+          description: The category associated with the transaction
+          items:
+            $ref: '#/components/schemas/TransactionAnnotation'
+          type: array
+        currency:
+          description: ISO 4217 currency code
+          example: USD
+          maxLength: 3
+          minLength: 3
+          type:
+          - string
+          - 'null'
+        description:
+          description: The text description for the transaction
+          example: GOOGLE *ADS12340929 cc@google.com US
+          type: string
+        description_clean:
+          description: The cleaned description of the transaction
+          example: GOOGLE ADS
+          type: string
+        duplicate_of_id:
+          description: Indicates that the transaction is a duplicate and gives the heron_id of the original
+          example: txn_PW7gZSP3EkwWi9Z3a3Pg4i
+        end_user_id:
+          description: Your unique ID for end user associated with transaction
+          example: my_best_customer_203948
+          maxLength: 140
+          type:
+          - string
+          - 'null'
+        has_matching_transaction:
+          description: Whether the transaction is a transfer; requires end_user_id and timestamp to be present
+          type: boolean
+        is_potential_duplicate:
+          description: Indicates whether the transaction has another transaction similar to it
+          readOnly: true
+          type: boolean
+        is_recurring:
+          description: Whether the transaction is recurring or not; requires end_user_id and timestamp to be present
+          type: boolean
+        mcc_code:
+          description: Merchant category code associated with transaction that you may have received from other sources
+          pattern: ^\d{4}$
+          type:
+          - string
+          - 'null'
+          writeOnly: true
+        merchant:
+          allOf:
+          - $ref: '#/components/schemas/Merchant'
+          description: The merchant associated with the transaction
+        order:
+          description: If sending a batch of transactions, the order in which the transaction occurs, where a higher value is equivalent to a more recent transaction
+          type:
+          - integer
+          - 'null'
+          writeOnly: true
+        payment_processor:
+          allOf:
+          - $ref: '#/components/schemas/PaymentProcessor'
+          description: The payment processor associated with the transaction
+        reference_id:
+          description: Your unique ID for transaction
+          example: my_favourite_transaction_231098
+          maxLength: 140
+          minLength: 1
+          type:
+          - string
+          - 'null'
+        request_id:
+          description: ID associated with request, e.g., all transactions in same POST request will have same request_id
+          example: req_KpKSZcc8f9N6m4kcVMn9ZP
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        timestamp:
+          description: The ISO 8601 timezone aware timestamp of the transaction; takes precedence over 'date'
+          example: '2021-11-12T10:38:05Z'
+          format: date-time
+          type:
+          - string
+          - 'null'
+        transaction_code:
+          description: Code associated with transaction to indicate the type of transaction
+          example: card
+          maxLength: 140
+          type:
+          - string
+          - 'null'
+      required:
+      - amount
+      - description
+      type: object
     Merchant:
       properties:
         categories:
@@ -562,6 +676,63 @@ components:
       - name
       - url
       type: object
+    PaymentProcessor:
+      properties:
+        heron_id:
+          example: mrc_nRYdGU7nYuevb7qem65cEb
+          readOnly: true
+          type: string
+        icon_url:
+          example: https://storage.googleapis.com/heron-merchant-assets/icons/mrc_nRYdGU7nYuevb7qem65cEb.svg
+          format: url
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        logo_url:
+          example: https://storage.googleapis.com/heron-merchant-assets/logos/mrc_nRYdGU7nYuevb7qem65cEb.svg
+          format: url
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        name:
+          example: Paypal
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        url:
+          example: https://www.paypal.com
+          format: url
+          readOnly: true
+          type:
+          - string
+          - 'null'
+      type: object
+    TransactionAnnotation:
+      properties:
+        annotator:
+          description: Annotator type
+          example: predicted
+          type: string
+        confidence:
+          description: The confidence associated with the category annotation
+          example: 0.5
+          type: number
+        heron_id:
+          description: Unique ID of category; generated by Heron Data
+          example: ctg_7VJDkXpNP5Wg7QwSvRy4af
+          type: string
+        label:
+          description: Label of category
+          example: Rent
+          type: string
+        model_version:
+          description: The model version that produced the categorisation
+          example: 75db1dc9-ed1b-489a-a73a-44a28a657ef0
+          type: string
+      type: object
     TransactionDeleteWebhook:
       properties:
         created:
@@ -581,6 +752,131 @@ components:
           description: topic of webhook
           example: transactions.deleted
           type: string
+      type: object
+    Transaction1:
+      properties:
+        account_id:
+          description: Your unique ID for account associated with transaction
+          example: checking_account_202348
+          maxLength: 400
+          type:
+          - string
+          - 'null'
+        amount:
+          description: Amount. Inflows to an account should be positive, and outflows from an account should be negative. If using Plaid, please flip the amount sign for all transactions.
+          example: -42.42
+          type: number
+        balance:
+          description: The running balance of the account after transaction ocurred
+          example: 423.0
+          type:
+          - number
+          - 'null'
+        categories_default:
+          description: Category of transaction that you may have received from other sources
+          example: shopping
+          type:
+          - string
+          - 'null'
+          writeOnly: true
+        currency:
+          description: ISO 4217 currency code
+          example: USD
+          maxLength: 3
+          minLength: 3
+          type:
+          - string
+          - 'null'
+        date:
+          description: The date of the transaction; 'timestamp' field takes priority over 'date'
+          example: '2020-04-27'
+          format: date
+          type:
+          - string
+          - 'null'
+          writeOnly: true
+        description:
+          description: The text description for the transaction
+          example: GOOGLE *ADS12340929 cc@google.com US
+          type: string
+        end_user_id:
+          description: Your unique ID for end user associated with transaction
+          example: my_best_customer_203948
+          maxLength: 140
+          type:
+          - string
+          - 'null'
+        heron_id:
+          description: Unique ID of transaction; generated by Heron Data
+          example: txn_Hafnew3Y97Q5Yv29VmHR4C
+          readOnly: true
+          type: string
+        mcc_code:
+          description: Merchant category code associated with transaction that you may have received from other sources
+          pattern: ^\d{4}$
+          type:
+          - string
+          - 'null'
+          writeOnly: true
+        order:
+          description: If sending a batch of transactions, the order in which the transaction occurs, where a higher value is equivalent to a more recent transaction
+          type:
+          - integer
+          - 'null'
+          writeOnly: true
+        reference_id:
+          description: Your unique ID for transaction
+          example: my_favourite_transaction_231098
+          maxLength: 140
+          minLength: 1
+          type:
+          - string
+          - 'null'
+        request_id:
+          description: ID associated with request, e.g., all transactions in same POST request will have same request_id
+          example: req_KpKSZcc8f9N6m4kcVMn9ZP
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        timestamp:
+          description: The ISO 8601 timezone aware timestamp of the transaction; takes precedence over 'date'
+          example: '2021-11-12T10:38:05Z'
+          format: date-time
+          type:
+          - string
+          - 'null'
+        transaction_code:
+          description: Code associated with transaction to indicate the type of transaction
+          example: card
+          maxLength: 140
+          type:
+          - string
+          - 'null'
+      required:
+      - amount
+      - description
+      type: object
+    MerchantCategory:
+      properties:
+        code:
+          example: '7311'
+          readOnly: true
+          type: string
+        description:
+          example: Advertising services
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        slug:
+          example: advertising_services
+          readOnly: true
+          type:
+          - string
+          - 'null'
+      required:
+      - code
       type: object
     TransactionGetOutput:
       properties:
@@ -731,49 +1027,6 @@ components:
       - amount
       - description
       type: object
-    MerchantCategory:
-      properties:
-        code:
-          example: '7311'
-          readOnly: true
-          type: string
-        description:
-          example: Advertising services
-          readOnly: true
-          type:
-          - string
-          - 'null'
-        slug:
-          example: advertising_services
-          readOnly: true
-          type:
-          - string
-          - 'null'
-      required:
-      - code
-      type: object
-    TransactionDeleteReference:
-      properties:
-        transactions:
-          description: list of transactions (only ids) that have been deleted
-          items:
-            $ref: '#/components/schemas/Transaction2'
-          type: array
-      type: object
-    AccountBalance1:
-      properties:
-        account_id:
-          example: checking_account_202348
-          maxLength: 400
-          type: string
-        batch_closing_balance:
-          description: The closing balance for this account after the transactions in this batch
-          example: 25000.45
-          type: number
-      required:
-      - account_id
-      - batch_closing_balance
-      type: object
     EndUserTransactionPostAsync:
       properties:
         account_id:
@@ -868,119 +1121,13 @@ components:
       - description
       - reference_id
       type: object
-    TransactionPostOutput:
+    TransactionDeleteReference:
       properties:
-        account_id:
-          description: Your unique ID for account associated with transaction
-          example: checking_account_202348
-          maxLength: 400
-          type:
-          - string
-          - 'null'
-        amount:
-          description: Amount. Inflows to an account should be positive, and outflows from an account should be negative. If using Plaid, please flip the amount sign for all transactions.
-          example: -42.42
-          type: number
-        balance:
-          description: The running balance of the account after transaction ocurred
-          example: 423.0
-          type:
-          - number
-          - 'null'
-        categories:
-          description: The category associated with the transaction
+        transactions:
+          description: list of transactions (only ids) that have been deleted
           items:
-            $ref: '#/components/schemas/TransactionAnnotation'
+            $ref: '#/components/schemas/Transaction2'
           type: array
-        currency:
-          description: ISO 4217 currency code
-          example: USD
-          maxLength: 3
-          minLength: 3
-          type:
-          - string
-          - 'null'
-        description:
-          description: The text description for the transaction
-          example: GOOGLE *ADS12340929 cc@google.com US
-          type: string
-        description_clean:
-          description: The cleaned description of the transaction
-          example: GOOGLE ADS
-          type: string
-        duplicate_of_id:
-          description: Indicates that the transaction is a duplicate and gives the heron_id of the original
-          example: txn_PW7gZSP3EkwWi9Z3a3Pg4i
-        end_user_id:
-          description: Your unique ID for end user associated with transaction
-          example: my_best_customer_203948
-          maxLength: 140
-          type:
-          - string
-          - 'null'
-        has_matching_transaction:
-          description: Whether the transaction is a transfer; requires end_user_id and timestamp to be present
-          type: boolean
-        is_potential_duplicate:
-          description: Indicates whether the transaction has another transaction similar to it
-          readOnly: true
-          type: boolean
-        is_recurring:
-          description: Whether the transaction is recurring or not; requires end_user_id and timestamp to be present
-          type: boolean
-        mcc_code:
-          description: Merchant category code associated with transaction that you may have received from other sources
-          pattern: ^\d{4}$
-          type:
-          - string
-          - 'null'
-          writeOnly: true
-        merchant:
-          allOf:
-          - $ref: '#/components/schemas/Merchant'
-          description: The merchant associated with the transaction
-        order:
-          description: If sending a batch of transactions, the order in which the transaction occurs, where a higher value is equivalent to a more recent transaction
-          type:
-          - integer
-          - 'null'
-          writeOnly: true
-        payment_processor:
-          allOf:
-          - $ref: '#/components/schemas/PaymentProcessor'
-          description: The payment processor associated with the transaction
-        reference_id:
-          description: Your unique ID for transaction
-          example: my_favourite_transaction_231098
-          maxLength: 140
-          minLength: 1
-          type:
-          - string
-          - 'null'
-        request_id:
-          description: ID associated with request, e.g., all transactions in same POST request will have same request_id
-          example: req_KpKSZcc8f9N6m4kcVMn9ZP
-          readOnly: true
-          type:
-          - string
-          - 'null'
-        timestamp:
-          description: The ISO 8601 timezone aware timestamp of the transaction; takes precedence over 'date'
-          example: '2021-11-12T10:38:05Z'
-          format: date-time
-          type:
-          - string
-          - 'null'
-        transaction_code:
-          description: Code associated with transaction to indicate the type of transaction
-          example: card
-          maxLength: 140
-          type:
-          - string
-          - 'null'
-      required:
-      - amount
-      - description
       type: object
     EndUserTransactionsPostAsyncSchema:
       properties:
@@ -999,39 +1146,19 @@ components:
       required:
       - transactions
       type: object
-    PaymentProcessor:
+    AccountBalance1:
       properties:
-        heron_id:
-          example: mrc_nRYdGU7nYuevb7qem65cEb
-          readOnly: true
+        account_id:
+          example: checking_account_202348
+          maxLength: 400
           type: string
-        icon_url:
-          example: https://storage.googleapis.com/heron-merchant-assets/icons/mrc_nRYdGU7nYuevb7qem65cEb.svg
-          format: url
-          readOnly: true
-          type:
-          - string
-          - 'null'
-        logo_url:
-          example: https://storage.googleapis.com/heron-merchant-assets/logos/mrc_nRYdGU7nYuevb7qem65cEb.svg
-          format: url
-          readOnly: true
-          type:
-          - string
-          - 'null'
-        name:
-          example: Paypal
-          readOnly: true
-          type:
-          - string
-          - 'null'
-        url:
-          example: https://www.paypal.com
-          format: url
-          readOnly: true
-          type:
-          - string
-          - 'null'
+        batch_closing_balance:
+          description: The closing balance for this account after the transactions in this batch
+          example: 25000.45
+          type: number
+      required:
+      - account_id
+      - batch_closing_balance
       type: object
     Transaction2:
       properties:
@@ -1058,133 +1185,6 @@ components:
           type: array
       required:
       - transactions
-      type: object
-    TransactionAnnotation:
-      properties:
-        annotator:
-          description: Annotator type
-          example: predicted
-          type: string
-        confidence:
-          description: The confidence associated with the category annotation
-          example: 0.5
-          type: number
-        heron_id:
-          description: Unique ID of category; generated by Heron Data
-          example: ctg_7VJDkXpNP5Wg7QwSvRy4af
-          type: string
-        label:
-          description: Label of category
-          example: Rent
-          type: string
-        model_version:
-          description: The model version that produced the categorisation
-          example: 75db1dc9-ed1b-489a-a73a-44a28a657ef0
-          type: string
-      type: object
-    Transaction1:
-      properties:
-        account_id:
-          description: Your unique ID for account associated with transaction
-          example: checking_account_202348
-          maxLength: 400
-          type:
-          - string
-          - 'null'
-        amount:
-          description: Amount. Inflows to an account should be positive, and outflows from an account should be negative. If using Plaid, please flip the amount sign for all transactions.
-          example: -42.42
-          type: number
-        balance:
-          description: The running balance of the account after transaction ocurred
-          example: 423.0
-          type:
-          - number
-          - 'null'
-        categories_default:
-          description: Category of transaction that you may have received from other sources
-          example: shopping
-          type:
-          - string
-          - 'null'
-          writeOnly: true
-        currency:
-          description: ISO 4217 currency code
-          example: USD
-          maxLength: 3
-          minLength: 3
-          type:
-          - string
-          - 'null'
-        date:
-          description: The date of the transaction; 'timestamp' field takes priority over 'date'
-          example: '2020-04-27'
-          format: date
-          type:
-          - string
-          - 'null'
-          writeOnly: true
-        description:
-          description: The text description for the transaction
-          example: GOOGLE *ADS12340929 cc@google.com US
-          type: string
-        end_user_id:
-          description: Your unique ID for end user associated with transaction
-          example: my_best_customer_203948
-          maxLength: 140
-          type:
-          - string
-          - 'null'
-        heron_id:
-          description: Unique ID of transaction; generated by Heron Data
-          example: txn_Hafnew3Y97Q5Yv29VmHR4C
-          readOnly: true
-          type: string
-        mcc_code:
-          description: Merchant category code associated with transaction that you may have received from other sources
-          pattern: ^\d{4}$
-          type:
-          - string
-          - 'null'
-          writeOnly: true
-        order:
-          description: If sending a batch of transactions, the order in which the transaction occurs, where a higher value is equivalent to a more recent transaction
-          type:
-          - integer
-          - 'null'
-          writeOnly: true
-        reference_id:
-          description: Your unique ID for transaction
-          example: my_favourite_transaction_231098
-          maxLength: 140
-          minLength: 1
-          type:
-          - string
-          - 'null'
-        request_id:
-          description: ID associated with request, e.g., all transactions in same POST request will have same request_id
-          example: req_KpKSZcc8f9N6m4kcVMn9ZP
-          readOnly: true
-          type:
-          - string
-          - 'null'
-        timestamp:
-          description: The ISO 8601 timezone aware timestamp of the transaction; takes precedence over 'date'
-          example: '2021-11-12T10:38:05Z'
-          format: date-time
-          type:
-          - string
-          - 'null'
-        transaction_code:
-          description: Code associated with transaction to indicate the type of transaction
-          example: card
-          maxLength: 140
-          type:
-          - string
-          - 'null'
-      required:
-      - amount
-      - description
       type: object
   securitySchemes:
     ApiKeyAuth:

@@ -99,16 +99,6 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    Funder1:
-      additionalProperties: false
-      properties:
-        heron_id:
-          readOnly: true
-          type: string
-        name:
-          readOnly: true
-          type: string
-      type: object
     UpsertFunderSubmissionRequestSchema:
       additionalProperties: false
       properties:
@@ -168,6 +158,16 @@ components:
           type:
           - string
           - 'null'
+      type: object
+    Funder1:
+      additionalProperties: false
+      properties:
+        heron_id:
+          readOnly: true
+          type: string
+        name:
+          readOnly: true
+          type: string
       type: object
   securitySchemes:
     ApiKeyAuth:

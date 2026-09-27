@@ -51,7 +51,7 @@ created: '2026-07-17'
 modified: '2026-09-16'
 tags:
 - Company
-- Financial-Services
+- Financial Services
 - Document Automation
 - Underwriting
 - Lending
@@ -61,6 +61,7 @@ tags:
 - Bank Statements
 - Transaction Enrichment
 - Agent Ready
+- A2A
 tags_raw:
 - Company
 - Financial Services
@@ -73,6 +74,8 @@ tags_raw:
 - Bank Statements
 - Transaction Enrichment
 - Agent Ready
+- Financial-Services
+- A2A
 apis:
 - aid: heron:heron-analytics-api
   name: Heron Analytics API
@@ -1316,3 +1319,10 @@ x-enrichment:
     conformant A2A agent card, a provider-published Agent Skill, and a live MCP endpoint. The Mintlify
     sample spec at docs.herondata.io/api-reference/openapi.json was rejected on the ownership check —
     it is the "OpenAPI Plant Store" demo document.
+x-a2a:
+  verified: true
+  probed: '2026-09-26'
+  url: "https://docs.herondata.io/.well-known/agent-card.json"
+  grade: "conformant"
+  protocol_version: "0.3"
+  control: 404

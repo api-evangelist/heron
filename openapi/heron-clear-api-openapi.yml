@@ -78,26 +78,18 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    ClearReportRequestSchema:
+    ClearSearchRequestSchema:
       additionalProperties: false
       properties:
-        entity_id:
-          minLength: 1
-          type: string
-        group_id:
-          minLength: 1
-          type: string
-        name:
-          type: string
+        criteria:
+          $ref: '#/components/schemas/ClearSearchCriteria'
         subject_type:
           enum:
           - business
           - person
           type: string
       required:
-      - entity_id
-      - group_id
-      - name
+      - criteria
       - subject_type
       type: object
     ClearSearchCriteria:
@@ -136,18 +128,26 @@ components:
           minLength: 1
           type: string
       type: object
-    ClearSearchRequestSchema:
+    ClearReportRequestSchema:
       additionalProperties: false
       properties:
-        criteria:
-          $ref: '#/components/schemas/ClearSearchCriteria'
+        entity_id:
+          minLength: 1
+          type: string
+        group_id:
+          minLength: 1
+          type: string
+        name:
+          type: string
         subject_type:
           enum:
           - business
           - person
           type: string
       required:
-      - criteria
+      - entity_id
+      - group_id
+      - name
       - subject_type
       type: object
   securitySchemes:

@@ -148,143 +148,47 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    UserSettings:
+    RestrictedIndustry:
       properties:
-        annotations:
-          $ref: '#/components/schemas/AnnotationSettings'
-        api_version:
+        description:
           type: string
-        cache_global_enrich:
-          type: boolean
-        currency_iso_code:
-          enum:
-          - GBP
-          - USD
-          - EUR
-          - CAD
-          - AUD
+        name:
           type: string
-        data_retention_days:
-          minimum: 1
-          type:
-          - integer
-          - 'null'
-        data_retention_turned_on:
+      type: object
+    ModifiableSettings:
+      properties:
+        balance_sheet_categories:
+          $ref: '#/components/schemas/BalanceSheetCategories'
+        disable_data_export:
           type: boolean
-        dsa_deduplication_beta:
-          type: boolean
-        email_domains:
-          items:
-            type: string
-          type: array
-        enabled_enrichers:
-          items:
-            type: string
-          type: array
-        end_user_entities:
-          $ref: '#/components/schemas/EndUserEntitiesSettings'
-        end_user_query_static_csvs:
+        financials_metrics:
           additionalProperties:
-            type: string
-          description: Static CSV configurations for end user queries. Dict mapping table_name to gcs_path.
+            $ref: '#/components/schemas/MetricSpec'
           type: object
-        enrich_global_ttl_days:
-          minimum: 1
-          type: integer
-        enricher_inputs_mapping:
-          additionalProperties: {}
-          description: Mapping of enricher names to input field names. Used to map LLM enricher inputs to end user fields.
-          type: object
-        features:
-          $ref: '#/components/schemas/FeatureSettings'
-        files:
-          $ref: '#/components/schemas/FileSettings'
-        high_priority_async_slots:
-          type: integer
-        inbound_emails:
-          $ref: '#/components/schemas/InboundEmailSettings'
-        include_in_analytics:
+        industry_naics_enabled:
           type: boolean
-        ip_whitelist:
+        low_balance_days_threshold:
+          type: number
+        pnl_categories:
+          $ref: '#/components/schemas/PnLCategories'
+        query_reports:
           items:
-            type: string
-          type:
-          - array
-          - 'null'
-        is_priority_async:
-          type: boolean
-        legacy_data_sources:
-          type: boolean
-        modifiable:
-          $ref: '#/components/schemas/ModifiableSettings'
-        outbound_emails:
-          $ref: '#/components/schemas/OutboundEmailSettings'
-        pdf:
-          $ref: '#/components/schemas/PdfSettings'
-        plaid:
-          $ref: '#/components/schemas/PlaidSettings'
-        rate_limit:
-          pattern: ^[0-9]{1,4}/minute$
-          type: string
-        regex_merchant_matching_enabled:
-          type: boolean
-        restrict_api_keys_in_dashboard:
-          type: boolean
-        restrict_downloading_data:
-          type: boolean
-        retry_global_enrich:
-          type: boolean
-        scorecard:
-          $ref: '#/components/schemas/ScorecardSettings'
-        sync_async_enrich:
-          type: boolean
-        sync_enrich:
-          type: boolean
-        use_case_type:
-          enum:
-          - iso_underwriting
-          - non_iso_underwriting
-          - commercial_insurance
-          - commercial_law
-          - equipment_finance
-          - broker
-          - other
-          type: string
-      type: object
-    BrokerVelocitySignal:
-      properties:
-        high_threshold:
-          type: integer
-        low_threshold:
-          type: integer
-        medium_threshold:
-          type: integer
-      type: object
-    MetricFormulaAdd:
-      properties:
-        addend_1:
-          $ref: '#/components/schemas/MetricFormula'
-        addend_2:
-          $ref: '#/components/schemas/MetricFormula'
-      required:
-      - addend_1
-      - addend_2
-      type: object
-    WidgetGroup:
-      properties:
-        group_name:
-          type: string
-        id:
-          description: A unique id used to reference the group
-          type: string
-        widgets:
-          items:
-            $ref: '#/components/schemas/Widget'
+            $ref: '#/components/schemas/QueryReportTabGroup'
           type: array
-      required:
-      - group_name
-      - id
-      - widgets
+        required_revenue_per_month:
+          type: integer
+        restricted_industries:
+          items:
+            $ref: '#/components/schemas/RestrictedIndustry'
+          type: array
+        transactions_review_enabled:
+          type: boolean
+        use_new_company_layout:
+          type: boolean
+        use_new_end_user_summary_table:
+          type: boolean
+        use_new_end_user_table:
+          type: boolean
       type: object
     User:
       properties:
@@ -358,168 +262,57 @@ components:
       - organization_id
       - username
       type: object
-    QueryReportWidget:
+    AnnotatorSettings:
       properties:
-        description:
-          type:
-          - string
-          - 'null'
-        query_name:
-          type: string
-        title:
-          type: string
-      required:
-      - query_name
-      - title
-      type: object
-    MetricFormulaMult:
-      properties:
-        multiplicand:
-          $ref: '#/components/schemas/MetricFormula'
-        multiplier:
-          $ref: '#/components/schemas/MetricFormula'
-      required:
-      - multiplicand
-      - multiplier
-      type: object
-    MetricFormula:
-      properties:
-        add:
-          $ref: '#/components/schemas/MetricFormulaAdd'
-        aggregation:
-          $ref: '#/components/schemas/MetricFormulaAggregation'
-        div:
-          $ref: '#/components/schemas/MetricFormulaDiv'
-        metric:
-          $ref: '#/components/schemas/MetricFormulaMetric'
-        mult:
-          $ref: '#/components/schemas/MetricFormulaMult'
-        scalar:
-          $ref: '#/components/schemas/MetricFormulaScalar'
-        simple_metric:
-          $ref: '#/components/schemas/MetricFormulaSimpleMetric'
-        sub:
-          $ref: '#/components/schemas/MetricFormulaSub'
-        type:
-          description: The type of formula to be used
-          type: string
-      required:
-      - type
-      type: object
-    CompanyOverviewLayoutSchema:
-      properties:
-        group_name:
-          type: string
-        id:
-          description: A unique id used to reference the group
-          type: string
-        widgets:
-          items:
-            $ref: '#/components/schemas/Widget'
-          type: array
-      required:
-      - group_name
-      - id
-      - widgets
-      type: object
-    ScorecardSettings:
-      properties:
-        balance_prediction:
+        async_:
           type: boolean
-        company_overview_layout:
-          items:
-            $ref: '#/components/schemas/WidgetGroup'
-          type: array
-      type: object
-    PlaidSettings:
-      properties:
-        account_types_enabled_for_analysis:
-          items:
-            type: string
-          type: array
-        account_types_to_ingest:
-          items:
-            type: string
-          type: array
-          writeOnly: true
-        assets_report_days_to_sync:
-          type: integer
-        auto_enrich_after_sync:
+        confidence_threshold:
+          maximum: 1.0
+          minimum: 0.0
+          type: number
+        label:
+          pattern: ^(heuristics|rich_heuristics|distilbert|distilbert_intra_co_override_async_|random_forest|heron_ai_.+)$
+          type: string
+        sync:
           type: boolean
-        balance_anchor_field:
-          enum:
-          - current
-          - posted
-        days_to_sync:
-          type: integer
-        owner_types_enabled_for_analysis:
-          items:
-            enum:
-            - business
-            - personal
-            - unknown
-          type: array
       type: object
-    Widget:
+    PnLCategories:
       properties:
-        id:
-          description: A unique id used to reference the widget
-          type: string
-        scorecard_metric_date_range:
-          enum:
-          - latest
-          - last_30_days
-          - last_90_days
-          - last_120_days
-          - last_180_days
-          - last_365_days
-          - next_30_days
-          - next_60_days
-          - next_90_days
-          - next_180_days
-          - last_1_calendar_months
-          - last_3_calendar_months
-          - last_4_calendar_months
-          - last_6_calendar_months
-          - last_12_calendar_months
-          - last_15_calendar_months
-          - last_24_calendar_months
-          - last_1_full_calendar_months
-          - last_2_full_calendar_months
-          - last_3_full_calendar_months
-          - last_6_full_calendar_months
-          - last_12_full_calendar_months
-          - last_60_days
-          - last_45_days
-          - last_2_calendar_months
-          type: string
-        scorecard_metric_label:
-          type: string
-        type:
-          enum:
-          - scorecard_metric
-          - heron_score
-          - loan_revenue_ratio
-          - deposit_trends_ratio
-          type: string
-      required:
-      - id
-      - type
-      type: object
-    MetricFormulaSimpleMetricFilter:
-      properties:
-        dimension:
-          description: The dimension to be used
-          type: string
-        operator:
-          description: The operator to be used in the filter
-          type: string
-        value:
-          description: The dimension value to be used
-          type: string
-      required:
-      - dimension
-      - value
+        cogs:
+          additionalProperties:
+            description: A list of example line item labels that map to this category
+            items:
+              type: string
+            type: array
+          type: object
+        income:
+          additionalProperties:
+            description: A list of example line item labels that map to this category
+            items:
+              type: string
+            type: array
+          type: object
+        operating_expenses:
+          additionalProperties:
+            description: A list of example line item labels that map to this category
+            items:
+              type: string
+            type: array
+          type: object
+        other_expenses:
+          additionalProperties:
+            description: A list of example line item labels that map to this category
+            items:
+              type: string
+            type: array
+          type: object
+        other_income:
+          additionalProperties:
+            description: A list of example line item labels that map to this category
+            items:
+              type: string
+            type: array
+          type: object
       type: object
     PdfSettings:
       properties:
@@ -564,61 +357,137 @@ components:
         wells_fargo_iru_same_day_pairing:
           type: boolean
       type: object
-    QueryReportTabGroup:
+    QueryReportWidget:
       properties:
-        tab_group:
+        description:
+          type:
+          - string
+          - 'null'
+        query_name:
           type: string
-        tabs:
-          items:
-            $ref: '#/components/schemas/QueryReportTab'
-          type: array
+        title:
+          type: string
       required:
-      - tab_group
-      - tabs
+      - query_name
+      - title
       type: object
-    OutboundEmailSettings:
+    ScorecardSettings:
       properties:
-        allowed_to_domains:
+        balance_prediction:
+          type: boolean
+        company_overview_layout:
+          items:
+            $ref: '#/components/schemas/WidgetGroup'
+          type: array
+      type: object
+    PlaidSettings:
+      properties:
+        account_types_enabled_for_analysis:
           items:
             type: string
           type: array
-        restrict_outbound_emails_to_allowed_domains:
+        account_types_to_ingest:
+          items:
+            type: string
+          type: array
+          writeOnly: true
+        assets_report_days_to_sync:
+          type: integer
+        auto_enrich_after_sync:
+          type: boolean
+        balance_anchor_field:
+          enum:
+          - current
+          - posted
+        days_to_sync:
+          type: integer
+        owner_types_enabled_for_analysis:
+          items:
+            enum:
+            - business
+            - personal
+            - unknown
+          type: array
+      type: object
+    MetricFormulaAggregation:
+      properties:
+        by:
+          default: []
+          description: The dimension to be used in the aggregation
+          items:
+            type: string
+          type: array
+        formula:
+          $ref: '#/components/schemas/MetricFormula'
+        op:
+          description: The aggregation operation to be used
+          type: string
+      required:
+      - formula
+      - op
+      type: object
+    QueryReportTab:
+      properties:
+        tab_name:
+          type: string
+        widgets:
+          items:
+            $ref: '#/components/schemas/QueryReportWidget'
+          type: array
+      required:
+      - tab_name
+      - widgets
+      type: object
+    MetricSpec:
+      properties:
+        context:
+          description: The context to be used in the query
+          type: string
+        date_ranges:
+          description: A list of date ranges to be used in the query
+          items:
+            type: string
+          type: array
+        description:
+          type: string
+        expression:
+          description: The expression to be used in the query
+          type: string
+        formula:
+          $ref: '#/components/schemas/MetricFormula'
+        group:
+          description: The group to be used in the query
+          type: string
+        unit:
+          description: The unit to be used in the query
+          type: string
+      required:
+      - context
+      - date_ranges
+      - description
+      - group
+      - unit
+      type: object
+    HumanInTheLoopParserConfig:
+      properties:
+        alert_channel:
+          type:
+          - string
+          - 'null'
+        enabled:
+          type: boolean
+        run_jitl:
           type: boolean
       type: object
-    UserModifiableSettings:
+    MetricFormulaDiv:
       properties:
-        balance_sheet_categories:
-          $ref: '#/components/schemas/BalanceSheetCategories'
-        disable_data_export:
-          type: boolean
-        financials_metrics:
-          additionalProperties:
-            $ref: '#/components/schemas/MetricSpec'
-          type: object
-        industry_naics_enabled:
-          type: boolean
-        low_balance_days_threshold:
-          type: number
-        pnl_categories:
-          $ref: '#/components/schemas/PnLCategories'
-        query_reports:
-          items:
-            $ref: '#/components/schemas/QueryReportTabGroup'
-          type: array
-        required_revenue_per_month:
-          type: integer
-        restricted_industries:
-          items:
-            $ref: '#/components/schemas/RestrictedIndustry'
-          type: array
-        transactions_review_enabled:
-          type: boolean
-        use_new_company_layout:
-          type: boolean
-        use_new_end_user_summary_table:
-          type: boolean
-        use_new_end_user_table:
-          type: boolean
+        dividend:
+          $ref: '#/components/schemas/MetricFormula'
+        divisor:
+          $ref: '#/components/schemas/MetricFormula'
+      required:
+      - dividend
+      - divisor
       type: object
     InboundEmailSettings:
       properties:
@@ -644,6 +513,42 @@ components:
           description: Whether to group re-submissions with the same subject line into the same end user
           type: boolean
       type: object
+    MetricFormulaScalar:
+      properties:
+        value:
+          description: The value to be used in the formula
+          type: integer
+      required:
+      - value
+      type: object
+    MetricFormulaMult:
+      properties:
+        multiplicand:
+          $ref: '#/components/schemas/MetricFormula'
+        multiplier:
+          $ref: '#/components/schemas/MetricFormula'
+      required:
+      - multiplicand
+      - multiplier
+      type: object
+    QueryReportTabGroup:
+      properties:
+        tab_group:
+          type: string
+        tabs:
+          items:
+            $ref: '#/components/schemas/QueryReportTab'
+          type: array
+      required:
+      - tab_group
+      - tabs
+      type: object
+    EndUserEntitiesSettings:
+      properties:
+        date_display_format:
+          description: The format to use for date attributes when they are display in the dashboard
+          type: string
+      type: object
     FlowmingoWorkflowOwners:
       properties:
         group_slack_name:
@@ -656,141 +561,15 @@ components:
             type: string
           type: array
       type: object
-    RestrictedIndustry:
+    MetricFormulaAdd:
       properties:
-        description:
-          type: string
-        name:
-          type: string
-      type: object
-    FileSettings:
-      properties:
-        combined_file_classification_enable_automatic_splitting:
-          type: boolean
-        combined_file_classification_enabled:
-          type: boolean
-        combined_file_classification_keywords:
-          items:
-            type: string
-          type: array
-        combined_file_classification_num_pages_threshold:
-          type: integer
-        combined_file_classification_treat_excel_files_as_combined:
-          type: boolean
-        disable_automatic_parsing:
-          description: a list of file classes to disable automatic parsing for.
-          items:
-            type: string
-          type: array
-        file_class_parsers_map:
-          additionalProperties:
-            items:
-              type: string
-            type: array
-          type: object
-        human_in_the_loop:
-          additionalProperties:
-            $ref: '#/components/schemas/HumanInTheLoopParserConfig'
-          description: Configuration for human review per parser. Keys are parser_ids.
-          type: object
-        reject_duplicates:
-          type: boolean
-        reject_duplicates_based_on_text:
-          type: boolean
-        required_file_classes:
-          items:
-            type: string
-          type: array
-        total_allowed_files_to_process:
-          type:
-          - integer
-          - 'null'
-      type: object
-    MetricFormulaMetric:
-      properties:
-        date_range:
-          description: The date range to be used in the query. It will override the date range specified in the metric spec
-          type:
-          - string
-          - 'null'
-        filters:
-          description: A list of filters to be applied before computing the metric
-          items:
-            $ref: '#/components/schemas/MetricFormulaSimpleMetricFilter'
-          type:
-          - array
-          - 'null'
-        metric_name:
-          description: The metric to be used
-          type: string
-      required:
-      - metric_name
-      type: object
-    AnnotationSettings:
-      properties:
-        annotators:
-          items:
-            $ref: '#/components/schemas/AnnotatorSettings'
-          maxItems: 10
-          type: array
-        heron_ai_chunk_size:
-          type: integer
-        llm_counterparty_extraction_and_clustering_enabled:
-          type: boolean
-        llm_counterparty_extraction_chunk_size:
-          type: integer
-        reconcile:
-          type: boolean
-        reconcile_version:
-          type: string
-        slug:
-          enum:
-          - us_sme_lend_2
-          - ca_sme_lend_2
-          - gb_sme_lend_2
-          - gb_sme_lender
-          - us_sme_lender
-          - us_consumer
-          - smartbiz_loans
-          - '24'
-          - '30'
-          - '171'
-          - capchase
-        split_intra_co_transfers_to_inflows_outflows:
-          type: boolean
-        split_p2p_to_inflows_outflows:
-          type: boolean
-      type: object
-    HumanInTheLoopParserConfig:
-      properties:
-        alert_channel:
-          type:
-          - string
-          - 'null'
-        enabled:
-          type: boolean
-        run_jitl:
-          type: boolean
-      type: object
-    MetricFormulaSub:
-      properties:
-        minuend:
+        addend_1:
           $ref: '#/components/schemas/MetricFormula'
-        subtrahend:
+        addend_2:
           $ref: '#/components/schemas/MetricFormula'
       required:
-      - minuend
-      - subtrahend
-      type: object
-    MetricFormulaDiv:
-      properties:
-        dividend:
-          $ref: '#/components/schemas/MetricFormula'
-        divisor:
-          $ref: '#/components/schemas/MetricFormula'
-      required:
-      - dividend
-      - divisor
+      - addend_1
+      - addend_2
       type: object
     BalanceSheetCategories:
       properties:
@@ -837,38 +616,77 @@ components:
             type: array
           type: object
       type: object
-    AnnotatorSettings:
+    WidgetGroup:
       properties:
-        async_:
-          type: boolean
-        confidence_threshold:
-          maximum: 1.0
-          minimum: 0.0
-          type: number
-        label:
-          pattern: ^(heuristics|rich_heuristics|distilbert|distilbert_intra_co_override_async_|random_forest|heron_ai_.+)$
+        group_name:
           type: string
-        sync:
-          type: boolean
-      type: object
-    MetricFormulaAggregation:
-      properties:
-        by:
-          default: []
-          description: The dimension to be used in the aggregation
+        id:
+          description: A unique id used to reference the group
+          type: string
+        widgets:
           items:
-            type: string
+            $ref: '#/components/schemas/Widget'
           type: array
-        formula:
-          $ref: '#/components/schemas/MetricFormula'
-        op:
-          description: The aggregation operation to be used
-          type: string
       required:
-      - formula
-      - op
+      - group_name
+      - id
+      - widgets
       type: object
-    ModifiableSettings:
+    MetricFormulaSub:
+      properties:
+        minuend:
+          $ref: '#/components/schemas/MetricFormula'
+        subtrahend:
+          $ref: '#/components/schemas/MetricFormula'
+      required:
+      - minuend
+      - subtrahend
+      type: object
+    BrokerVelocitySignal:
+      properties:
+        high_threshold:
+          type: integer
+        low_threshold:
+          type: integer
+        medium_threshold:
+          type: integer
+      type: object
+    AnnotationSettings:
+      properties:
+        annotators:
+          items:
+            $ref: '#/components/schemas/AnnotatorSettings'
+          maxItems: 10
+          type: array
+        heron_ai_chunk_size:
+          type: integer
+        llm_counterparty_extraction_and_clustering_enabled:
+          type: boolean
+        llm_counterparty_extraction_chunk_size:
+          type: integer
+        reconcile:
+          type: boolean
+        reconcile_version:
+          type: string
+        slug:
+          enum:
+          - us_sme_lend_2
+          - ca_sme_lend_2
+          - gb_sme_lend_2
+          - gb_sme_lender
+          - us_sme_lender
+          - us_consumer
+          - smartbiz_loans
+          - '24'
+          - '30'
+          - '171'
+          - capchase
+        split_intra_co_transfers_to_inflows_outflows:
+          type: boolean
+        split_p2p_to_inflows_outflows:
+          type: boolean
+      type: object
+    UserModifiableSettings:
       properties:
         balance_sheet_categories:
           $ref: '#/components/schemas/BalanceSheetCategories'
@@ -903,12 +721,19 @@ components:
         use_new_end_user_table:
           type: boolean
       type: object
-    MetricFormulaScalar:
+    MetricFormulaSimpleMetricFilter:
       properties:
+        dimension:
+          description: The dimension to be used
+          type: string
+        operator:
+          description: The operator to be used in the filter
+          type: string
         value:
-          description: The value to be used in the formula
-          type: integer
+          description: The dimension value to be used
+          type: string
       required:
+      - dimension
       - value
       type: object
     FeatureSettings:
@@ -1095,61 +920,132 @@ components:
             type: integer
           type: array
       type: object
-    QueryReportTab:
+    MetricFormula:
       properties:
-        tab_name:
+        add:
+          $ref: '#/components/schemas/MetricFormulaAdd'
+        aggregation:
+          $ref: '#/components/schemas/MetricFormulaAggregation'
+        div:
+          $ref: '#/components/schemas/MetricFormulaDiv'
+        metric:
+          $ref: '#/components/schemas/MetricFormulaMetric'
+        mult:
+          $ref: '#/components/schemas/MetricFormulaMult'
+        scalar:
+          $ref: '#/components/schemas/MetricFormulaScalar'
+        simple_metric:
+          $ref: '#/components/schemas/MetricFormulaSimpleMetric'
+        sub:
+          $ref: '#/components/schemas/MetricFormulaSub'
+        type:
+          description: The type of formula to be used
           type: string
-        widgets:
-          items:
-            $ref: '#/components/schemas/QueryReportWidget'
-          type: array
       required:
-      - tab_name
-      - widgets
+      - type
       type: object
-    EndUserEntitiesSettings:
+    UserSettings:
       properties:
-        date_display_format:
-          description: The format to use for date attributes when they are display in the dashboard
+        annotations:
+          $ref: '#/components/schemas/AnnotationSettings'
+        api_version:
           type: string
-      type: object
-    PnLCategories:
-      properties:
-        cogs:
+        cache_global_enrich:
+          type: boolean
+        currency_iso_code:
+          enum:
+          - GBP
+          - USD
+          - EUR
+          - CAD
+          - AUD
+          type: string
+        data_retention_days:
+          minimum: 1
+          type:
+          - integer
+          - 'null'
+        data_retention_turned_on:
+          type: boolean
+        dsa_deduplication_beta:
+          type: boolean
+        email_domains:
+          items:
+            type: string
+          type: array
+        enabled_enrichers:
+          items:
+            type: string
+          type: array
+        end_user_entities:
+          $ref: '#/components/schemas/EndUserEntitiesSettings'
+        end_user_query_static_csvs:
           additionalProperties:
-            description: A list of example line item labels that map to this category
-            items:
-              type: string
-            type: array
+            type: string
+          description: Static CSV configurations for end user queries. Dict mapping table_name to gcs_path.
           type: object
-        income:
-          additionalProperties:
-            description: A list of example line item labels that map to this category
-            items:
-              type: string
-            type: array
+        enrich_global_ttl_days:
+          minimum: 1
+          type: integer
+        enricher_inputs_mapping:
+          additionalProperties: {}
+          description: Mapping of enricher names to input field names. Used to map LLM enricher inputs to end user fields.
           type: object
-        operating_expenses:
-          additionalProperties:
-            description: A list of example line item labels that map to this category
-            items:
-              type: string
-            type: array
-          type: object
-        other_expenses:
-          additionalProperties:
-            description: A list of example line item labels that map to this category
-            items:
-              type: string
-            type: array
-          type: object
-        other_income:
-          additionalProperties:
-            description: A list of example line item labels that map to this category
-            items:
-              type: string
-            type: array
-          type: object
+        features:
+          $ref: '#/components/schemas/FeatureSettings'
+        files:
+          $ref: '#/components/schemas/FileSettings'
+        high_priority_async_slots:
+          type: integer
+        inbound_emails:
+          $ref: '#/components/schemas/InboundEmailSettings'
+        include_in_analytics:
+          type: boolean
+        ip_whitelist:
+          items:
+            type: string
+          type:
+          - array
+          - 'null'
+        is_priority_async:
+          type: boolean
+        legacy_data_sources:
+          type: boolean
+        modifiable:
+          $ref: '#/components/schemas/ModifiableSettings'
+        outbound_emails:
+          $ref: '#/components/schemas/OutboundEmailSettings'
+        pdf:
+          $ref: '#/components/schemas/PdfSettings'
+        plaid:
+          $ref: '#/components/schemas/PlaidSettings'
+        rate_limit:
+          pattern: ^[0-9]{1,4}/minute$
+          type: string
+        regex_merchant_matching_enabled:
+          type: boolean
+        restrict_api_keys_in_dashboard:
+          type: boolean
+        restrict_downloading_data:
+          type: boolean
+        retry_global_enrich:
+          type: boolean
+        scorecard:
+          $ref: '#/components/schemas/ScorecardSettings'
+        sync_async_enrich:
+          type: boolean
+        sync_enrich:
+          type: boolean
+        use_case_type:
+          enum:
+          - iso_underwriting
+          - non_iso_underwriting
+          - commercial_insurance
+          - commercial_law
+          - equipment_finance
+          - broker
+          - other
+          type: string
       type: object
     MetricFormulaSimpleMetric:
       properties:
@@ -1177,35 +1073,139 @@ components:
       required:
       - metric_name
       type: object
-    MetricSpec:
+    Widget:
       properties:
-        context:
-          description: The context to be used in the query
+        id:
+          description: A unique id used to reference the widget
           type: string
-        date_ranges:
-          description: A list of date ranges to be used in the query
+        scorecard_metric_date_range:
+          enum:
+          - latest
+          - last_30_days
+          - last_90_days
+          - last_120_days
+          - last_180_days
+          - last_365_days
+          - next_30_days
+          - next_60_days
+          - next_90_days
+          - next_180_days
+          - last_1_calendar_months
+          - last_3_calendar_months
+          - last_4_calendar_months
+          - last_6_calendar_months
+          - last_12_calendar_months
+          - last_15_calendar_months
+          - last_24_calendar_months
+          - last_1_full_calendar_months
+          - last_2_full_calendar_months
+          - last_3_full_calendar_months
+          - last_6_full_calendar_months
+          - last_12_full_calendar_months
+          - last_60_days
+          - last_45_days
+          - last_2_calendar_months
+          type: string
+        scorecard_metric_label:
+          type: string
+        type:
+          enum:
+          - scorecard_metric
+          - heron_score
+          - loan_revenue_ratio
+          - deposit_trends_ratio
+          type: string
+      required:
+      - id
+      - type
+      type: object
+    OutboundEmailSettings:
+      properties:
+        allowed_to_domains:
           items:
             type: string
           type: array
-        description:
-          type: string
-        expression:
-          description: The expression to be used in the query
-          type: string
-        formula:
-          $ref: '#/components/schemas/MetricFormula'
-        group:
-          description: The group to be used in the query
-          type: string
-        unit:
-          description: The unit to be used in the query
+        restrict_outbound_emails_to_allowed_domains:
+          type: boolean
+      type: object
+    MetricFormulaMetric:
+      properties:
+        date_range:
+          description: The date range to be used in the query. It will override the date range specified in the metric spec
+          type:
+          - string
+          - 'null'
+        filters:
+          description: A list of filters to be applied before computing the metric
+          items:
+            $ref: '#/components/schemas/MetricFormulaSimpleMetricFilter'
+          type:
+          - array
+          - 'null'
+        metric_name:
+          description: The metric to be used
           type: string
       required:
-      - context
-      - date_ranges
-      - description
-      - group
-      - unit
+      - metric_name
+      type: object
+    CompanyOverviewLayoutSchema:
+      properties:
+        group_name:
+          type: string
+        id:
+          description: A unique id used to reference the group
+          type: string
+        widgets:
+          items:
+            $ref: '#/components/schemas/Widget'
+          type: array
+      required:
+      - group_name
+      - id
+      - widgets
+      type: object
+    FileSettings:
+      properties:
+        combined_file_classification_enable_automatic_splitting:
+          type: boolean
+        combined_file_classification_enabled:
+          type: boolean
+        combined_file_classification_keywords:
+          items:
+            type: string
+          type: array
+        combined_file_classification_num_pages_threshold:
+          type: integer
+        combined_file_classification_treat_excel_files_as_combined:
+          type: boolean
+        disable_automatic_parsing:
+          description: a list of file classes to disable automatic parsing for.
+          items:
+            type: string
+          type: array
+        file_class_parsers_map:
+          additionalProperties:
+            items:
+              type: string
+            type: array
+          type: object
+        human_in_the_loop:
+          additionalProperties:
+            $ref: '#/components/schemas/HumanInTheLoopParserConfig'
+          description: Configuration for human review per parser. Keys are parser_ids.
+          type: object
+        reject_duplicates:
+          type: boolean
+        reject_duplicates_based_on_text:
+          type: boolean
+        required_file_classes:
+          items:
+            type: string
+          type: array
+        total_allowed_files_to_process:
+          type:
+          - integer
+          - 'null'
       type: object
   securitySchemes:
     ApiKeyAuth:

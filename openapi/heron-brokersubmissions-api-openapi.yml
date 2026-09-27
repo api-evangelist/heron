@@ -326,37 +326,105 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    Address:
+    EndUserInformationSchema:
       properties:
-        city:
+        amount_requested:
+          type:
+          - number
+          - 'null'
+        annual_revenue:
+          type:
+          - number
+          - 'null'
+        business_start_date:
+          format: date
           type:
           - string
           - 'null'
-        line_1:
+        company_billing_address:
+          $ref: '#/components/schemas/Address'
+        company_email:
           type:
           - string
           - 'null'
-        line_2:
+        company_legal_business_name:
           type:
           - string
           - 'null'
-        state:
+        company_phone_number:
           type:
           - string
           - 'null'
-        zip:
+        company_physical_address:
+          $ref: '#/components/schemas/Address'
+        company_website:
           type:
           - string
           - 'null'
-      type: object
-    CreateBrokerFunderApiKeySchema:
-      properties:
-        email:
-          description: Broker email address
-          format: email
+        dba:
+          description: Doing business as
+          type:
+          - string
+          - 'null'
+        federal_tax_id:
+          type:
+          - string
+          - 'null'
+        industry_type:
+          type:
+          - string
+          - 'null'
+        loan_purpose:
+          type:
+          - string
+          - 'null'
+        monthly_revenue:
+          type:
+          - number
+          - 'null'
+        naics:
+          type:
+          - string
+          - 'null'
+        owner_1:
+          $ref: '#/components/schemas/Owner'
+        owner_2:
+          $ref: '#/components/schemas/Owner'
+        predicted_industry_probability:
+          type:
+          - number
+          - 'null'
+        source_email_address:
+          type:
+          - string
+          - 'null'
+        source_name:
+          type:
+          - string
+          - 'null'
+        source_notes:
+          type:
+          - string
+          - 'null'
+        source_type:
+          description: Source of the end user information
+          enum:
+          - api
+          - iso_application_form
+          - heron_industry_classifier
+          - rel6_industry_classifier
+          - email
+          - end_user_entities
+          example: iso_application_form
           type: string
-      required:
-      - email
+        state_of_incorporation:
+          type:
+          - string
+          - 'null'
+        type_of_business_entity:
+          type:
+          - string
+          - 'null'
       type: object
     Owner:
       properties:
@@ -517,6 +585,38 @@ components:
           - string
           - 'null'
       type: object
+    Address:
+      properties:
+        city:
+          type:
+          - string
+          - 'null'
+        line_1:
+          type:
+          - string
+          - 'null'
+        line_2:
+          type:
+          - string
+          - 'null'
+        state:
+          type:
+          - string
+          - 'null'
+        zip:
+          type:
+          - string
+          - 'null'
+      type: object
+    CreateBrokerFunderApiKeySchema:
+      properties:
+        email:
+          description: Broker email address
+          format: email
+          type: string
+      required:
+      - email
+      type: object
     CreateBrokerSubmissionSchema:
       properties:
         name:
@@ -525,106 +625,6 @@ components:
           type: string
       required:
       - name
-      type: object
-    EndUserInformationSchema:
-      properties:
-        amount_requested:
-          type:
-          - number
-          - 'null'
-        annual_revenue:
-          type:
-          - number
-          - 'null'
-        business_start_date:
-          format: date
-          type:
-          - string
-          - 'null'
-        company_billing_address:
-          $ref: '#/components/schemas/Address'
-        company_email:
-          type:
-          - string
-          - 'null'
-        company_legal_business_name:
-          type:
-          - string
-          - 'null'
-        company_phone_number:
-          type:
-          - string
-          - 'null'
-        company_physical_address:
-          $ref: '#/components/schemas/Address'
-        company_website:
-          type:
-          - string
-          - 'null'
-        dba:
-          description: Doing business as
-          type:
-          - string
-          - 'null'
-        federal_tax_id:
-          type:
-          - string
-          - 'null'
-        industry_type:
-          type:
-          - string
-          - 'null'
-        loan_purpose:
-          type:
-          - string
-          - 'null'
-        monthly_revenue:
-          type:
-          - number
-          - 'null'
-        naics:
-          type:
-          - string
-          - 'null'
-        owner_1:
-          $ref: '#/components/schemas/Owner'
-        owner_2:
-          $ref: '#/components/schemas/Owner'
-        predicted_industry_probability:
-          type:
-          - number
-          - 'null'
-        source_email_address:
-          type:
-          - string
-          - 'null'
-        source_name:
-          type:
-          - string
-          - 'null'
-        source_notes:
-          type:
-          - string
-          - 'null'
-        source_type:
-          description: Source of the end user information
-          enum:
-          - api
-          - iso_application_form
-          - heron_industry_classifier
-          - rel6_industry_classifier
-          - email
-          - end_user_entities
-          example: iso_application_form
-          type: string
-        state_of_incorporation:
-          type:
-          - string
-          - 'null'
-        type_of_business_entity:
-          type:
-          - string
-          - 'null'
       type: object
   securitySchemes:
     ApiKeyAuth:

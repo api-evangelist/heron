@@ -240,58 +240,6 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    Merchant:
-      properties:
-        categories:
-          items:
-            $ref: '#/components/schemas/MerchantCategory'
-          readOnly: true
-          type: array
-        group_id:
-          enum:
-          - Uber
-          - Google
-          - Intuit
-          - debt.mca_or_rbf
-          - debt.non_bank_business
-          - debt.equipment_and_auto_leasing
-          - debt.mortgage
-          - debt.personal_non_mortgage
-          - debt.collections
-          - debt.bank
-          - invoice_factoring
-          - fuel_provider
-          - gambling_and_betting
-          - null
-          type:
-          - string
-          - 'null'
-        heron_id:
-          example: mrc_RTgUcM9od9w9fwU8YG6mjH
-          readOnly: true
-          type: string
-        icon_url:
-          format: url
-          type:
-          - string
-          - 'null'
-        is_priority:
-          readOnly: true
-          type: boolean
-        logo_url:
-          format: url
-          type:
-          - string
-          - 'null'
-        name:
-          type: string
-        url:
-          format: url
-          type: string
-      required:
-      - name
-      - url
-      type: object
     Merchant1:
       properties:
         aliases:
@@ -380,26 +328,57 @@ components:
       - name
       - url
       type: object
-    MerchantCategory:
+    Merchant:
       properties:
-        code:
-          example: '7311'
+        categories:
+          items:
+            $ref: '#/components/schemas/MerchantCategory'
+          readOnly: true
+          type: array
+        group_id:
+          enum:
+          - Uber
+          - Google
+          - Intuit
+          - debt.mca_or_rbf
+          - debt.non_bank_business
+          - debt.equipment_and_auto_leasing
+          - debt.mortgage
+          - debt.personal_non_mortgage
+          - debt.collections
+          - debt.bank
+          - invoice_factoring
+          - fuel_provider
+          - gambling_and_betting
+          - null
+          type:
+          - string
+          - 'null'
+        heron_id:
+          example: mrc_RTgUcM9od9w9fwU8YG6mjH
           readOnly: true
           type: string
-        description:
-          example: Advertising services
-          readOnly: true
+        icon_url:
+          format: url
           type:
           - string
           - 'null'
-        slug:
-          example: advertising_services
+        is_priority:
           readOnly: true
+          type: boolean
+        logo_url:
+          format: url
           type:
           - string
           - 'null'
+        name:
+          type: string
+        url:
+          format: url
+          type: string
       required:
-      - code
+      - name
+      - url
       type: object
     UserMerchantGroupSchema:
       properties:
@@ -412,47 +391,6 @@ components:
       required:
       - merchant_heron_id
       - merchant_name
-      type: object
-    MerchantExtract:
-      properties:
-        categories:
-          items:
-            $ref: '#/components/schemas/MerchantCategory'
-          readOnly: true
-          type: array
-        confidence:
-          maximum: 1.0
-          minimum: 0.0
-          type:
-          - number
-          - 'null'
-        group_id:
-          type: string
-        heron_id:
-          example: mrc_RTgUcM9od9w9fwU8YG6mjH
-          readOnly: true
-          type: string
-        icon_url:
-          format: url
-          readOnly: true
-          type: string
-        logo_url:
-          format: url
-          readOnly: true
-          type: string
-        name:
-          example: Amazon
-          readOnly: true
-          type:
-          - string
-          - 'null'
-        url:
-          example: https://www.amazon.com/
-          format: url
-          readOnly: true
-          type:
-          - string
-          - 'null'
       type: object
     PaymentProcessor:
       properties:
@@ -499,6 +437,68 @@ components:
         name:
           description: Display name of merchant group
           type: string
+      type: object
+    MerchantCategory:
+      properties:
+        code:
+          example: '7311'
+          readOnly: true
+          type: string
+        description:
+          example: Advertising services
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        slug:
+          example: advertising_services
+          readOnly: true
+          type:
+          - string
+          - 'null'
+      required:
+      - code
+      type: object
+    MerchantExtract:
+      properties:
+        categories:
+          items:
+            $ref: '#/components/schemas/MerchantCategory'
+          readOnly: true
+          type: array
+        confidence:
+          maximum: 1.0
+          minimum: 0.0
+          type:
+          - number
+          - 'null'
+        group_id:
+          type: string
+        heron_id:
+          example: mrc_RTgUcM9od9w9fwU8YG6mjH
+          readOnly: true
+          type: string
+        icon_url:
+          format: url
+          readOnly: true
+          type: string
+        logo_url:
+          format: url
+          readOnly: true
+          type: string
+        name:
+          example: Amazon
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        url:
+          example: https://www.amazon.com/
+          format: url
+          readOnly: true
+          type:
+          - string
+          - 'null'
       type: object
   securitySchemes:
     ApiKeyAuth:
