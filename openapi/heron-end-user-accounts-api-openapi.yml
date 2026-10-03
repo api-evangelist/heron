@@ -45,6 +45,21 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
+    MissingAccountSchema:
+      properties:
+        account_name:
+          description: An account name extracted from the transaction description
+          example: Checking
+          type: string
+        account_number:
+          description: An account number extracted from the transaction description
+          example: '****4321'
+          type: string
+        transactions:
+          items:
+            $ref: '#/components/schemas/Transaction3'
+          type: array
+      type: object
     Transaction3:
       properties:
         account_id:
@@ -85,21 +100,6 @@ components:
       required:
       - amount
       - description
-      type: object
-    MissingAccountSchema:
-      properties:
-        account_name:
-          description: An account name extracted from the transaction description
-          example: Checking
-          type: string
-        account_number:
-          description: An account number extracted from the transaction description
-          example: '****4321'
-          type: string
-        transactions:
-          items:
-            $ref: '#/components/schemas/Transaction3'
-          type: array
       type: object
   securitySchemes:
     ApiKeyAuth:

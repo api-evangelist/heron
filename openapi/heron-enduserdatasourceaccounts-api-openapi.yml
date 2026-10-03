@@ -106,15 +106,6 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    DataSourceAccountUpdateNumberSchema:
-      properties:
-        source_dsa_heron_id:
-          description: The Heron ID of the data source account containing the number we want to update to
-          example: dsa_8w6V5CuRESc7G5yx3mXF54
-          type: string
-      required:
-      - source_dsa_heron_id
-      type: object
     AccountBalance:
       properties:
         closing_amount:
@@ -133,6 +124,33 @@ components:
           type: string
       required:
       - closing_amount
+      type: object
+    Money:
+      properties:
+        amount:
+          description: The amount of money
+          example: '1234.56'
+          type: number
+        currency:
+          description: The currency of the money
+          example: USD
+          type: string
+      type: object
+    DataSourceAccountUpdateNumberSchema:
+      properties:
+        source_dsa_heron_id:
+          description: The Heron ID of the data source account containing the number we want to update to
+          example: dsa_8w6V5CuRESc7G5yx3mXF54
+          type: string
+      required:
+      - source_dsa_heron_id
+      type: object
+    EndUserDataSourceAccountUpdateSchema:
+      properties:
+        is_enabled:
+          description: Whether or not the account is enabled. If disabled, hides related transactions from analytics
+          example: true
+          type: boolean
       type: object
     EndUserDataSourceAccount:
       properties:
@@ -235,24 +253,6 @@ components:
           type: string
       required:
       - is_enabled
-      type: object
-    EndUserDataSourceAccountUpdateSchema:
-      properties:
-        is_enabled:
-          description: Whether or not the account is enabled. If disabled, hides related transactions from analytics
-          example: true
-          type: boolean
-      type: object
-    Money:
-      properties:
-        amount:
-          description: The amount of money
-          example: '1234.56'
-          type: number
-        currency:
-          description: The currency of the money
-          example: USD
-          type: string
       type: object
   securitySchemes:
     ApiKeyAuth:

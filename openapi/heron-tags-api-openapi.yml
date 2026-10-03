@@ -284,16 +284,6 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    EndUserTagsSchema:
-      properties:
-        tags:
-          description: Heron IDs of the tags to apply to this end user.
-          items:
-            type: string
-          type: array
-      required:
-      - tags
-      type: object
     TagPatchSchema:
       properties:
         color:
@@ -309,6 +299,16 @@ components:
         name:
           description: 'Identifier normalized to lowercase: alphanumeric plus ''_'', ''-'', '':'', up to 140 chars. Unique to your account (case-insensitive).'
           type: string
+      type: object
+    EndUserTagsSchema:
+      properties:
+        tags:
+          description: Heron IDs of the tags to apply to this end user.
+          items:
+            type: string
+          type: array
+      required:
+      - tags
       type: object
     TagSchema:
       properties:

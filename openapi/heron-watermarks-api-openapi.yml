@@ -62,13 +62,6 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    UserLogoFileSchema:
-      properties:
-        filename:
-          type: string
-        user_id:
-          type: string
-      type: object
     UserLogoUploadSchema:
       properties:
         file_base64:
@@ -80,6 +73,13 @@ components:
       required:
       - file_base64
       - filename
+      type: object
+    UserLogoFileSchema:
+      properties:
+        filename:
+          type: string
+        user_id:
+          type: string
       type: object
   securitySchemes:
     ApiKeyAuth:

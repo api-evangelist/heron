@@ -30,6 +30,25 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
+    AppStoreSchema:
+      properties:
+        applications:
+          items:
+            $ref: '#/components/schemas/Application'
+          type: array
+      type: object
+    CTA:
+      properties:
+        text:
+          example: CTA Text
+          type: string
+        url:
+          example: https://example.com/cta
+          type: string
+      required:
+      - text
+      - url
+      type: object
     Application:
       properties:
         cta:
@@ -106,18 +125,6 @@ components:
       - priority
       - type
       type: object
-    CTA:
-      properties:
-        text:
-          example: CTA Text
-          type: string
-        url:
-          example: https://example.com/cta
-          type: string
-      required:
-      - text
-      - url
-      type: object
     FileClass:
       properties:
         description:
@@ -128,13 +135,6 @@ components:
           type: string
       required:
       - name
-      type: object
-    AppStoreSchema:
-      properties:
-        applications:
-          items:
-            $ref: '#/components/schemas/Application'
-          type: array
       type: object
   securitySchemes:
     ApiKeyAuth:

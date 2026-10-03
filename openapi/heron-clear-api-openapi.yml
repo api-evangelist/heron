@@ -92,6 +92,28 @@ components:
       - criteria
       - subject_type
       type: object
+    ClearReportRequestSchema:
+      additionalProperties: false
+      properties:
+        entity_id:
+          minLength: 1
+          type: string
+        group_id:
+          minLength: 1
+          type: string
+        name:
+          type: string
+        subject_type:
+          enum:
+          - business
+          - person
+          type: string
+      required:
+      - entity_id
+      - group_id
+      - name
+      - subject_type
+      type: object
     ClearSearchCriteria:
       additionalProperties: false
       properties:
@@ -127,28 +149,6 @@ components:
         zip_code:
           minLength: 1
           type: string
-      type: object
-    ClearReportRequestSchema:
-      additionalProperties: false
-      properties:
-        entity_id:
-          minLength: 1
-          type: string
-        group_id:
-          minLength: 1
-          type: string
-        name:
-          type: string
-        subject_type:
-          enum:
-          - business
-          - person
-          type: string
-      required:
-      - entity_id
-      - group_id
-      - name
-      - subject_type
       type: object
   securitySchemes:
     ApiKeyAuth:

@@ -195,6 +195,17 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
+    CategoryFeedback:
+      properties:
+        heron_id:
+          description: heron_id of the correct category
+          example: ctg_YkigC43AS8CVDy4bVbdLiF
+          type: string
+        label:
+          description: label of the correct category
+          example: Insurance
+          type: string
+      type: object
     MerchantFeedback:
       properties:
         heron_id:
@@ -233,6 +244,47 @@ components:
           type:
           - string
           - 'null'
+      type: object
+    EndUserBulkMerchantFeedback:
+      properties:
+        merchant:
+          $ref: '#/components/schemas/MerchantFeedback1'
+        transaction_heron_ids:
+          description: List of transaction heron IDs
+          items:
+            example: txn_oNMLQFGrd4gNvYCtUjqr8u
+            type: string
+          type: array
+      required:
+      - merchant
+      - transaction_heron_ids
+      type: object
+    EndUserBulkCategoryFeedback:
+      properties:
+        category:
+          $ref: '#/components/schemas/CategoryFeedback'
+        source:
+          description: your identifier for where the feedback comes from e.g. bob_the_underwriter
+          maxLength: 120
+          type:
+          - string
+          - 'null'
+        transaction_heron_ids:
+          default: []
+          description: List of transaction heron IDs
+          items:
+            example: txn_3VTv4ULZRwijE3Yena9QxY
+            type: string
+          type: array
+        transaction_reference_ids:
+          default: []
+          description: List of transaction reference IDs
+          items:
+            example: your_reference_id
+            type: string
+          type: array
+      required:
+      - category
       type: object
     EndUserMerchantFeedbackRevert:
       properties:
@@ -279,58 +331,6 @@ components:
           description: URL of the merchant (optional)
           example: https://acme.com
           maxLength: 2000
-          type: string
-      type: object
-    EndUserBulkCategoryFeedback:
-      properties:
-        category:
-          $ref: '#/components/schemas/CategoryFeedback'
-        source:
-          description: your identifier for where the feedback comes from e.g. bob_the_underwriter
-          maxLength: 120
-          type:
-          - string
-          - 'null'
-        transaction_heron_ids:
-          default: []
-          description: List of transaction heron IDs
-          items:
-            example: txn_3VTv4ULZRwijE3Yena9QxY
-            type: string
-          type: array
-        transaction_reference_ids:
-          default: []
-          description: List of transaction reference IDs
-          items:
-            example: your_reference_id
-            type: string
-          type: array
-      required:
-      - category
-      type: object
-    EndUserBulkMerchantFeedback:
-      properties:
-        merchant:
-          $ref: '#/components/schemas/MerchantFeedback1'
-        transaction_heron_ids:
-          description: List of transaction heron IDs
-          items:
-            example: txn_oNMLQFGrd4gNvYCtUjqr8u
-            type: string
-          type: array
-      required:
-      - merchant
-      - transaction_heron_ids
-      type: object
-    CategoryFeedback:
-      properties:
-        heron_id:
-          description: heron_id of the correct category
-          example: ctg_YkigC43AS8CVDy4bVbdLiF
-          type: string
-        label:
-          description: label of the correct category
-          example: Insurance
           type: string
       type: object
   securitySchemes:

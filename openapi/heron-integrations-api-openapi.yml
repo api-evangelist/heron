@@ -393,11 +393,14 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    FinicityRequestVoeTransactionsReportSchema:
+    FinicityRequestStatementReportsSchema:
       properties:
-        from_date:
-          format: date-time
-          type: string
+        max_statement_index:
+          default: 24
+          type: integer
+        min_statement_index:
+          default: 1
+          type: integer
       type: object
     IntegrationSchema:
       properties:
@@ -454,6 +457,40 @@ components:
       - name
       - resource
       - type
+      type: object
+    RefreshAssetsReportsResponseSchema:
+      properties:
+        failed_links:
+          description: Array of item_ids that failed to refresh
+          example:
+          - item_123
+          - item_456
+          items:
+            type: string
+          type: array
+        processed_links:
+          description: Number of links processed for refresh
+          example: 2
+          type: integer
+      required:
+      - failed_links
+      - processed_links
+      type: object
+    FinicityRequestCashflowReportSchema:
+      properties:
+        applicant_is_personal_guarantor:
+          type: boolean
+        for_cra_purpose:
+          type: boolean
+        user_type:
+          enum:
+          - personal
+          - business
+          type: string
+      required:
+      - applicant_is_personal_guarantor
+      - for_cra_purpose
+      - user_type
       type: object
     IntegrationLinkSchema:
       properties:
@@ -527,49 +564,6 @@ components:
       - end_user_id
       - item_id
       type: object
-    FinicityRequestStatementReportsSchema:
-      properties:
-        max_statement_index:
-          default: 24
-          type: integer
-        min_statement_index:
-          default: 1
-          type: integer
-      type: object
-    RefreshAssetsReportsResponseSchema:
-      properties:
-        failed_links:
-          description: Array of item_ids that failed to refresh
-          example:
-          - item_123
-          - item_456
-          items:
-            type: string
-          type: array
-        processed_links:
-          description: Number of links processed for refresh
-          example: 2
-          type: integer
-      required:
-      - failed_links
-      - processed_links
-      type: object
-    FinicityRequestCashflowReportSchema:
-      properties:
-        applicant_is_personal_guarantor:
-          type: boolean
-        for_cra_purpose:
-          type: boolean
-        user_type:
-          enum:
-          - personal
-          - business
-          type: string
-      required:
-      - applicant_is_personal_guarantor
-      - for_cra_purpose
-      - user_type
-      type: object
     IntegrationLinkUpdateSchema:
       properties:
         access_token:
@@ -579,6 +573,12 @@ components:
           writeOnly: true
       required:
       - access_token
+      type: object
+    FinicityRequestVoeTransactionsReportSchema:
+      properties:
+        from_date:
+          format: date-time
+          type: string
       type: object
     IntegrationLinkNewSchema:
       properties:

@@ -518,46 +518,14 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    PostProcessorsResponseSchema:
+    ReorderEndUserEntitiesSchema:
       properties:
-        post_processors:
+        ordered_entity_heron_ids:
           items:
-            $ref: '#/components/schemas/PostProcessorConfigSchema'
+            type: string
           type: array
       required:
-      - post_processors
-      type: object
-    EndUserEntityAttributeSchema:
-      properties:
-        attribute_description:
-          type: string
-        attribute_name:
-          type: string
-        attribute_type:
-          enum:
-          - float
-          - int
-          - decimal
-          - string
-          - date
-          - datetime
-          - bool
-        display_order:
-          type: integer
-        heron_id:
-          type: string
-        is_dedupe_key:
-          default: false
-          type: boolean
-        reconciliation_config:
-          additionalProperties: {}
-          type: object
-        reconciliation_strategy:
-          enum:
-          - sort_order
-          - llm
-          - comparison
-          - concatenate_lists
+      - ordered_entity_heron_ids
       type: object
     UpdateEndUserEntityAttributeSourceSchema:
       properties:
@@ -577,7 +545,7 @@ components:
           - end_user_query
           - broker_submission_api
       type: object
-    UpdateEndUserEntitySchema:
+    CreateEndUserEntitySchema:
       properties:
         display_order:
           type: integer
@@ -586,6 +554,7 @@ components:
         entity_name:
           type: string
         entity_post_processor_configs:
+          default: []
           items:
             additionalProperties: {}
             type: object
@@ -596,35 +565,40 @@ components:
           type:
           - string
           - 'null'
+      required:
+      - entity_name
       type: object
-    PostProcessorConfigSchema:
+    CloneEndUserEntityAttributeSchema:
       properties:
-        description:
+        attribute_name:
+          type: string
+      required:
+      - attribute_name
+      type: object
+    BulkSaveEntityAttributeValueResultSchema:
+      properties:
+        attribute_name:
+          description: Name of the attribute
+          type: string
+        entity_name:
+          description: Name of the entity
+          type: string
+        error:
+          description: Error message if the save failed
           type:
           - string
           - 'null'
-        inputs:
-          additionalProperties: {}
-          type:
-          - object
-          - 'null'
-        name:
-          type: string
+        success:
+          description: Whether the value was saved successfully
+          type: boolean
       required:
-      - name
+      - attribute_name
+      - entity_name
+      - success
       type: object
-    ReorderEndUserEntitiesSchema:
+    MaterialisedEndUserEntityAttribute:
       properties:
-        ordered_entity_heron_ids:
-          items:
-            type: string
-          type: array
-      required:
-      - ordered_entity_heron_ids
-      type: object
-    CreateEndUserEntityAttributeSchema:
-      properties:
-        attribute_description:
+        attribute_heron_id:
           type: string
         attribute_name:
           type: string
@@ -639,47 +613,32 @@ components:
           - bool
         display_order:
           type: integer
-        is_dedupe_key:
-          default: false
-          type: boolean
-        reconciliation_config:
-          additionalProperties: {}
-          type: object
-        reconciliation_strategy:
-          enum:
-          - sort_order
-          - llm
-          - comparison
-          - concatenate_lists
-      required:
-      - attribute_name
+        materialised_sources:
+          items:
+            $ref: '#/components/schemas/MaterialisedEndUserEntityAttributeSource'
+          type: array
+        selected_source:
+          allOf:
+          - $ref: '#/components/schemas/MaterialisedEndUserEntityAttributeSource'
       type: object
-    BulkSaveEntityAttributeValueItem:
+    PostProcessorsResponseSchema:
       properties:
-        attribute_name:
-          description: Name of the attribute to set the value for
-          type: string
-        entity_name:
-          description: Name of the entity to target
-          type: string
-        value:
-          description: The value to set for the attribute
+        post_processors:
+          items:
+            $ref: '#/components/schemas/PostProcessorConfigSchema'
+          type: array
       required:
-      - attribute_name
-      - entity_name
-      - value
+      - post_processors
       type: object
-    MaterialisedEndUserEntityAttributeSource:
+    BulkSaveEntityAttributeValuesSchema:
       properties:
-        source:
-          $ref: '#/components/schemas/EndUserEntityAttributeSourceSchema'
-        source_data:
-          additionalProperties: {}
-          type: object
-        timestamp:
-          format: date-time
-          type: string
-        value: {}
+        values:
+          description: List of entity attribute values to save
+          items:
+            $ref: '#/components/schemas/BulkSaveEntityAttributeValueItem'
+          type: array
+      required:
+      - values
       type: object
     CreateEndUserEntityAttributeSourceSchema:
       properties:
@@ -698,13 +657,6 @@ components:
           - static_value
           - end_user_query
           - broker_submission_api
-      type: object
-    CloneEndUserEntityAttributeSchema:
-      properties:
-        attribute_name:
-          type: string
-      required:
-      - attribute_name
       type: object
     UpdateEndUserEntityAttributeSchema:
       properties:
@@ -732,124 +684,6 @@ components:
           - llm
           - comparison
           - concatenate_lists
-      type: object
-    ReorderEndUserEntityAttributesSchema:
-      properties:
-        ordered_attribute_heron_ids:
-          items:
-            type: string
-          type: array
-      required:
-      - ordered_attribute_heron_ids
-      type: object
-    NestedEndUserEntitySchema:
-      properties:
-        display_order:
-          type: integer
-        entity_attributes:
-          items:
-            $ref: '#/components/schemas/NestedEndUserEntityAttribute'
-          type: array
-        entity_description:
-          type: string
-        entity_name:
-          type: string
-        entity_post_processor_configs:
-          default: []
-          items:
-            additionalProperties: {}
-            type: object
-          type: array
-        heron_id:
-          type: string
-        is_list:
-          type: boolean
-        saved_query_heron_id:
-          type:
-          - string
-          - 'null'
-      type: object
-    BulkSaveEntityAttributeValueResultSchema:
-      properties:
-        attribute_name:
-          description: Name of the attribute
-          type: string
-        entity_name:
-          description: Name of the entity
-          type: string
-        error:
-          description: Error message if the save failed
-          type:
-          - string
-          - 'null'
-        success:
-          description: Whether the value was saved successfully
-          type: boolean
-      required:
-      - attribute_name
-      - entity_name
-      - success
-      type: object
-    NestedEndUserEntityAttribute:
-      properties:
-        attribute_description:
-          type: string
-        attribute_name:
-          type: string
-        attribute_sources:
-          items:
-            $ref: '#/components/schemas/EndUserEntityAttributeSource'
-          type: array
-        attribute_type:
-          enum:
-          - float
-          - int
-          - decimal
-          - string
-          - date
-          - datetime
-          - bool
-        display_order:
-          type: integer
-        heron_id:
-          type: string
-        is_dedupe_key:
-          default: false
-          type: boolean
-        reconciliation_config:
-          additionalProperties: {}
-          type: object
-        reconciliation_strategy:
-          enum:
-          - sort_order
-          - llm
-          - comparison
-          - concatenate_lists
-      type: object
-    MaterialisedEndUserEntityAttribute:
-      properties:
-        attribute_heron_id:
-          type: string
-        attribute_name:
-          type: string
-        attribute_type:
-          enum:
-          - float
-          - int
-          - decimal
-          - string
-          - date
-          - datetime
-          - bool
-        display_order:
-          type: integer
-        materialised_sources:
-          items:
-            $ref: '#/components/schemas/MaterialisedEndUserEntityAttributeSource'
-          type: array
-        selected_source:
-          allOf:
-          - $ref: '#/components/schemas/MaterialisedEndUserEntityAttributeSource'
       type: object
     EndUserEntityAttributeSource:
       properties:
@@ -888,37 +722,73 @@ components:
             $ref: '#/components/schemas/MaterialisedEndUserEntityAttribute'
           type: array
       type: object
-    BulkSaveEntityAttributeValuesSchema:
+    CreateEndUserEntityAttributeSchema:
       properties:
-        values:
-          description: List of entity attribute values to save
-          items:
-            $ref: '#/components/schemas/BulkSaveEntityAttributeValueItem'
-          type: array
-      required:
-      - values
-      type: object
-    EndUserEntityAttributeSourceSchema:
-      properties:
-        heron_id:
-          type:
+        attribute_description:
+          type: string
+        attribute_name:
+          type: string
+        attribute_type:
+          enum:
+          - float
+          - int
+          - decimal
           - string
-          - 'null'
-        sort_order:
+          - date
+          - datetime
+          - bool
+        display_order:
           type: integer
-        source_config:
+        is_dedupe_key:
+          default: false
+          type: boolean
+        reconciliation_config:
           additionalProperties: {}
           type: object
-        source_type:
+        reconciliation_strategy:
           enum:
-          - parsed_end_user_file
-          - api
-          - rel_6
-          - end_user_enricher
-          - company_attribute
-          - static_value
-          - end_user_query
-          - broker_submission_api
+          - sort_order
+          - llm
+          - comparison
+          - concatenate_lists
+      required:
+      - attribute_name
+      type: object
+    NestedEndUserEntityAttribute:
+      properties:
+        attribute_description:
+          type: string
+        attribute_name:
+          type: string
+        attribute_sources:
+          items:
+            $ref: '#/components/schemas/EndUserEntityAttributeSource'
+          type: array
+        attribute_type:
+          enum:
+          - float
+          - int
+          - decimal
+          - string
+          - date
+          - datetime
+          - bool
+        display_order:
+          type: integer
+        heron_id:
+          type: string
+        is_dedupe_key:
+          default: false
+          type: boolean
+        reconciliation_config:
+          additionalProperties: {}
+          type: object
+        reconciliation_strategy:
+          enum:
+          - sort_order
+          - llm
+          - comparison
+          - concatenate_lists
       type: object
     EndUserEntitySchema:
       properties:
@@ -943,34 +813,67 @@ components:
           - string
           - 'null'
       type: object
+    BulkSaveEntityAttributeValueItem:
+      properties:
+        attribute_name:
+          description: Name of the attribute to set the value for
+          type: string
+        entity_name:
+          description: Name of the entity to target
+          type: string
+        value:
+          description: The value to set for the attribute
+      required:
+      - attribute_name
+      - entity_name
+      - value
+      type: object
+    EndUserEntityAttributeSchema:
+      properties:
+        attribute_description:
+          type: string
+        attribute_name:
+          type: string
+        attribute_type:
+          enum:
+          - float
+          - int
+          - decimal
+          - string
+          - date
+          - datetime
+          - bool
+        display_order:
+          type: integer
+        heron_id:
+          type: string
+        is_dedupe_key:
+          default: false
+          type: boolean
+        reconciliation_config:
+          additionalProperties: {}
+          type: object
+        reconciliation_strategy:
+          enum:
+          - sort_order
+          - llm
+          - comparison
+          - concatenate_lists
+      type: object
     EndUserEntityAttributeValueSchema:
       properties:
         heron_id:
           type: string
         value: {}
       type: object
-    CreateEndUserEntitySchema:
+    ReorderEndUserEntityAttributesSchema:
       properties:
-        display_order:
-          type: integer
-        entity_description:
-          type: string
-        entity_name:
-          type: string
-        entity_post_processor_configs:
-          default: []
+        ordered_attribute_heron_ids:
           items:
-            additionalProperties: {}
-            type: object
+            type: string
           type: array
-        is_list:
-          type: boolean
-        saved_query_heron_id:
-          type:
-          - string
-          - 'null'
       required:
-      - entity_name
+      - ordered_attribute_heron_ids
       type: object
     UpsertEndUserEntityAttributeValueSchema:
       properties:
@@ -983,6 +886,103 @@ components:
       - attribute_heron_id
       - source_heron_id
       - value
+      type: object
+    NestedEndUserEntitySchema:
+      properties:
+        display_order:
+          type: integer
+        entity_attributes:
+          items:
+            $ref: '#/components/schemas/NestedEndUserEntityAttribute'
+          type: array
+        entity_description:
+          type: string
+        entity_name:
+          type: string
+        entity_post_processor_configs:
+          default: []
+          items:
+            additionalProperties: {}
+            type: object
+          type: array
+        heron_id:
+          type: string
+        is_list:
+          type: boolean
+        saved_query_heron_id:
+          type:
+          - string
+          - 'null'
+      type: object
+    PostProcessorConfigSchema:
+      properties:
+        description:
+          type:
+          - string
+          - 'null'
+        inputs:
+          additionalProperties: {}
+          type:
+          - object
+          - 'null'
+        name:
+          type: string
+      required:
+      - name
+      type: object
+    MaterialisedEndUserEntityAttributeSource:
+      properties:
+        source:
+          $ref: '#/components/schemas/EndUserEntityAttributeSourceSchema'
+        source_data:
+          additionalProperties: {}
+          type: object
+        timestamp:
+          format: date-time
+          type: string
+        value: {}
+      type: object
+    EndUserEntityAttributeSourceSchema:
+      properties:
+        heron_id:
+          type:
+          - string
+          - 'null'
+        sort_order:
+          type: integer
+        source_config:
+          additionalProperties: {}
+          type: object
+        source_type:
+          enum:
+          - parsed_end_user_file
+          - api
+          - rel_6
+          - end_user_enricher
+          - company_attribute
+          - static_value
+          - end_user_query
+          - broker_submission_api
+      type: object
+    UpdateEndUserEntitySchema:
+      properties:
+        display_order:
+          type: integer
+        entity_description:
+          type: string
+        entity_name:
+          type: string
+        entity_post_processor_configs:
+          items:
+            additionalProperties: {}
+            type: object
+          type: array
+        is_list:
+          type: boolean
+        saved_query_heron_id:
+          type:
+          - string
+          - 'null'
       type: object
   securitySchemes:
     ApiKeyAuth:

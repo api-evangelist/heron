@@ -146,6 +146,29 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
+    MetricDefinitionSchema:
+      properties:
+        date_range:
+          description: The date range this metric covers
+          example: last_180_days
+          type: string
+        description:
+          description: Human-readable description of the metric
+          example: Total number of unique transactions
+          type: string
+        group:
+          description: The group/category this metric belongs to
+          example: transaction_metrics
+          type: string
+        label:
+          description: The label/name of the metric
+          example: unique_transactions
+          type: string
+        unit:
+          description: The unit of measurement for this metric
+          example: count
+          type: string
+      type: object
     Rule:
       properties:
         condition:
@@ -779,29 +802,6 @@ components:
           type:
           - string
           - 'null'
-      type: object
-    MetricDefinitionSchema:
-      properties:
-        date_range:
-          description: The date range this metric covers
-          example: last_180_days
-          type: string
-        description:
-          description: Human-readable description of the metric
-          example: Total number of unique transactions
-          type: string
-        group:
-          description: The group/category this metric belongs to
-          example: transaction_metrics
-          type: string
-        label:
-          description: The label/name of the metric
-          example: unique_transactions
-          type: string
-        unit:
-          description: The unit of measurement for this metric
-          example: count
-          type: string
       type: object
   securitySchemes:
     ApiKeyAuth:
