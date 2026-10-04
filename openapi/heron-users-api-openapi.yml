@@ -148,54 +148,197 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    MetricFormulaSimpleMetric:
+    UserModifiableSettings:
       properties:
-        date_range:
-          description: The date range to be used in the query. It will override the date range specified in the metric spec
-          type:
-          - string
-          - 'null'
-        filter:
-          allOf:
-          - $ref: '#/components/schemas/MetricFormulaSimpleMetricFilter'
-          description: A filter to be applied before computing the metric
-        filters:
-          description: A list of filters to be applied before computing the metric
-          items:
-            $ref: '#/components/schemas/MetricFormulaSimpleMetricFilter'
-          type:
-          - array
-          - 'null'
-        metric_name:
-          description: The metric to be used
-          type: string
-        value_if_unavailable:
-          description: The value to be used if the metric is not available
-      required:
-      - metric_name
-      type: object
-    BrokerVelocitySignal:
-      properties:
-        high_threshold:
-          type: integer
-        low_threshold:
-          type: integer
-        medium_threshold:
-          type: integer
-      type: object
-    AnnotatorSettings:
-      properties:
-        async_:
+        balance_sheet_categories:
+          $ref: '#/components/schemas/BalanceSheetCategories'
+        disable_data_export:
           type: boolean
-        confidence_threshold:
-          maximum: 1.0
-          minimum: 0.0
+        financials_metrics:
+          additionalProperties:
+            $ref: '#/components/schemas/MetricSpec'
+          type: object
+        industry_naics_enabled:
+          type: boolean
+        low_balance_days_threshold:
           type: number
-        label:
-          pattern: ^(heuristics|rich_heuristics|distilbert|distilbert_intra_co_override_async_|random_forest|heron_ai_.+)$
-          type: string
-        sync:
+        pnl_categories:
+          $ref: '#/components/schemas/PnLCategories'
+        query_reports:
+          items:
+            $ref: '#/components/schemas/QueryReportTabGroup'
+          type: array
+        required_revenue_per_month:
+          type: integer
+        restricted_industries:
+          items:
+            $ref: '#/components/schemas/RestrictedIndustry'
+          type: array
+        transactions_review_enabled:
           type: boolean
+        use_new_company_layout:
+          type: boolean
+        use_new_end_user_summary_table:
+          type: boolean
+        use_new_end_user_table:
+          type: boolean
+      type: object
+    PlaidSettings:
+      properties:
+        account_types_enabled_for_analysis:
+          items:
+            type: string
+          type: array
+        account_types_to_ingest:
+          items:
+            type: string
+          type: array
+          writeOnly: true
+        assets_report_days_to_sync:
+          type: integer
+        auto_enrich_after_sync:
+          type: boolean
+        balance_anchor_field:
+          enum:
+          - current
+          - posted
+        days_to_sync:
+          type: integer
+        owner_types_enabled_for_analysis:
+          items:
+            enum:
+            - business
+            - personal
+            - unknown
+          type: array
+      type: object
+    User:
+      properties:
+        alias:
+          type: string
+        available_deal_stages:
+          description: Deal stages this tenant's pipeline can produce; empty for non-broker use cases.
+          items:
+            enum:
+            - ready
+            - missing_docs
+            - shopped
+          readOnly: true
+          type: array
+        created:
+          format: date-time
+          readOnly: true
+          type: string
+        email:
+          type: string
+        environment:
+          enum:
+          - dev
+          - prod
+          - internal
+          type: string
+        id:
+          readOnly: true
+          type: integer
+        is_active:
+          default: true
+          type: boolean
+        is_self_sign_up:
+          type:
+          - boolean
+          - 'null'
+        last_updated:
+          format: date-time
+          readOnly: true
+          type: string
+        onboarding_data:
+          additionalProperties: {}
+          type:
+          - object
+          - 'null'
+        onboarding_step:
+          enum:
+          - require_email_verification
+          - require_company_info
+          - require_file_classes
+          - require_rename_rules
+          - require_file_upload
+          - complete
+          - null
+        onboarding_step_initial_data:
+          additionalProperties: {}
+          type:
+          - object
+          - 'null'
+        organization_id:
+          type: integer
+        password:
+          type: string
+        profit_and_loss_layout: {}
+        settings:
+          $ref: '#/components/schemas/UserSettings'
+        username:
+          type: string
+      required:
+      - email
+      - organization_id
+      - username
+      type: object
+    ScorecardSettings:
+      properties:
+        balance_prediction:
+          type: boolean
+        company_overview_layout:
+          items:
+            $ref: '#/components/schemas/WidgetGroup'
+          type: array
+      type: object
+    WidgetGroup:
+      properties:
+        group_name:
+          type: string
+        id:
+          description: A unique id used to reference the group
+          type: string
+        widgets:
+          items:
+            $ref: '#/components/schemas/Widget'
+          type: array
+      required:
+      - group_name
+      - id
+      - widgets
+      type: object
+    QueryReportTabGroup:
+      properties:
+        tab_group:
+          type: string
+        tabs:
+          items:
+            $ref: '#/components/schemas/QueryReportTab'
+          type: array
+      required:
+      - tab_group
+      - tabs
+      type: object
+    QueryReportTab:
+      properties:
+        tab_name:
+          type: string
+        widgets:
+          items:
+            $ref: '#/components/schemas/QueryReportWidget'
+          type: array
+      required:
+      - tab_name
+      - widgets
+      type: object
+    RestrictedIndustry:
+      properties:
+        description:
+          type: string
+        name:
+          type: string
       type: object
     AnnotationSettings:
       properties:
@@ -232,13 +375,48 @@ components:
         split_p2p_to_inflows_outflows:
           type: boolean
       type: object
-    MetricFormulaMetric:
+    MetricFormulaSub:
+      properties:
+        minuend:
+          $ref: '#/components/schemas/MetricFormula'
+        subtrahend:
+          $ref: '#/components/schemas/MetricFormula'
+      required:
+      - minuend
+      - subtrahend
+      type: object
+    HumanInTheLoopParserConfig:
+      properties:
+        alert_channel:
+          type:
+          - string
+          - 'null'
+        enabled:
+          type: boolean
+        run_jitl:
+          type: boolean
+      type: object
+    MetricFormulaMult:
+      properties:
+        multiplicand:
+          $ref: '#/components/schemas/MetricFormula'
+        multiplier:
+          $ref: '#/components/schemas/MetricFormula'
+      required:
+      - multiplicand
+      - multiplier
+      type: object
+    MetricFormulaSimpleMetric:
       properties:
         date_range:
           description: The date range to be used in the query. It will override the date range specified in the metric spec
           type:
           - string
           - 'null'
+        filter:
+          allOf:
+          - $ref: '#/components/schemas/MetricFormulaSimpleMetricFilter'
+          description: A filter to be applied before computing the metric
         filters:
           description: A list of filters to be applied before computing the metric
           items:
@@ -249,54 +427,10 @@ components:
         metric_name:
           description: The metric to be used
           type: string
+        value_if_unavailable:
+          description: The value to be used if the metric is not available
       required:
       - metric_name
-      type: object
-    Widget:
-      properties:
-        id:
-          description: A unique id used to reference the widget
-          type: string
-        scorecard_metric_date_range:
-          enum:
-          - latest
-          - last_30_days
-          - last_90_days
-          - last_120_days
-          - last_180_days
-          - last_365_days
-          - next_30_days
-          - next_60_days
-          - next_90_days
-          - next_180_days
-          - last_1_calendar_months
-          - last_3_calendar_months
-          - last_4_calendar_months
-          - last_6_calendar_months
-          - last_12_calendar_months
-          - last_15_calendar_months
-          - last_24_calendar_months
-          - last_1_full_calendar_months
-          - last_2_full_calendar_months
-          - last_3_full_calendar_months
-          - last_6_full_calendar_months
-          - last_12_full_calendar_months
-          - last_60_days
-          - last_45_days
-          - last_2_calendar_months
-          type: string
-        scorecard_metric_label:
-          type: string
-        type:
-          enum:
-          - scorecard_metric
-          - heron_score
-          - loan_revenue_ratio
-          - deposit_trends_ratio
-          type: string
-      required:
-      - id
-      - type
       type: object
     FeatureSettings:
       properties:
@@ -482,6 +616,42 @@ components:
             type: integer
           type: array
       type: object
+    FlowmingoWorkflowOwners:
+      properties:
+        group_slack_name:
+          items:
+            type: string
+          type: array
+        user_email:
+          items:
+            format: email
+            type: string
+          type: array
+      type: object
+    MetricFormula:
+      properties:
+        add:
+          $ref: '#/components/schemas/MetricFormulaAdd'
+        aggregation:
+          $ref: '#/components/schemas/MetricFormulaAggregation'
+        div:
+          $ref: '#/components/schemas/MetricFormulaDiv'
+        metric:
+          $ref: '#/components/schemas/MetricFormulaMetric'
+        mult:
+          $ref: '#/components/schemas/MetricFormulaMult'
+        scalar:
+          $ref: '#/components/schemas/MetricFormulaScalar'
+        simple_metric:
+          $ref: '#/components/schemas/MetricFormulaSimpleMetric'
+        sub:
+          $ref: '#/components/schemas/MetricFormulaSub'
+        type:
+          description: The type of formula to be used
+          type: string
+      required:
+      - type
+      type: object
     UserSettings:
       properties:
         annotations:
@@ -585,34 +755,166 @@ components:
           - other
           type: string
       type: object
-    PlaidSettings:
+    BalanceSheetCategories:
       properties:
-        account_types_enabled_for_analysis:
-          items:
-            type: string
-          type: array
-        account_types_to_ingest:
-          items:
-            type: string
-          type: array
-          writeOnly: true
-        assets_report_days_to_sync:
+        current_assets:
+          additionalProperties:
+            description: A list of example line item labels that map to this category
+            items:
+              type: string
+            type: array
+          type: object
+        current_liabilities:
+          additionalProperties:
+            description: A list of example line item labels that map to this category
+            items:
+              type: string
+            type: array
+          type: object
+        equity:
+          additionalProperties:
+            description: A list of example line item labels that map to this category
+            items:
+              type: string
+            type: array
+          type: object
+        fixed_assets:
+          additionalProperties:
+            description: A list of example line item labels that map to this category
+            items:
+              type: string
+            type: array
+          type: object
+        non_current_liabilities:
+          additionalProperties:
+            description: A list of example line item labels that map to this category
+            items:
+              type: string
+            type: array
+          type: object
+        other_assets:
+          additionalProperties:
+            description: A list of example line item labels that map to this category
+            items:
+              type: string
+            type: array
+          type: object
+      type: object
+    BrokerVelocitySignal:
+      properties:
+        high_threshold:
           type: integer
-        auto_enrich_after_sync:
+        low_threshold:
+          type: integer
+        medium_threshold:
+          type: integer
+      type: object
+    PnLCategories:
+      properties:
+        cogs:
+          additionalProperties:
+            description: A list of example line item labels that map to this category
+            items:
+              type: string
+            type: array
+          type: object
+        income:
+          additionalProperties:
+            description: A list of example line item labels that map to this category
+            items:
+              type: string
+            type: array
+          type: object
+        operating_expenses:
+          additionalProperties:
+            description: A list of example line item labels that map to this category
+            items:
+              type: string
+            type: array
+          type: object
+        other_expenses:
+          additionalProperties:
+            description: A list of example line item labels that map to this category
+            items:
+              type: string
+            type: array
+          type: object
+        other_income:
+          additionalProperties:
+            description: A list of example line item labels that map to this category
+            items:
+              type: string
+            type: array
+          type: object
+      type: object
+    InboundEmailSettings:
+      properties:
+        allowed_from_domains:
+          items:
+            type: string
+          type: array
+        allowed_to_addresses:
+          items:
+            format: email
+            type: string
+          type: array
+        blocked_from_domains:
+          items:
+            type: string
+          type: array
+        email_classification_ignored_domains:
+          description: The customer's own email domains. Addresses from these domains are excluded from the rule-based broker/lender role assignment, since they typically belong to the lender/operator rather than the broker submitting the deal. For example, if big_capital.com is listed and we receive an email from bob@big_capital.com, Bob will not be automatically assigned the broker role — though the LLM may still assign it if the email content suggests otherwise.
+          items:
+            type: string
+          type: array
+        match_emails_with_same_subject_line:
+          description: Whether to group re-submissions with the same subject line into the same end user
           type: boolean
-        balance_anchor_field:
-          enum:
-          - current
-          - posted
-        days_to_sync:
-          type: integer
-        owner_types_enabled_for_analysis:
+      type: object
+    QueryReportWidget:
+      properties:
+        description:
+          type:
+          - string
+          - 'null'
+        query_name:
+          type: string
+        title:
+          type: string
+      required:
+      - query_name
+      - title
+      type: object
+    MetricFormulaAggregation:
+      properties:
+        by:
+          default: []
+          description: The dimension to be used in the aggregation
           items:
-            enum:
-            - business
-            - personal
-            - unknown
+            type: string
           type: array
+        formula:
+          $ref: '#/components/schemas/MetricFormula'
+        op:
+          description: The aggregation operation to be used
+          type: string
+      required:
+      - formula
+      - op
+      type: object
+    MetricFormulaScalar:
+      properties:
+        value:
+          description: The value to be used in the formula
+          type: integer
+      required:
+      - value
+      type: object
+    EndUserEntitiesSettings:
+      properties:
+        date_display_format:
+          description: The format to use for date attributes when they are display in the dashboard
+          type: string
       type: object
     PdfSettings:
       properties:
@@ -656,233 +958,6 @@ components:
           type: boolean
         wells_fargo_iru_same_day_pairing:
           type: boolean
-      type: object
-    PnLCategories:
-      properties:
-        cogs:
-          additionalProperties:
-            description: A list of example line item labels that map to this category
-            items:
-              type: string
-            type: array
-          type: object
-        income:
-          additionalProperties:
-            description: A list of example line item labels that map to this category
-            items:
-              type: string
-            type: array
-          type: object
-        operating_expenses:
-          additionalProperties:
-            description: A list of example line item labels that map to this category
-            items:
-              type: string
-            type: array
-          type: object
-        other_expenses:
-          additionalProperties:
-            description: A list of example line item labels that map to this category
-            items:
-              type: string
-            type: array
-          type: object
-        other_income:
-          additionalProperties:
-            description: A list of example line item labels that map to this category
-            items:
-              type: string
-            type: array
-          type: object
-      type: object
-    MetricFormulaAggregation:
-      properties:
-        by:
-          default: []
-          description: The dimension to be used in the aggregation
-          items:
-            type: string
-          type: array
-        formula:
-          $ref: '#/components/schemas/MetricFormula'
-        op:
-          description: The aggregation operation to be used
-          type: string
-      required:
-      - formula
-      - op
-      type: object
-    EndUserEntitiesSettings:
-      properties:
-        date_display_format:
-          description: The format to use for date attributes when they are display in the dashboard
-          type: string
-      type: object
-    UserModifiableSettings:
-      properties:
-        balance_sheet_categories:
-          $ref: '#/components/schemas/BalanceSheetCategories'
-        disable_data_export:
-          type: boolean
-        financials_metrics:
-          additionalProperties:
-            $ref: '#/components/schemas/MetricSpec'
-          type: object
-        industry_naics_enabled:
-          type: boolean
-        low_balance_days_threshold:
-          type: number
-        pnl_categories:
-          $ref: '#/components/schemas/PnLCategories'
-        query_reports:
-          items:
-            $ref: '#/components/schemas/QueryReportTabGroup'
-          type: array
-        required_revenue_per_month:
-          type: integer
-        restricted_industries:
-          items:
-            $ref: '#/components/schemas/RestrictedIndustry'
-          type: array
-        transactions_review_enabled:
-          type: boolean
-        use_new_company_layout:
-          type: boolean
-        use_new_end_user_summary_table:
-          type: boolean
-        use_new_end_user_table:
-          type: boolean
-      type: object
-    User:
-      properties:
-        alias:
-          type: string
-        available_deal_stages:
-          description: Deal stages this tenant's pipeline can produce; empty for non-broker use cases.
-          items:
-            enum:
-            - ready
-            - missing_docs
-            - shopped
-          readOnly: true
-          type: array
-        created:
-          format: date-time
-          readOnly: true
-          type: string
-        email:
-          type: string
-        environment:
-          enum:
-          - dev
-          - prod
-          - internal
-          type: string
-        id:
-          readOnly: true
-          type: integer
-        is_active:
-          default: true
-          type: boolean
-        is_self_sign_up:
-          type:
-          - boolean
-          - 'null'
-        last_updated:
-          format: date-time
-          readOnly: true
-          type: string
-        onboarding_data:
-          additionalProperties: {}
-          type:
-          - object
-          - 'null'
-        onboarding_step:
-          enum:
-          - require_email_verification
-          - require_company_info
-          - require_file_classes
-          - require_rename_rules
-          - require_file_upload
-          - complete
-          - null
-        onboarding_step_initial_data:
-          additionalProperties: {}
-          type:
-          - object
-          - 'null'
-        organization_id:
-          type: integer
-        password:
-          type: string
-        profit_and_loss_layout: {}
-        settings:
-          $ref: '#/components/schemas/UserSettings'
-        username:
-          type: string
-      required:
-      - email
-      - organization_id
-      - username
-      type: object
-    MetricFormula:
-      properties:
-        add:
-          $ref: '#/components/schemas/MetricFormulaAdd'
-        aggregation:
-          $ref: '#/components/schemas/MetricFormulaAggregation'
-        div:
-          $ref: '#/components/schemas/MetricFormulaDiv'
-        metric:
-          $ref: '#/components/schemas/MetricFormulaMetric'
-        mult:
-          $ref: '#/components/schemas/MetricFormulaMult'
-        scalar:
-          $ref: '#/components/schemas/MetricFormulaScalar'
-        simple_metric:
-          $ref: '#/components/schemas/MetricFormulaSimpleMetric'
-        sub:
-          $ref: '#/components/schemas/MetricFormulaSub'
-        type:
-          description: The type of formula to be used
-          type: string
-      required:
-      - type
-      type: object
-    MetricFormulaDiv:
-      properties:
-        dividend:
-          $ref: '#/components/schemas/MetricFormula'
-        divisor:
-          $ref: '#/components/schemas/MetricFormula'
-      required:
-      - dividend
-      - divisor
-      type: object
-    MetricFormulaAdd:
-      properties:
-        addend_1:
-          $ref: '#/components/schemas/MetricFormula'
-        addend_2:
-          $ref: '#/components/schemas/MetricFormula'
-      required:
-      - addend_1
-      - addend_2
-      type: object
-    MetricFormulaSimpleMetricFilter:
-      properties:
-        dimension:
-          description: The dimension to be used
-          type: string
-        operator:
-          description: The operator to be used in the filter
-          type: string
-        value:
-          description: The dimension value to be used
-          type: string
-      required:
-      - dimension
-      - value
       type: object
     CompanyOverviewLayoutSchema:
       properties:
@@ -930,6 +1005,117 @@ components:
       - group
       - unit
       type: object
+    ModifiableSettings:
+      properties:
+        balance_sheet_categories:
+          $ref: '#/components/schemas/BalanceSheetCategories'
+        disable_data_export:
+          type: boolean
+        financials_metrics:
+          additionalProperties:
+            $ref: '#/components/schemas/MetricSpec'
+          type: object
+        industry_naics_enabled:
+          type: boolean
+        low_balance_days_threshold:
+          type: number
+        pnl_categories:
+          $ref: '#/components/schemas/PnLCategories'
+        query_reports:
+          items:
+            $ref: '#/components/schemas/QueryReportTabGroup'
+          type: array
+        required_revenue_per_month:
+          type: integer
+        restricted_industries:
+          items:
+            $ref: '#/components/schemas/RestrictedIndustry'
+          type: array
+        transactions_review_enabled:
+          type: boolean
+        use_new_company_layout:
+          type: boolean
+        use_new_end_user_summary_table:
+          type: boolean
+        use_new_end_user_table:
+          type: boolean
+      type: object
+    MetricFormulaMetric:
+      properties:
+        date_range:
+          description: The date range to be used in the query. It will override the date range specified in the metric spec
+          type:
+          - string
+          - 'null'
+        filters:
+          description: A list of filters to be applied before computing the metric
+          items:
+            $ref: '#/components/schemas/MetricFormulaSimpleMetricFilter'
+          type:
+          - array
+          - 'null'
+        metric_name:
+          description: The metric to be used
+          type: string
+      required:
+      - metric_name
+      type: object
+    Widget:
+      properties:
+        id:
+          description: A unique id used to reference the widget
+          type: string
+        scorecard_metric_date_range:
+          enum:
+          - latest
+          - last_30_days
+          - last_90_days
+          - last_120_days
+          - last_180_days
+          - last_365_days
+          - next_30_days
+          - next_60_days
+          - next_90_days
+          - next_180_days
+          - last_1_calendar_months
+          - last_3_calendar_months
+          - last_4_calendar_months
+          - last_6_calendar_months
+          - last_12_calendar_months
+          - last_15_calendar_months
+          - last_24_calendar_months
+          - last_1_full_calendar_months
+          - last_2_full_calendar_months
+          - last_3_full_calendar_months
+          - last_6_full_calendar_months
+          - last_12_full_calendar_months
+          - last_60_days
+          - last_45_days
+          - last_2_calendar_months
+          type: string
+        scorecard_metric_label:
+          type: string
+        type:
+          enum:
+          - scorecard_metric
+          - heron_score
+          - loan_revenue_ratio
+          - deposit_trends_ratio
+          type: string
+      required:
+      - id
+      - type
+      type: object
+    MetricFormulaDiv:
+      properties:
+        dividend:
+          $ref: '#/components/schemas/MetricFormula'
+        divisor:
+          $ref: '#/components/schemas/MetricFormula'
+      required:
+      - dividend
+      - divisor
+      type: object
     OutboundEmailSettings:
       properties:
         allowed_to_domains:
@@ -939,128 +1125,43 @@ components:
         restrict_outbound_emails_to_allowed_domains:
           type: boolean
       type: object
-    BalanceSheetCategories:
+    AnnotatorSettings:
       properties:
-        current_assets:
-          additionalProperties:
-            description: A list of example line item labels that map to this category
-            items:
-              type: string
-            type: array
-          type: object
-        current_liabilities:
-          additionalProperties:
-            description: A list of example line item labels that map to this category
-            items:
-              type: string
-            type: array
-          type: object
-        equity:
-          additionalProperties:
-            description: A list of example line item labels that map to this category
-            items:
-              type: string
-            type: array
-          type: object
-        fixed_assets:
-          additionalProperties:
-            description: A list of example line item labels that map to this category
-            items:
-              type: string
-            type: array
-          type: object
-        non_current_liabilities:
-          additionalProperties:
-            description: A list of example line item labels that map to this category
-            items:
-              type: string
-            type: array
-          type: object
-        other_assets:
-          additionalProperties:
-            description: A list of example line item labels that map to this category
-            items:
-              type: string
-            type: array
-          type: object
-      type: object
-    MetricFormulaSub:
-      properties:
-        minuend:
-          $ref: '#/components/schemas/MetricFormula'
-        subtrahend:
-          $ref: '#/components/schemas/MetricFormula'
-      required:
-      - minuend
-      - subtrahend
-      type: object
-    QueryReportWidget:
-      properties:
-        description:
-          type:
-          - string
-          - 'null'
-        query_name:
+        async_:
+          type: boolean
+        confidence_threshold:
+          maximum: 1.0
+          minimum: 0.0
+          type: number
+        label:
+          pattern: ^(heuristics|rich_heuristics|distilbert|distilbert_intra_co_override_async_|random_forest|heron_ai_.+)$
           type: string
-        title:
-          type: string
-      required:
-      - query_name
-      - title
-      type: object
-    RestrictedIndustry:
-      properties:
-        description:
-          type: string
-        name:
-          type: string
-      type: object
-    InboundEmailSettings:
-      properties:
-        allowed_from_domains:
-          items:
-            type: string
-          type: array
-        allowed_to_addresses:
-          items:
-            format: email
-            type: string
-          type: array
-        blocked_from_domains:
-          items:
-            type: string
-          type: array
-        email_classification_ignored_domains:
-          description: The customer's own email domains. Addresses from these domains are excluded from the rule-based broker/lender role assignment, since they typically belong to the lender/operator rather than the broker submitting the deal. For example, if big_capital.com is listed and we receive an email from bob@big_capital.com, Bob will not be automatically assigned the broker role — though the LLM may still assign it if the email content suggests otherwise.
-          items:
-            type: string
-          type: array
-        match_emails_with_same_subject_line:
-          description: Whether to group re-submissions with the same subject line into the same end user
+        sync:
           type: boolean
       type: object
-    WidgetGroup:
+    MetricFormulaAdd:
       properties:
-        group_name:
-          type: string
-        id:
-          description: A unique id used to reference the group
-          type: string
-        widgets:
-          items:
-            $ref: '#/components/schemas/Widget'
-          type: array
+        addend_1:
+          $ref: '#/components/schemas/MetricFormula'
+        addend_2:
+          $ref: '#/components/schemas/MetricFormula'
       required:
-      - group_name
-      - id
-      - widgets
+      - addend_1
+      - addend_2
       type: object
-    MetricFormulaScalar:
+    MetricFormulaSimpleMetricFilter:
       properties:
+        dimension:
+          description: The dimension to be used
+          type: string
+        operator:
+          description: The operator to be used in the filter
+          type: string
         value:
-          description: The value to be used in the formula
-          type: integer
+          description: The dimension value to be used
+          type: string
       required:
+      - dimension
       - value
       type: object
     FileSettings:
@@ -1105,107 +1206,6 @@ components:
           type:
           - integer
           - 'null'
-      type: object
-    QueryReportTab:
-      properties:
-        tab_name:
-          type: string
-        widgets:
-          items:
-            $ref: '#/components/schemas/QueryReportWidget'
-          type: array
-      required:
-      - tab_name
-      - widgets
-      type: object
-    MetricFormulaMult:
-      properties:
-        multiplicand:
-          $ref: '#/components/schemas/MetricFormula'
-        multiplier:
-          $ref: '#/components/schemas/MetricFormula'
-      required:
-      - multiplicand
-      - multiplier
-      type: object
-    FlowmingoWorkflowOwners:
-      properties:
-        group_slack_name:
-          items:
-            type: string
-          type: array
-        user_email:
-          items:
-            format: email
-            type: string
-          type: array
-      type: object
-    ModifiableSettings:
-      properties:
-        balance_sheet_categories:
-          $ref: '#/components/schemas/BalanceSheetCategories'
-        disable_data_export:
-          type: boolean
-        financials_metrics:
-          additionalProperties:
-            $ref: '#/components/schemas/MetricSpec'
-          type: object
-        industry_naics_enabled:
-          type: boolean
-        low_balance_days_threshold:
-          type: number
-        pnl_categories:
-          $ref: '#/components/schemas/PnLCategories'
-        query_reports:
-          items:
-            $ref: '#/components/schemas/QueryReportTabGroup'
-          type: array
-        required_revenue_per_month:
-          type: integer
-        restricted_industries:
-          items:
-            $ref: '#/components/schemas/RestrictedIndustry'
-          type: array
-        transactions_review_enabled:
-          type: boolean
-        use_new_company_layout:
-          type: boolean
-        use_new_end_user_summary_table:
-          type: boolean
-        use_new_end_user_table:
-          type: boolean
-      type: object
-    ScorecardSettings:
-      properties:
-        balance_prediction:
-          type: boolean
-        company_overview_layout:
-          items:
-            $ref: '#/components/schemas/WidgetGroup'
-          type: array
-      type: object
-    QueryReportTabGroup:
-      properties:
-        tab_group:
-          type: string
-        tabs:
-          items:
-            $ref: '#/components/schemas/QueryReportTab'
-          type: array
-      required:
-      - tab_group
-      - tabs
-      type: object
-    HumanInTheLoopParserConfig:
-      properties:
-        alert_channel:
-          type:
-          - string
-          - 'null'
-        enabled:
-          type: boolean
-        run_jitl:
-          type: boolean
       type: object
   securitySchemes:
     ApiKeyAuth:

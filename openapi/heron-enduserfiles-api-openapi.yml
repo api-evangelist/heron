@@ -609,24 +609,36 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    GetIsoApplication:
+    EndUserFilePageClasses:
       properties:
-        heron_id:
-          description: The ISO application's heron_id
-          example: iso_6hBjQT9k6KP2rLCXwjUJff
+        confidence:
+          default: 1.0
+          type: number
+        file_class:
           type: string
-        processing_status:
-          description: The processing status of the file.
+      type: object
+    FieldValidation:
+      properties:
+        failure_reason:
+          type:
+          - string
+          - 'null'
+        field_name:
+          type: string
+        result:
           enum:
-          - new
-          - processing
-          - processed
-          - failed
-          example: processed
+          - pass
+          - fail
+          - not_applicable
+          example: pass
+          type: string
+        validation_type:
           type: string
       required:
-      - heron_id
-      - processing_status
+      - failure_reason
+      - field_name
+      - result
+      - validation_type
       type: object
     ParsedEndUserFileBoundingBox:
       properties:
@@ -690,104 +702,29 @@ components:
       - filename
       - reference_id
       type: object
-    VariableDefinition:
+    ParsedEndUserFilePatch:
       properties:
-        description:
+        correction_reason:
+          type:
+          - string
+          - 'null'
+        enabled:
+          type:
+          - boolean
+          - 'null'
+        op:
           type: string
-        examples:
-          items:
-            type: string
-          type: array
-        key:
+        original_value: {}
+        path:
           type: string
-        name:
-          type: string
+        source:
+          type:
+          - string
+          - 'null'
+        value: {}
       required:
-      - description
-      - examples
-      - key
-      - name
-      type: object
-    ParseFileSchema:
-      properties:
-        parser_id:
-          type:
-          - string
-          - 'null'
-      type: object
-    EndUserFileUpdateSchema:
-      properties:
-        file_class:
-          type: string
-        page_classes:
-          additionalProperties:
-            $ref: '#/components/schemas/EndUserFilePageClasses'
-          type:
-          - object
-          - 'null'
-        parent_heron_id:
-          type:
-          - string
-          - 'null'
-        reference_id:
-          type: string
-      type: object
-    EndUserFileUploadSchema:
-      properties:
-        file_base64:
-          description: Base64 encoded file bytes
-          type: string
-        file_class:
-          description: The type of file, e.g., bank_statement
-          type:
-          - string
-          - 'null'
-        filename:
-          description: Name of file
-          type: string
-        parent_file_heron_id:
-          description: The Heron ID of the parent file, if this file is a part of another file
-          type:
-          - string
-          - 'null'
-        reference_id:
-          description: Your reference id for file
-          type:
-          - string
-          - 'null'
-        trigger_downstream_processing:
-          default: true
-          description: Whether to trigger downstream processing (file classification, parsing, etc.) upon upload
-          type: boolean
-      required:
-      - file_base64
-      - filename
-      type: object
-    CreateFileRenameRuleSchema:
-      properties:
-        end_user_file_class:
-          type: string
-        file_name_template:
-          type: string
-        is_enabled:
-          type: boolean
-        variables:
-          items:
-            $ref: '#/components/schemas/VariableDefinition'
-          type: array
-      required:
-      - end_user_file_class
-      - file_name_template
-      - is_enabled
-      type: object
-    DataSourceNested:
-      properties:
-        heron_id:
-          description: Heron ID of the data source
-          type: string
-        is_enabled:
-          description: Whether this data source is enabled
-          type: boolean
+      - op
+      - path
       type: object
     PdfGet:
       properties:
@@ -813,6 +750,141 @@ components:
           - transactions_loaded
           - transactions_unloaded
           example: processed
+          type: string
+      type: object
+    GetIsoApplication:
+      properties:
+        heron_id:
+          description: The ISO application's heron_id
+          example: iso_6hBjQT9k6KP2rLCXwjUJff
+          type: string
+        processing_status:
+          description: The processing status of the file.
+          enum:
+          - new
+          - processing
+          - processed
+          - failed
+          example: processed
+          type: string
+      required:
+      - heron_id
+      - processing_status
+      type: object
+    EndUserFileUpdateSchema:
+      properties:
+        file_class:
+          type: string
+        page_classes:
+          additionalProperties:
+            $ref: '#/components/schemas/EndUserFilePageClasses'
+          type:
+          - object
+          - 'null'
+        parent_heron_id:
+          type:
+          - string
+          - 'null'
+        reference_id:
+          type: string
+      type: object
+    EndUserFileBase64Schema:
+      properties:
+        file_b64:
+          type: string
+        mime_type:
+          type: string
+      type: object
+    VariableDefinition:
+      properties:
+        description:
+          type: string
+        examples:
+          items:
+            type: string
+          type: array
+        key:
+          type: string
+        name:
+          type: string
+      required:
+      - description
+      - examples
+      - key
+      - name
+      type: object
+    UpdateFileRenameRuleSchema:
+      properties:
+        file_name_template:
+          type: string
+        is_enabled:
+          type: boolean
+        variables:
+          default: []
+          items:
+            $ref: '#/components/schemas/VariableDefinition'
+          type: array
+      required:
+      - file_name_template
+      - is_enabled
+      type: object
+    EndUserFileSchema:
+      properties:
+        bank_statement:
+          allOf:
+          - $ref: '#/components/schemas/PdfGet'
+          example: null
+          readOnly: true
+        created:
+          format: date-time
+          type: string
+        email:
+          allOf:
+          - $ref: '#/components/schemas/EndUserEmailSchema'
+          example: null
+          readOnly: true
+        file_class:
+          type: string
+        file_source_metadata:
+          additionalProperties: {}
+          readOnly: true
+          type:
+          - object
+          - 'null'
+        filename:
+          type: string
+        heron_id:
+          type: string
+        iso_application:
+          allOf:
+          - $ref: '#/components/schemas/GetIsoApplication'
+          readOnly: true
+        num_pages:
+          type: integer
+        page_classes:
+          additionalProperties:
+            $ref: '#/components/schemas/EndUserFilePageClasses'
+          type:
+          - object
+          - 'null'
+        parent_heron_id:
+          type:
+          - string
+          - 'null'
+        parsed_results:
+          default: []
+          items:
+            $ref: '#/components/schemas/ParsedEndUserFile'
+          readOnly: true
+          type: array
+        processing_error:
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        reference_id:
+          type: string
+        renamed_filename:
           type: string
       type: object
     ParsedEndUserFile:
@@ -880,6 +952,123 @@ components:
       - parser_id
       - parsing_status
       type: object
+    EndUserEmailSchema:
+      properties:
+        cc_addresses:
+          items:
+            type: string
+          type: array
+        created:
+          format: date-time
+          type: string
+        date_sent:
+          format: date-time
+          type: string
+        date_sent_string:
+          type: string
+        from_address:
+          type: string
+        from_address_domain:
+          type: string
+        from_name:
+          type: string
+        heron_id:
+          type: string
+        html_body:
+          type: string
+        html_or_text_body:
+          type: string
+        is_reply:
+          type: boolean
+        processing_status:
+          enum:
+          - new
+          - processing
+          - processed
+          - failed
+          type: string
+        reply_to:
+          type:
+          - string
+          - 'null'
+        subject:
+          type: string
+        subject_cleaned:
+          type: string
+        text_body:
+          type: string
+        to_addresses:
+          items:
+            type: string
+          type: array
+        viewer_url:
+          description: a temporary, secure URL for viewing the email contents
+          type: string
+      type: object
+    CreateFileRenameRuleSchema:
+      properties:
+        end_user_file_class:
+          type: string
+        file_name_template:
+          type: string
+        is_enabled:
+          type: boolean
+        variables:
+          items:
+            $ref: '#/components/schemas/VariableDefinition'
+          type: array
+      required:
+      - end_user_file_class
+      - file_name_template
+      - is_enabled
+      type: object
+    ParseFileSchema:
+      properties:
+        parser_id:
+          type:
+          - string
+          - 'null'
+      type: object
+    DataSourceNested:
+      properties:
+        heron_id:
+          description: Heron ID of the data source
+          type: string
+        is_enabled:
+          description: Whether this data source is enabled
+          type: boolean
+      type: object
+    EndUserFileUploadSchema:
+      properties:
+        file_base64:
+          description: Base64 encoded file bytes
+          type: string
+        file_class:
+          description: The type of file, e.g., bank_statement
+          type:
+          - string
+          - 'null'
+        filename:
+          description: Name of file
+          type: string
+        parent_file_heron_id:
+          description: The Heron ID of the parent file, if this file is a part of another file
+          type:
+          - string
+          - 'null'
+        reference_id:
+          description: Your reference id for file
+          type:
+          - string
+          - 'null'
+        trigger_downstream_processing:
+          default: true
+          description: Whether to trigger downstream processing (file classification, parsing, etc.) upon upload
+          type: boolean
+      required:
+      - file_base64
+      - filename
+      type: object
     ParsedEndUserFileSchema:
       properties:
         attribute_values:
@@ -944,195 +1133,6 @@ components:
       - heron_id
       - parser_id
       - parsing_status
-      type: object
-    ParsedEndUserFilePatch:
-      properties:
-        correction_reason:
-          type:
-          - string
-          - 'null'
-        enabled:
-          type:
-          - boolean
-          - 'null'
-        op:
-          type: string
-        original_value: {}
-        path:
-          type: string
-        source:
-          type:
-          - string
-          - 'null'
-        value: {}
-      required:
-      - op
-      - path
-      type: object
-    EndUserFileSchema:
-      properties:
-        bank_statement:
-          allOf:
-          - $ref: '#/components/schemas/PdfGet'
-          example: null
-          readOnly: true
-        created:
-          format: date-time
-          type: string
-        email:
-          allOf:
-          - $ref: '#/components/schemas/EndUserEmailSchema'
-          example: null
-          readOnly: true
-        file_class:
-          type: string
-        file_source_metadata:
-          additionalProperties: {}
-          readOnly: true
-          type:
-          - object
-          - 'null'
-        filename:
-          type: string
-        heron_id:
-          type: string
-        iso_application:
-          allOf:
-          - $ref: '#/components/schemas/GetIsoApplication'
-          readOnly: true
-        num_pages:
-          type: integer
-        page_classes:
-          additionalProperties:
-            $ref: '#/components/schemas/EndUserFilePageClasses'
-          type:
-          - object
-          - 'null'
-        parent_heron_id:
-          type:
-          - string
-          - 'null'
-        parsed_results:
-          default: []
-          items:
-            $ref: '#/components/schemas/ParsedEndUserFile'
-          readOnly: true
-          type: array
-        processing_error:
-          readOnly: true
-          type:
-          - string
-          - 'null'
-        reference_id:
-          type: string
-        renamed_filename:
-          type: string
-      type: object
-    EndUserFilePageClasses:
-      properties:
-        confidence:
-          default: 1.0
-          type: number
-        file_class:
-          type: string
-      type: object
-    FieldValidation:
-      properties:
-        failure_reason:
-          type:
-          - string
-          - 'null'
-        field_name:
-          type: string
-        result:
-          enum:
-          - pass
-          - fail
-          - not_applicable
-          example: pass
-          type: string
-        validation_type:
-          type: string
-      required:
-      - failure_reason
-      - field_name
-      - result
-      - validation_type
-      type: object
-    EndUserEmailSchema:
-      properties:
-        cc_addresses:
-          items:
-            type: string
-          type: array
-        created:
-          format: date-time
-          type: string
-        date_sent:
-          format: date-time
-          type: string
-        date_sent_string:
-          type: string
-        from_address:
-          type: string
-        from_address_domain:
-          type: string
-        from_name:
-          type: string
-        heron_id:
-          type: string
-        html_body:
-          type: string
-        html_or_text_body:
-          type: string
-        is_reply:
-          type: boolean
-        processing_status:
-          enum:
-          - new
-          - processing
-          - processed
-          - failed
-          type: string
-        reply_to:
-          type:
-          - string
-          - 'null'
-        subject:
-          type: string
-        subject_cleaned:
-          type: string
-        text_body:
-          type: string
-        to_addresses:
-          items:
-            type: string
-          type: array
-        viewer_url:
-          description: a temporary, secure URL for viewing the email contents
-          type: string
-      type: object
-    UpdateFileRenameRuleSchema:
-      properties:
-        file_name_template:
-          type: string
-        is_enabled:
-          type: boolean
-        variables:
-          default: []
-          items:
-            $ref: '#/components/schemas/VariableDefinition'
-          type: array
-      required:
-      - file_name_template
-      - is_enabled
-      type: object
-    EndUserFileBase64Schema:
-      properties:
-        file_b64:
-          type: string
-        mime_type:
-          type: string
       type: object
   securitySchemes:
     ApiKeyAuth:

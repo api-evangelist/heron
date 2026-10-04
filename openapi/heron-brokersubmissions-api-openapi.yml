@@ -326,14 +326,14 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    CreateBrokerFunderApiKeySchema:
+    CreateBrokerSubmissionSchema:
       properties:
-        email:
-          description: Broker email address
-          format: email
+        name:
+          description: The name of the submission being made, this is purely for user reference.
+          minLength: 10
           type: string
       required:
-      - email
+      - name
       type: object
     EndUserInformationSchema:
       properties:
@@ -505,6 +505,29 @@ components:
           - string
           - 'null'
       type: object
+    Address:
+      properties:
+        city:
+          type:
+          - string
+          - 'null'
+        line_1:
+          type:
+          - string
+          - 'null'
+        line_2:
+          type:
+          - string
+          - 'null'
+        state:
+          type:
+          - string
+          - 'null'
+        zip:
+          type:
+          - string
+          - 'null'
+      type: object
     EndUserInformationPatchSchema:
       properties:
         amount_requested:
@@ -594,37 +617,14 @@ components:
           - string
           - 'null'
       type: object
-    CreateBrokerSubmissionSchema:
+    CreateBrokerFunderApiKeySchema:
       properties:
-        name:
-          description: The name of the submission being made, this is purely for user reference.
-          minLength: 10
+        email:
+          description: Broker email address
+          format: email
           type: string
       required:
-      - name
-      type: object
-    Address:
-      properties:
-        city:
-          type:
-          - string
-          - 'null'
-        line_1:
-          type:
-          - string
-          - 'null'
-        line_2:
-          type:
-          - string
-          - 'null'
-        state:
-          type:
-          - string
-          - 'null'
-        zip:
-          type:
-          - string
-          - 'null'
+      - email
       type: object
   securitySchemes:
     ApiKeyAuth:

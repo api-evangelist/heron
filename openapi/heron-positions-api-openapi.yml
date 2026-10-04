@@ -76,6 +76,51 @@ paths:
       - Positions
 components:
   schemas:
+    EndUserPositions:
+      properties:
+        llm_summary:
+          type:
+          - string
+          - 'null'
+        positions:
+          items:
+            $ref: '#/components/schemas/PositionSummary'
+          type: array
+        total_holdback_percentage:
+          description: Current positions' expected monthly repayments divided by average monthly true revenue, as a percentage
+          type:
+          - number
+          - 'null'
+      type: object
+    PositionTransaction:
+      properties:
+        amount:
+          $ref: '#/components/schemas/Money'
+        description:
+          type: string
+        heron_id:
+          type: string
+        timestamp:
+          format: date-time
+          type: string
+      type: object
+    PositionTransactions:
+      properties:
+        investment_transactions:
+          items:
+            $ref: '#/components/schemas/PositionTransaction'
+          type: array
+        position_heron_id:
+          type: string
+        repayment_transactions:
+          items:
+            $ref: '#/components/schemas/PositionTransaction'
+          type: array
+        reversal_transactions:
+          items:
+            $ref: '#/components/schemas/PositionTransaction'
+          type: array
+      type: object
     PositionSummary:
       properties:
         funder_holdback_percentage:
@@ -193,18 +238,6 @@ components:
           - array
           - 'null'
       type: object
-    RelatedPayment:
-      properties:
-        amount:
-          type: number
-        date:
-          format: date
-          type: string
-        merchant:
-          type:
-          - string
-          - 'null'
-      type: object
     Money:
       properties:
         amount:
@@ -215,22 +248,6 @@ components:
           description: The currency of the money
           example: USD
           type: string
-      type: object
-    EndUserPositions:
-      properties:
-        llm_summary:
-          type:
-          - string
-          - 'null'
-        positions:
-          items:
-            $ref: '#/components/schemas/PositionSummary'
-          type: array
-        total_holdback_percentage:
-          description: Current positions' expected monthly repayments divided by average monthly true revenue, as a percentage
-          type:
-          - number
-          - 'null'
       type: object
     PositionInflowMetrics:
       properties:
@@ -255,6 +272,18 @@ components:
         total_amount:
           allOf:
           - $ref: '#/components/schemas/Money'
+      type: object
+    RelatedPayment:
+      properties:
+        amount:
+          type: number
+        date:
+          format: date
+          type: string
+        merchant:
+          type:
+          - string
+          - 'null'
       type: object
     PositionOutflowMetrics:
       properties:
@@ -386,35 +415,6 @@ components:
           type:
           - integer
           - 'null'
-      type: object
-    PositionTransactions:
-      properties:
-        investment_transactions:
-          items:
-            $ref: '#/components/schemas/PositionTransaction'
-          type: array
-        position_heron_id:
-          type: string
-        repayment_transactions:
-          items:
-            $ref: '#/components/schemas/PositionTransaction'
-          type: array
-        reversal_transactions:
-          items:
-            $ref: '#/components/schemas/PositionTransaction'
-          type: array
-      type: object
-    PositionTransaction:
-      properties:
-        amount:
-          $ref: '#/components/schemas/Money'
-        description:
-          type: string
-        heron_id:
-          type: string
-        timestamp:
-          format: date-time
-          type: string
       type: object
   securitySchemes:
     ApiKeyAuth:

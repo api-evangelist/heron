@@ -402,62 +402,6 @@ components:
           default: 1
           type: integer
       type: object
-    IntegrationSchema:
-      properties:
-        base_url:
-          description: Base URL of the API integration. For Google Drive, use root_dir_path in client_auth instead.
-          example: https://sandbox.plaid.com
-          format: url
-          type:
-          - string
-          - 'null'
-        client_auth:
-          additionalProperties: {}
-          description: Client-specific authentication settings depending on the integration type
-          type: object
-          writeOnly: true
-        client_id:
-          description: Client ID for API access (this is encrypted in transit and at-rest with a custom key). Required for Plaid integration
-          type:
-          - string
-          - 'null'
-        client_secret:
-          description: Client Secret for API access (this is encrypted in transit and at-rest with a custom key). Required for Plaid integration
-          type:
-          - string
-          - 'null'
-        heron_id:
-          readOnly: true
-          type: string
-        name:
-          description: A name for your integration
-          example: Plaid Prod
-          type: string
-        resource:
-          description: For integrations with multiple available resources, the specific resource
-          enum:
-          - transaction
-          - assets_report
-          - end_user_application
-          - invoice_factoring_processing
-          - end_user_files
-          - funder_decision
-          type: string
-        type:
-          description: The integration type, a specific provider
-          type: string
-        webhook_url:
-          description: URL provided by you to which we'll forward all webhooks (optional)
-          example: https://your-server.yourdomain.com/hooks
-          format: url
-          type:
-          - string
-          - 'null'
-      required:
-      - name
-      - resource
-      - type
-      type: object
     RefreshAssetsReportsResponseSchema:
       properties:
         failed_links:
@@ -476,21 +420,21 @@ components:
       - failed_links
       - processed_links
       type: object
-    FinicityRequestCashflowReportSchema:
+    FinicityRequestVoeTransactionsReportSchema:
       properties:
-        applicant_is_personal_guarantor:
-          type: boolean
-        for_cra_purpose:
-          type: boolean
-        user_type:
-          enum:
-          - personal
-          - business
+        from_date:
+          format: date-time
           type: string
+      type: object
+    IntegrationLinkUpdateSchema:
+      properties:
+        access_token:
+          description: The generated token that grants access to the bank (this is encrypted in transit and at-rest with a custom key)
+          example: access-sandbox-de3ce8ef-33f8-452c-a685-8671031fc0f6
+          type: string
+          writeOnly: true
       required:
-      - applicant_is_personal_guarantor
-      - for_cra_purpose
-      - user_type
+      - access_token
       type: object
     IntegrationLinkSchema:
       properties:
@@ -564,21 +508,61 @@ components:
       - end_user_id
       - item_id
       type: object
-    IntegrationLinkUpdateSchema:
+    IntegrationSchema:
       properties:
-        access_token:
-          description: The generated token that grants access to the bank (this is encrypted in transit and at-rest with a custom key)
-          example: access-sandbox-de3ce8ef-33f8-452c-a685-8671031fc0f6
-          type: string
+        base_url:
+          description: Base URL of the API integration. For Google Drive, use root_dir_path in client_auth instead.
+          example: https://sandbox.plaid.com
+          format: url
+          type:
+          - string
+          - 'null'
+        client_auth:
+          additionalProperties: {}
+          description: Client-specific authentication settings depending on the integration type
+          type: object
           writeOnly: true
-      required:
-      - access_token
-      type: object
-    FinicityRequestVoeTransactionsReportSchema:
-      properties:
-        from_date:
-          format: date-time
+        client_id:
+          description: Client ID for API access (this is encrypted in transit and at-rest with a custom key). Required for Plaid integration
+          type:
+          - string
+          - 'null'
+        client_secret:
+          description: Client Secret for API access (this is encrypted in transit and at-rest with a custom key). Required for Plaid integration
+          type:
+          - string
+          - 'null'
+        heron_id:
+          readOnly: true
           type: string
+        name:
+          description: A name for your integration
+          example: Plaid Prod
+          type: string
+        resource:
+          description: For integrations with multiple available resources, the specific resource
+          enum:
+          - transaction
+          - assets_report
+          - end_user_application
+          - invoice_factoring_processing
+          - end_user_files
+          - funder_decision
+          type: string
+        type:
+          description: The integration type, a specific provider
+          type: string
+        webhook_url:
+          description: URL provided by you to which we'll forward all webhooks (optional)
+          example: https://your-server.yourdomain.com/hooks
+          format: url
+          type:
+          - string
+          - 'null'
+      required:
+      - name
+      - resource
+      - type
       type: object
     IntegrationLinkNewSchema:
       properties:
@@ -653,6 +637,22 @@ components:
       - access_token
       - end_user_id
       - item_id
+      type: object
+    FinicityRequestCashflowReportSchema:
+      properties:
+        applicant_is_personal_guarantor:
+          type: boolean
+        for_cra_purpose:
+          type: boolean
+        user_type:
+          enum:
+          - personal
+          - business
+          type: string
+      required:
+      - applicant_is_personal_guarantor
+      - for_cra_purpose
+      - user_type
       type: object
   securitySchemes:
     ApiKeyAuth:

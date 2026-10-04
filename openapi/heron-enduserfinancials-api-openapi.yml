@@ -51,6 +51,15 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
+    FinancialsValue:
+      properties:
+        label:
+          type: string
+        time_period_label:
+          type: string
+        value:
+          type: number
+      type: object
     FinancialsSummarySchema:
       properties:
         by_category:
@@ -73,15 +82,6 @@ components:
           items:
             $ref: '#/components/schemas/FinancialsValue'
           type: array
-      type: object
-    FinancialsValue:
-      properties:
-        label:
-          type: string
-        time_period_label:
-          type: string
-        value:
-          type: number
       type: object
   securitySchemes:
     ApiKeyAuth:

@@ -323,65 +323,6 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    BrokerFunderPolicy:
-      additionalProperties: false
-      properties:
-        created:
-          format: date-time
-          readOnly: true
-          type: string
-        funder:
-          allOf:
-          - $ref: '#/components/schemas/BrokerFunderPolicyFunder'
-          readOnly: true
-        last_updated:
-          format: date-time
-          readOnly: true
-          type: string
-        matching_priority:
-          readOnly: true
-          type:
-          - integer
-          - 'null'
-        policy:
-          additionalProperties: {}
-          readOnly: true
-          type:
-          - object
-          - 'null'
-      type: object
-    BulkUpdateBrokerFunderPoliciesSchema:
-      additionalProperties: false
-      properties:
-        policies:
-          items:
-            $ref: '#/components/schemas/BrokerFunderPolicyUpdateItem'
-          type: array
-      required:
-      - policies
-      type: object
-    AddFunderToPoliciesSchema:
-      additionalProperties: false
-      properties:
-        funder_heron_id:
-          description: Heron ID of the funder to add
-          type: string
-      required:
-      - funder_heron_id
-      type: object
-    BrokerFunderPolicyUploadSchema:
-      additionalProperties: false
-      properties:
-        file_base64:
-          description: Base64 encoded file bytes
-          type: string
-        filename:
-          description: Name of file
-          type: string
-      required:
-      - file_base64
-      - filename
-      type: object
     BrokerFunderLink:
       additionalProperties: false
       properties:
@@ -488,6 +429,60 @@ components:
       required:
       - funder_heron_id
       type: object
+    FunderCandidate:
+      additionalProperties: false
+      properties:
+        funder_heron_id:
+          readOnly: true
+          type: string
+        funder_name:
+          readOnly: true
+          type: string
+        similarity:
+          readOnly: true
+          type: number
+      type: object
+    AddFunderToPoliciesSchema:
+      additionalProperties: false
+      properties:
+        funder_heron_id:
+          description: Heron ID of the funder to add
+          type: string
+      required:
+      - funder_heron_id
+      type: object
+    ResolvePendingMatchRequestSchema:
+      additionalProperties: false
+      properties:
+        funder_heron_id:
+          description: Heron ID of the funder to match with
+          type: string
+      required:
+      - funder_heron_id
+      type: object
+    BulkUpdateBrokerFunderPoliciesSchema:
+      additionalProperties: false
+      properties:
+        policies:
+          items:
+            $ref: '#/components/schemas/BrokerFunderPolicyUpdateItem'
+          type: array
+      required:
+      - policies
+      type: object
+    BrokerFunderPolicyUploadSchema:
+      additionalProperties: false
+      properties:
+        file_base64:
+          description: Base64 encoded file bytes
+          type: string
+        filename:
+          description: Name of file
+          type: string
+      required:
+      - file_base64
+      - filename
+      type: object
     BrokerFunderPolicyUploadJobSchema:
       additionalProperties: false
       properties:
@@ -558,14 +553,47 @@ components:
           - integer
           - 'null'
       type: object
-    ResolvePendingMatchRequestSchema:
+    BrokerFunderPolicy:
       additionalProperties: false
       properties:
-        funder_heron_id:
-          description: Heron ID of the funder to match with
+        created:
+          format: date-time
+          readOnly: true
           type: string
-      required:
-      - funder_heron_id
+        funder:
+          allOf:
+          - $ref: '#/components/schemas/BrokerFunderPolicyFunder'
+          readOnly: true
+        last_updated:
+          format: date-time
+          readOnly: true
+          type: string
+        matching_priority:
+          readOnly: true
+          type:
+          - integer
+          - 'null'
+        policy:
+          additionalProperties: {}
+          readOnly: true
+          type:
+          - object
+          - 'null'
+      type: object
+    BrokerFunderPolicyFunder:
+      additionalProperties: false
+      properties:
+        heron_id:
+          readOnly: true
+          type: string
+        logo_url:
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        name:
+          readOnly: true
+          type: string
       type: object
     PendingMatchSchema:
       additionalProperties: false
@@ -598,34 +626,6 @@ components:
           readOnly: true
           type: string
         status:
-          readOnly: true
-          type: string
-      type: object
-    FunderCandidate:
-      additionalProperties: false
-      properties:
-        funder_heron_id:
-          readOnly: true
-          type: string
-        funder_name:
-          readOnly: true
-          type: string
-        similarity:
-          readOnly: true
-          type: number
-      type: object
-    BrokerFunderPolicyFunder:
-      additionalProperties: false
-      properties:
-        heron_id:
-          readOnly: true
-          type: string
-        logo_url:
-          readOnly: true
-          type:
-          - string
-          - 'null'
-        name:
           readOnly: true
           type: string
       type: object

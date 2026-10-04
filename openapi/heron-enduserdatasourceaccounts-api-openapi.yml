@@ -106,45 +106,6 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    AccountBalance:
-      properties:
-        closing_amount:
-          allOf:
-          - $ref: '#/components/schemas/Money'
-          description: The closing balance for the day
-          example: 25000.45
-        currency:
-          description: Currency of the balance
-          example: USD
-          type: string
-        date:
-          description: Date of the balance
-          example: '2022-01-01'
-          format: date
-          type: string
-      required:
-      - closing_amount
-      type: object
-    Money:
-      properties:
-        amount:
-          description: The amount of money
-          example: '1234.56'
-          type: number
-        currency:
-          description: The currency of the money
-          example: USD
-          type: string
-      type: object
-    DataSourceAccountUpdateNumberSchema:
-      properties:
-        source_dsa_heron_id:
-          description: The Heron ID of the data source account containing the number we want to update to
-          example: dsa_8w6V5CuRESc7G5yx3mXF54
-          type: string
-      required:
-      - source_dsa_heron_id
-      type: object
     EndUserDataSourceAccountUpdateSchema:
       properties:
         is_enabled:
@@ -253,6 +214,45 @@ components:
           type: string
       required:
       - is_enabled
+      type: object
+    Money:
+      properties:
+        amount:
+          description: The amount of money
+          example: '1234.56'
+          type: number
+        currency:
+          description: The currency of the money
+          example: USD
+          type: string
+      type: object
+    DataSourceAccountUpdateNumberSchema:
+      properties:
+        source_dsa_heron_id:
+          description: The Heron ID of the data source account containing the number we want to update to
+          example: dsa_8w6V5CuRESc7G5yx3mXF54
+          type: string
+      required:
+      - source_dsa_heron_id
+      type: object
+    AccountBalance:
+      properties:
+        closing_amount:
+          allOf:
+          - $ref: '#/components/schemas/Money'
+          description: The closing balance for the day
+          example: 25000.45
+        currency:
+          description: Currency of the balance
+          example: USD
+          type: string
+        date:
+          description: Date of the balance
+          example: '2022-01-01'
+          format: date
+          type: string
+      required:
+      - closing_amount
       type: object
   securitySchemes:
     ApiKeyAuth:

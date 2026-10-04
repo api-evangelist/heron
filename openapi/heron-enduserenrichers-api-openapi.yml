@@ -177,27 +177,6 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    EnricherFieldsSchema:
-      properties:
-        enricher_type:
-          type: string
-        fields:
-          items:
-            type: string
-          type: array
-        name:
-          type: string
-      type: object
-    StartEnrichEndUserResponseSchema:
-      properties:
-        end_user_id:
-          type: integer
-        enricher_name:
-          type: string
-      required:
-      - end_user_id
-      - enricher_name
-      type: object
     EnricherResultSchema:
       properties:
         enriched_at:
@@ -219,6 +198,27 @@ components:
       - enriched_at
       - enricher_name
       - status
+      type: object
+    EnricherFieldsSchema:
+      properties:
+        enricher_type:
+          type: string
+        fields:
+          items:
+            type: string
+          type: array
+        name:
+          type: string
+      type: object
+    StartEnrichEndUserResponseSchema:
+      properties:
+        end_user_id:
+          type: integer
+        enricher_name:
+          type: string
+      required:
+      - end_user_id
+      - enricher_name
       type: object
   securitySchemes:
     ApiKeyAuth:

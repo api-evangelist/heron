@@ -99,25 +99,6 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    SubmitFunderSubmissionRequestSchema:
-      additionalProperties: false
-      properties:
-        use_sandbox:
-          type: boolean
-      required:
-      - use_sandbox
-      type: object
-    UpsertFunderSubmissionRequestSchema:
-      additionalProperties: false
-      properties:
-        end_user_heron_id:
-          type: string
-        funder_heron_id:
-          type: string
-      required:
-      - end_user_heron_id
-      - funder_heron_id
-      type: object
     FunderSubmissionSchema:
       additionalProperties: false
       properties:
@@ -158,6 +139,25 @@ components:
           type:
           - string
           - 'null'
+      type: object
+    SubmitFunderSubmissionRequestSchema:
+      additionalProperties: false
+      properties:
+        use_sandbox:
+          type: boolean
+      required:
+      - use_sandbox
+      type: object
+    UpsertFunderSubmissionRequestSchema:
+      additionalProperties: false
+      properties:
+        end_user_heron_id:
+          type: string
+        funder_heron_id:
+          type: string
+      required:
+      - end_user_heron_id
+      - funder_heron_id
       type: object
     Funder1:
       additionalProperties: false

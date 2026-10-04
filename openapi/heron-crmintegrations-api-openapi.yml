@@ -92,6 +92,107 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
+    CrmStaticData:
+      properties:
+        key:
+          description: The key of the static data
+          example: status
+          type: string
+        value:
+          description: The value of the static data
+          example: active
+      required:
+      - key
+      - value
+      type: object
+    CrmObjectConfig:
+      properties:
+        description:
+          description: Human-readable description of the object
+          example: A company or person
+          type:
+          - string
+          - 'null'
+        external_lookup_config:
+          allOf:
+          - $ref: '#/components/schemas/CrmExternalLookupConfig'
+          description: Configuration for external lookup
+        external_name:
+          description: The exact name of the object in the CRM
+          example: Account
+          type: string
+        field_mappings:
+          description: Mapping for Heron fields to object fields in CRM
+          items:
+            $ref: '#/components/schemas/CrmFieldMapping'
+          type: array
+        is_optional:
+          default: false
+          description: Whether the object is optional. Optional means that if object fails it will not stop execution of CRM sync
+          type: boolean
+        key:
+          description: key should be unique among objects within an integration
+          example: Account
+          type: string
+        required_ids:
+          description: List of object ids that new object needs
+          items:
+            $ref: '#/components/schemas/CrmObjectId'
+          type: array
+        static_data:
+          description: Stores static data used by the integration, for example status fields
+          items:
+            $ref: '#/components/schemas/CrmStaticData'
+          type: array
+      required:
+      - external_name
+      - key
+      type: object
+    CrmConfig:
+      properties:
+        child_file_filtering_enabled:
+          default: true
+          description: Whether to filter out child files (files that have a parent file)
+          type: boolean
+        data_source_accounts_config:
+          allOf:
+          - $ref: '#/components/schemas/CrmObjectConfig'
+          description: The data source accounts configuration for the CRM integration
+        default_id:
+          allOf:
+          - $ref: '#/components/schemas/CrmObjectId'
+          description: The default object id for the CRM integration
+        download_legacy_attachments:
+          default: false
+          description: Whether to download legacy Salesforce Attachment records
+          type: boolean
+        object_configs:
+          default: []
+          description: The object configurations for the CRM integration
+          items:
+            $ref: '#/components/schemas/CrmObjectConfig'
+          type: array
+        policy_evaluation_config:
+          allOf:
+          - $ref: '#/components/schemas/CrmPolicyEvaluationConfig'
+          description: The policy evaluation configuration for the CRM integration
+        small_file_filtering_enabled:
+          default: false
+          description: Whether to filter out files smaller than 400 bytes
+          type: boolean
+        sync_file_classes:
+          additionalProperties:
+            type: boolean
+          default: {}
+          description: Whether to sync files of a given class, including emails
+          type: object
+        value_mappings:
+          default: []
+          description: A list of value mappings for the CRM integration
+          items:
+            $ref: '#/components/schemas/CrmValueMapping'
+          type: array
+      type: object
     CrmIntegrationSchema:
       additionalProperties: true
       properties:
@@ -141,98 +242,20 @@ components:
       - provider
       - secret
       type: object
-    CrmPolicyEvaluationConfig:
+    CrmObjectId:
       properties:
-        external_object_name:
-          description: The object to write policy evaluation results to
-          example: Opportunity
-          type: string
-        failure_reason_external_name:
-          description: The field to write policy evaluation failure reason to
-          example: Failure_Reason__c
-          type: string
-        result_external_name:
-          description: The field to write policy evaluation results
-          example: Submission_Result_from_Heron__c
-          type: string
-      required:
-      - external_object_name
-      type: object
-    CrmObjectConfig:
-      properties:
-        description:
-          description: Human-readable description of the object
-          example: A company or person
+        alias:
+          description: An alias for the object in the CRM
+          example: Company
           type:
           - string
           - 'null'
-        external_lookup_config:
-          allOf:
-          - $ref: '#/components/schemas/CrmExternalLookupConfig'
-          description: Configuration for external lookup
         external_name:
           description: The exact name of the object in the CRM
           example: Account
           type: string
-        field_mappings:
-          description: Mapping for Heron fields to object fields in CRM
-          items:
-            $ref: '#/components/schemas/CrmFieldMapping'
-          type: array
-        is_optional:
-          default: false
-          description: Whether the object is optional. Optional means that if object fails it will not stop execution of CRM sync
-          type: boolean
-        key:
-          description: key should be unique among objects within an integration
-          example: Account
-          type: string
-        required_ids:
-          description: List of object ids that new object needs
-          items:
-            $ref: '#/components/schemas/CrmObjectId'
-          type: array
-        static_data:
-          description: Stores static data used by the integration, for example status fields
-          items:
-            $ref: '#/components/schemas/CrmStaticData'
-          type: array
       required:
       - external_name
-      - key
-      type: object
-    CrmValueMapping:
-      properties:
-        default_value:
-          description: The default value to use when no match is found
-          example: Default
-          type:
-          - string
-          - 'null'
-        description:
-          description: A human-readable description of the value mapping
-          example: The status of the company
-          type:
-          - string
-          - 'null'
-        mapping:
-          additionalProperties: {}
-          description: The mapping of values
-          example:
-            CA: California
-            NY: New York
-          type: object
-        name:
-          description: The name of the value mapping
-          example: Status
-          type: string
-        use_partial_match:
-          default: false
-          description: Whether to use partial match when mapping values
-          type: boolean
-      required:
-      - mapping
-      - name
       type: object
     CrmIntegrationPatchSchema:
       additionalProperties: true
@@ -276,64 +299,6 @@ components:
           description: A secret key for the CRM integration
           type: string
           writeOnly: true
-      type: object
-    CrmConfig:
-      properties:
-        child_file_filtering_enabled:
-          default: true
-          description: Whether to filter out child files (files that have a parent file)
-          type: boolean
-        data_source_accounts_config:
-          allOf:
-          - $ref: '#/components/schemas/CrmObjectConfig'
-          description: The data source accounts configuration for the CRM integration
-        default_id:
-          allOf:
-          - $ref: '#/components/schemas/CrmObjectId'
-          description: The default object id for the CRM integration
-        download_legacy_attachments:
-          default: false
-          description: Whether to download legacy Salesforce Attachment records
-          type: boolean
-        object_configs:
-          default: []
-          description: The object configurations for the CRM integration
-          items:
-            $ref: '#/components/schemas/CrmObjectConfig'
-          type: array
-        policy_evaluation_config:
-          allOf:
-          - $ref: '#/components/schemas/CrmPolicyEvaluationConfig'
-          description: The policy evaluation configuration for the CRM integration
-        small_file_filtering_enabled:
-          default: false
-          description: Whether to filter out files smaller than 400 bytes
-          type: boolean
-        sync_file_classes:
-          additionalProperties:
-            type: boolean
-          default: {}
-          description: Whether to sync files of a given class, including emails
-          type: object
-        value_mappings:
-          default: []
-          description: A list of value mappings for the CRM integration
-          items:
-            $ref: '#/components/schemas/CrmValueMapping'
-          type: array
-      type: object
-    CrmStaticData:
-      properties:
-        key:
-          description: The key of the static data
-          example: status
-          type: string
-        value:
-          description: The value of the static data
-          example: active
-      required:
-      - key
-      - value
       type: object
     CrmFieldMapping:
       properties:
@@ -409,21 +374,6 @@ components:
       required:
       - field_name
       type: object
-    CrmObjectId:
-      properties:
-        alias:
-          description: An alias for the object in the CRM
-          example: Company
-          type:
-          - string
-          - 'null'
-        external_name:
-          description: The exact name of the object in the CRM
-          example: Account
-          type: string
-      required:
-      - external_name
-      type: object
     CrmExternalLookupConfig:
       properties:
         external_lookup_fields_and:
@@ -447,6 +397,56 @@ components:
           - ASC
           - DESC
           type: string
+      type: object
+    CrmValueMapping:
+      properties:
+        default_value:
+          description: The default value to use when no match is found
+          example: Default
+          type:
+          - string
+          - 'null'
+        description:
+          description: A human-readable description of the value mapping
+          example: The status of the company
+          type:
+          - string
+          - 'null'
+        mapping:
+          additionalProperties: {}
+          description: The mapping of values
+          example:
+            CA: California
+            NY: New York
+          type: object
+        name:
+          description: The name of the value mapping
+          example: Status
+          type: string
+        use_partial_match:
+          default: false
+          description: Whether to use partial match when mapping values
+          type: boolean
+      required:
+      - mapping
+      - name
+      type: object
+    CrmPolicyEvaluationConfig:
+      properties:
+        external_object_name:
+          description: The object to write policy evaluation results to
+          example: Opportunity
+          type: string
+        failure_reason_external_name:
+          description: The field to write policy evaluation failure reason to
+          example: Failure_Reason__c
+          type: string
+        result_external_name:
+          description: The field to write policy evaluation results
+          example: Submission_Result_from_Heron__c
+          type: string
+      required:
+      - external_object_name
       type: object
   securitySchemes:
     ApiKeyAuth:

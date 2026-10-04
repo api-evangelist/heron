@@ -990,41 +990,598 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    HeronScoreSchema:
+    RuleViolation:
       properties:
-        data_quality_issues:
-          description: A list of data quality issues that may have impacted the score
+        metric:
+          $ref: '#/components/schemas/Metric'
+        rule:
+          $ref: '#/components/schemas/Rule'
+      type: object
+    PnlMetric:
+      properties:
+        confidence:
+          description: Amount weighted confidence for the metric, based on the confidene associated with category labels of related transactions
+          type:
+          - number
+          - 'null'
+        indent:
+          description: Indentation level for formatting purposes
+          type: integer
+        is_ratio:
+          description: Whether the metric is a ratio or not
+          type: boolean
+        name:
+          description: Name of metric
+          type: string
+        values:
+          description: The list of values ordered according to date
           items:
-            enum:
-            - transactions_without_timestamps
-            - date_range_too_low
-            - confidence_too_low
-            - ctg_coverage_too_low
-            - data_volume_too_low
-            - data_not_fresh
+            type:
+            - number
+            - 'null'
+          type: array
+      type: object
+    EndUserStatsOutputMetricsInstance:
+      properties:
+        amount:
+          description: Aggregate amount of transactions
+          example: 42.42
+          type: number
+        avg_amount:
+          description: Average value of transactions
+          example: 1.01
+          type: number
+        n:
+          description: Number of transactions
+          example: 42
+          type: integer
+      type: object
+    EndUserBalanceForecast:
+      properties:
+        date:
+          description: Forecast date at specified date granularity
+          example: '2026-08-14'
+          type: string
+        predicted:
+          description: Predicted converted balance
+          example: 42.42
+          type: number
+        predicted_lower:
+          description: Predict amount lower bound
+          example: 4.24
+          type: number
+        predicted_upper:
+          description: Predicted amount upper bound
+          example: 420.42
+          type: number
+      type: object
+    AccountTransactionDataCoverageRange:
+      properties:
+        data_source_account:
+          allOf:
+          - $ref: '#/components/schemas/DataSourceAccount'
+        end_date:
+          format: date
+          type: string
+        has_coverage:
+          type: boolean
+        is_enabled:
+          type:
+          - boolean
+          - 'null'
+        start_date:
+          format: date
+          type: string
+      required:
+      - end_date
+      - has_coverage
+      - start_date
+      type: object
+    PnlSection:
+      properties:
+        metrics:
+          description: Ordered list of P&L metrics
+          items:
+            $ref: '#/components/schemas/PnlMetric'
+          type: array
+        name:
+          description: Name of P&L section, e.g,. Operating Expenses
+          type: string
+        slug:
+          description: Slugified version of the name
+          type: string
+      type: object
+    MerchantCategory:
+      properties:
+        code:
+          example: '7311'
+          readOnly: true
+          type: string
+        description:
+          example: Advertising services
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        slug:
+          example: advertising_services
+          readOnly: true
+          type:
+          - string
+          - 'null'
+      required:
+      - code
+      type: object
+    AccountTransactionDataCoverage:
+      properties:
+        account_number:
+          type: string
+        data_source_type:
+          type: string
+        ranges:
+          items:
+            $ref: '#/components/schemas/AccountTransactionDataCoverageRange'
+          type: array
+      required:
+      - account_number
+      - data_source_type
+      - ranges
+      type: object
+    GroupedTransaction:
+      properties:
+        amount:
+          $ref: '#/components/schemas/Money'
+        category:
+          $ref: '#/components/schemas/GroupedTransactionsCategory'
+        description:
+          type: string
+        heron_id:
+          type: string
+        timestamp:
+          format: date-time
+          type: string
+      type: object
+    EndUserDailyBalance:
+      properties:
+        accounts:
+          items:
+            $ref: '#/components/schemas/EndUserAccountBalance'
+          type: array
+        accounts_not_converted:
+          items:
+            $ref: '#/components/schemas/EndUserAccountBalance'
+          type: array
+        balance:
+          description: Balance amount
+          type: number
+        currency:
+          description: ISO 4217 currency code for balance
+          example: USD
+          maxLength: 3
+          minLength: 3
+          type:
+          - string
+          - 'null'
+        date:
+          description: Date of balance
+          format: date
+          type: string
+      type: object
+    EndUserAccountBalance:
+      properties:
+        account_id:
+          description: Account associated with balance
+          type: string
+        account_info:
+          $ref: '#/components/schemas/EndUserAccountInfo'
+        balance:
+          description: Balance amount
+          type: number
+        balance_converted:
+          description: Converted balance amount in target currency
+          type: number
+        currency:
+          description: ISO 4217 currency code for balance
+          example: USD
+          maxLength: 3
+          minLength: 3
+          type:
+          - string
+          - 'null'
+        currency_converted:
+          description: Conversion currency code. ISO 4217 currency code for balance
+          example: USD
+          maxLength: 3
+          minLength: 3
+          type:
+          - string
+          - 'null'
+        display_account_id:
+          description: 'Human-readable account label for display: the last four digits of the account number (falling back to the account name). Not unique and not a key; use account_id to join.'
+          example: '7505'
+          type:
+          - string
+          - 'null'
+        is_computed:
+          description: Whether the balance has been imputed using forward fill
+          type: boolean
+        is_latest:
+          description: Whether the date is the latest non-imputed balance for the account
+          type: boolean
+        timestamp:
+          description: Timestamp of the latest transaction
+          format: date-time
+          type: string
+      type: object
+    AnomalySchema:
+      properties:
+        amount:
+          description: Converted amount of transaction in currency
+          example: 42.42
+          type: number
+        anomaly_score:
+          description: Anomaly score 0-1, where 1 is very anomalous, and 0 is not anomalous
+          example: 0.5
+          type: number
+        currency:
+          description: Currency code for amount that transaction was converted to
+          example: USD
+          type: string
+        heron_id:
+          description: Heron ID of the Transaction
+          example: txn_CKYWWzPubtn4XAZRCk3unb
+          type: string
+        reference_id:
+          description: Customer-provided reference ID for the Transaction
+          example: 1342db06-feb7-4c33-a157-4351d74a98e9
+          type: string
+      type: object
+    AccountDataSourcesReconciliation:
+      properties:
+        account_number:
+          type: string
+        has_unreconciled_enabled_overlap:
+          type: boolean
+        ranges:
+          items:
+            $ref: '#/components/schemas/AccountDataSourceReconciliationRange'
+          type: array
+      required:
+      - account_number
+      - has_unreconciled_enabled_overlap
+      - ranges
+      type: object
+    EndUserStatsOutputMetrics:
+      properties:
+        inflow:
+          allOf:
+          - $ref: '#/components/schemas/EndUserStatsOutputMetricsInstance'
+          description: Metrics only counting inflows
+        net:
+          allOf:
+          - $ref: '#/components/schemas/EndUserStatsOutputMetricsInstance'
+          description: Net metrics
+        outflow:
+          allOf:
+          - $ref: '#/components/schemas/EndUserStatsOutputMetricsInstance'
+          description: Metrics only counting outflows
+      type: object
+    EndUserTransactionDataCoverageSchema:
+      properties:
+        by_account:
+          additionalProperties:
+            items:
+              $ref: '#/components/schemas/AccountTransactionDataCoverage'
+            type: array
+          type: object
+        duplicate_data_source_accounts_by_account:
+          additionalProperties:
+            example:
+            - dsa_CqgJLToQJVGDECR6hFfABA
+            items:
+              type: string
+            type: array
+          type:
+          - object
+          - 'null'
+        end_user_heron_id:
+          readOnly: true
+        reconciliation_by_account:
+          additionalProperties:
+            $ref: '#/components/schemas/AccountDataSourcesReconciliation'
+          type: object
+      required:
+      - by_account
+      - end_user_heron_id
+      - reconciliation_by_account
+      type: object
+    EndUserForecastOutputSchema:
+      properties:
+        currency:
+          description: ISO 4217 currency code
+          example: USD
+          maxLength: 3
+          minLength: 3
+          type:
+          - string
+          - 'null'
+        date:
+          description: Forecast date at specified date granularity
+          example: '2026-08-14'
+          type: string
+        predicted:
+          description: Predicted amount
+          example: 42.42
+          type: number
+        predicted_lower:
+          description: Predict amount lower bound
+          example: 4.24
+          type: number
+        predicted_upper:
+          description: Predicted amount upper bound
+          example: 420.42
+          type: number
+      type: object
+    MerchantSummaryRowMetrics:
+      properties:
+        amount:
+          $ref: '#/components/schemas/Money'
+        changed_in_last_90_days:
+          type: boolean
+        count:
+          type: integer
+        duration_days:
+          type: integer
+        estimated_monthly_amount:
+          allOf:
+          - $ref: '#/components/schemas/Money'
+        frequency:
+          enum:
+          - not_enough_data
+          - same_day
+          - irregular
+          - daily
+          - weekly
+          - biweekly
+          - monthly
+          - quarterly
+          - annually
+          - weekday
+          - twice_weekly
+          - null
+          type:
+          - string
+          - 'null'
+        is_active:
+          type: boolean
+        max_amount:
+          $ref: '#/components/schemas/Money'
+        max_timestamp:
+          format: date-time
+          type: string
+        mean_amount:
+          $ref: '#/components/schemas/Money'
+        mean_interval_days:
+          type:
+          - number
+          - 'null'
+        median_amount:
+          allOf:
+          - $ref: '#/components/schemas/Money'
+          description: Deprecated. This field is no longer being populated
+        min_amount:
+          $ref: '#/components/schemas/Money'
+        min_timestamp:
+          format: date-time
+          type: string
+        mode_amount:
+          allOf:
+          - $ref: '#/components/schemas/Money'
+          description: Deprecated. This field is no longer being populated
+        mode_interval_days:
+          type:
+          - integer
+          - 'null'
+        std_dev_amount:
+          allOf:
+          - $ref: '#/components/schemas/Money'
+      type: object
+    EndUserAccountInfo:
+      properties:
+        currency:
+          description: ISO 4217 currency code
+          example: USD
+          maxLength: 3
+          minLength: 3
+          type:
+          - string
+          - 'null'
+        heron_id:
+          description: Heron ID of the data source account
+          example: dsa_czJQZA8PmDYgbjbpX36euj
+          type: string
+        institution_name:
+          description: Name of the institution
+          example: Chase
+          type: string
+        name:
+          description: Name of the account
+          example: Checking Account
+          type: string
+        number:
+          description: Number of the account
+          example: '123456789'
+          type: string
+        owner_name:
+          description: Name of the account owner
+          example: John Doe
+          type: string
+        type:
+          description: Type of the account
+          example: Checking
+          type: string
+      type: object
+    Money:
+      properties:
+        amount:
+          description: The amount of money
+          example: '1234.56'
+          type: number
+        currency:
+          description: The currency of the money
+          example: USD
+          type: string
+      type: object
+    ProfitAndLossLayoutUpdateSchema:
+      properties:
+        category_labels:
+          description: List of category labels to assign to a different section
+          example:
+          - Postage
+          items:
+            type: string
+          minItems: 1
+          type: array
+        section_slug:
+          description: Slug of section to assign labels to
+          example: operational_expenses
+          type: string
+      required:
+      - category_labels
+      - section_slug
+      type: object
+    PnlMetricLayout:
+      properties:
+        denominator:
+          allOf:
+          - $ref: '#/components/schemas/PnlMetricFractionTerm'
+          description: If the metric is a ratio, the denominator of the metric; otherwise this is just 1
+        indent:
+          description: Indentation level for formatting purposes
+          type: integer
+        is_growth:
+          description: If true, calculates the % growth in the metric over time
+          type: boolean
+        name:
+          description: Name of metric
+          type: string
+        numerator:
+          allOf:
+          - $ref: '#/components/schemas/PnlMetricFractionTerm'
+          description: The numerator of the metric
+      type: object
+    DataSourceAccountDateReconciliationMetrics:
+      properties:
+        data_source_account_heron_id:
+          readOnly: true
+        date:
+          format: date
+          type: string
+        metrics:
+          items:
+            $ref: '#/components/schemas/DataSourceAccountReconciliationMetric'
+          type: array
+      required:
+      - data_source_account_heron_id
+      - date
+      - metrics
+      type: object
+    GroupedTransactionsCategory:
+      properties:
+        heron_id:
+          type: string
+        label:
+          type: string
+      type: object
+    MerchantSummaryRow:
+      properties:
+        group:
+          type:
+          - string
+          - 'null'
+        heron_id:
+          type: string
+        inflow_metrics:
+          $ref: '#/components/schemas/MerchantSummaryRowMetrics'
+        name:
+          type: string
+        net_metrics:
+          $ref: '#/components/schemas/MerchantSummaryRowMetrics'
+        outflow_metrics:
+          $ref: '#/components/schemas/MerchantSummaryRowMetrics'
+        transactions:
+          items:
+            $ref: '#/components/schemas/GroupedTransaction'
+          type: array
+      type: object
+    ProfitAndLossLayoutSchema:
+      properties:
+        sections:
+          description: Ordered list of P&L sections
+          items:
+            $ref: '#/components/schemas/PnlSectionLayout'
+          type: array
+      type: object
+    PnlMetricFractionTerm:
+      properties:
+        labels:
+          description: List of category labels associated with the fraction term
+          items:
             type: string
           type: array
-        feature_groups_contributions:
-          additionalProperties:
-            $ref: '#/components/schemas/HeronScoreFeatureGroupContribution'
-          type: object
-        predicted_at:
-          description: When the Heron Score was predicted
-          format: date-time
+        sections:
+          description: List of section slugs associated with the fraction term
+          items:
+            type: string
+          type: array
+      type: object
+    EndUserMerchantSummary:
+      properties:
+        by_merchant_summary:
+          items:
+            $ref: '#/components/schemas/MerchantSummaryRow'
+          type: array
+      type: object
+    EndUserGroupedTransactionsReport:
+      properties:
+        counterparty:
           type: string
-        reference_timestamp:
-          description: When the Heron Score was calculated for; by default the last transaction timestamp for the company
-          format: date-time
+        merchant:
+          $ref: '#/components/schemas/GroupedTransactionMerchant'
+        transaction_groups:
+          items:
+            $ref: '#/components/schemas/EndUserTransactionGroup'
+          type: array
+      type: object
+    EndUserAccountBalanceForecast:
+      properties:
+        account_id:
           type: string
-        status:
-          enum:
-          - not_available
-          - partially_available
-          - available
+        balances:
+          items:
+            $ref: '#/components/schemas/EndUserBalanceForecast'
+          type: array
+        currency:
           type: string
-        value:
-          description: The Heron Score value
-          type: integer
+      type: object
+    PnlSectionLayout:
+      properties:
+        labels:
+          description: The category labels associated with the section
+          items:
+            type: string
+          type: array
+        metrics:
+          description: An ordered list of metric layouts
+          items:
+            $ref: '#/components/schemas/PnlMetricLayout'
+          type: array
+        name:
+          description: Name of P&L section, e.g,. Operating Expenses
+          type: string
+        slug:
+          description: Slugified version of the name
+          type: string
       type: object
     DataSourceAccount:
       properties:
@@ -1128,31 +1685,122 @@ components:
       required:
       - is_enabled
       type: object
-    EndUserGroupedTransactionsReport:
+    EndUserRecurringTransactionsReport:
       properties:
+        avg_amount:
+          $ref: '#/components/schemas/Money'
+        avg_confidence:
+          type: number
         counterparty:
           type: string
-        merchant:
-          $ref: '#/components/schemas/GroupedTransactionMerchant'
-        transaction_groups:
+        frequency:
+          enum:
+          - not_enough_data
+          - same_day
+          - irregular
+          - daily
+          - weekly
+          - biweekly
+          - monthly
+          - quarterly
+          - annually
+          - weekday
+          - twice_weekly
+          type: string
+        merchant_group_id:
+          type: string
+        merchant_heron_id:
+          type: string
+        merchant_name:
+          type: string
+        transactions:
           items:
-            $ref: '#/components/schemas/EndUserTransactionGroup'
+            $ref: '#/components/schemas/EndUserRecurringTransaction'
           type: array
       type: object
-    AccountTransactionDataCoverage:
+    GroupedTransactionMerchant:
       properties:
-        account_number:
-          type: string
-        data_source_type:
-          type: string
-        ranges:
+        categories:
           items:
-            $ref: '#/components/schemas/AccountTransactionDataCoverageRange'
+            $ref: '#/components/schemas/MerchantCategory'
+          readOnly: true
           type: array
-      required:
-      - account_number
-      - data_source_type
-      - ranges
+        group_id:
+          enum:
+          - Uber
+          - Google
+          - Intuit
+          - debt.mca_or_rbf
+          - debt.non_bank_business
+          - debt.equipment_and_auto_leasing
+          - debt.mortgage
+          - debt.personal_non_mortgage
+          - debt.collections
+          - debt.bank
+          - invoice_factoring
+          - fuel_provider
+          - gambling_and_betting
+          - null
+          type:
+          - string
+          - 'null'
+        heron_id:
+          example: mrc_RTgUcM9od9w9fwU8YG6mjH
+          readOnly: true
+          type: string
+        icon_url:
+          format: url
+          readOnly: true
+          type: string
+        logo_url:
+          format: url
+          readOnly: true
+          type: string
+        name:
+          type: string
+      type: object
+    NamedDateSchema:
+      properties:
+        date:
+          description: The date of the NamedDate
+          example: '2026-08-14'
+          format: date
+          type:
+          - string
+          - 'null'
+        name:
+          description: The name of the NamedDate
+          enum:
+          - end_user_created
+          - end_user_last_updated
+          - last_transaction
+          - end_user_last_enriched
+          - last_data_source_end_date_or_transaction_timestamp
+          - custom_date
+          example: last_transaction
+          type: string
+      type: object
+    EndUserBalanceOutputSchema:
+      properties:
+        daily_balances:
+          items:
+            $ref: '#/components/schemas/EndUserDailyBalance'
+          type: array
+        forecasted:
+          items:
+            $ref: '#/components/schemas/EndUserAccountBalanceForecast'
+          type: array
+        summary:
+          $ref: '#/components/schemas/EndUserDailyBalance'
+        warnings:
+          description: Empty-balance reason codes. Populated responses return an empty list.
+          items:
+            enum:
+            - no_transactions_present
+            - transactions_present_but_not_enriched
+            - transactions_enriched_but_no_balance_data
+            type: string
+          type: array
       type: object
     EndUserBankStatementSummary:
       properties:
@@ -1206,114 +1854,6 @@ components:
           $ref: '#/components/schemas/BankStatementSummaryRow'
       required:
       - grouping
-      type: object
-    MerchantSummaryRow:
-      properties:
-        group:
-          type:
-          - string
-          - 'null'
-        heron_id:
-          type: string
-        inflow_metrics:
-          $ref: '#/components/schemas/MerchantSummaryRowMetrics'
-        name:
-          type: string
-        net_metrics:
-          $ref: '#/components/schemas/MerchantSummaryRowMetrics'
-        outflow_metrics:
-          $ref: '#/components/schemas/MerchantSummaryRowMetrics'
-        transactions:
-          items:
-            $ref: '#/components/schemas/GroupedTransaction'
-          type: array
-      type: object
-    EndUserDailyBalance:
-      properties:
-        accounts:
-          items:
-            $ref: '#/components/schemas/EndUserAccountBalance'
-          type: array
-        accounts_not_converted:
-          items:
-            $ref: '#/components/schemas/EndUserAccountBalance'
-          type: array
-        balance:
-          description: Balance amount
-          type: number
-        currency:
-          description: ISO 4217 currency code for balance
-          example: USD
-          maxLength: 3
-          minLength: 3
-          type:
-          - string
-          - 'null'
-        date:
-          description: Date of balance
-          format: date
-          type: string
-      type: object
-    EndUserAccountBalance:
-      properties:
-        account_id:
-          description: Account associated with balance
-          type: string
-        account_info:
-          $ref: '#/components/schemas/EndUserAccountInfo'
-        balance:
-          description: Balance amount
-          type: number
-        balance_converted:
-          description: Converted balance amount in target currency
-          type: number
-        currency:
-          description: ISO 4217 currency code for balance
-          example: USD
-          maxLength: 3
-          minLength: 3
-          type:
-          - string
-          - 'null'
-        currency_converted:
-          description: Conversion currency code. ISO 4217 currency code for balance
-          example: USD
-          maxLength: 3
-          minLength: 3
-          type:
-          - string
-          - 'null'
-        display_account_id:
-          description: 'Human-readable account label for display: the last four digits of the account number (falling back to the account name). Not unique and not a key; use account_id to join.'
-          example: '7505'
-          type:
-          - string
-          - 'null'
-        is_computed:
-          description: Whether the balance has been imputed using forward fill
-          type: boolean
-        is_latest:
-          description: Whether the date is the latest non-imputed balance for the account
-          type: boolean
-        timestamp:
-          description: Timestamp of the latest transaction
-          format: date-time
-          type: string
-      type: object
-    AccountDataSourcesReconciliation:
-      properties:
-        account_number:
-          type: string
-        has_unreconciled_enabled_overlap:
-          type: boolean
-        ranges:
-          items:
-            $ref: '#/components/schemas/AccountDataSourceReconciliationRange'
-          type: array
-      required:
-      - account_number
-      - has_unreconciled_enabled_overlap
-      - ranges
       type: object
     Metric:
       properties:
@@ -1413,284 +1953,32 @@ components:
           description: The metric value
           example: 42.42
       type: object
-    EndUserTransactionGroup:
+    AccountDataSourceReconciliationRange:
       properties:
-        frequency:
+        end_date:
+          format: date
+          type: string
+        reconciliation_report_by_date:
+          additionalProperties:
+            items:
+              $ref: '#/components/schemas/DataSourceAccountDateReconciliationMetrics'
+            type: array
+          type: object
+        reconciliation_status:
           enum:
-          - not_enough_data
-          - same_day
-          - irregular
-          - daily
-          - weekly
-          - biweekly
-          - monthly
-          - quarterly
-          - annually
-          - weekday
-          - twice_weekly
+          - no_data
+          - single_source
+          - reconciled
+          - unreconciled
           type: string
-        transactions:
-          items:
-            $ref: '#/components/schemas/GroupedTransaction'
-          type: array
-      type: object
-    ProfitAndLossSchema:
-      properties:
-        dates:
-          description: Ordered list of dates representing the columns of the P&L table
-          items:
-            format: date
-            type: string
-          type: array
-        sections:
-          description: Ordered list of P&L sections
-          items:
-            $ref: '#/components/schemas/PnlSection'
-          type: array
-      type: object
-    HeronScoreFeatureGroupContribution:
-      properties:
-        relative_contribution:
-          type: number
-        relative_population_avg:
-          type: number
-      type: object
-    BankStatementSummaryRow:
-      properties:
-        actual_holdback_percentage:
-          description: Actual MCA payments to revenue as % (raw repayment amounts)
-          type:
-          - number
-          - 'null'
-        additional_no_od:
-          description: Overdraft-item count a bank reports as a statement value for items absent from the transaction list. These items are not included in the transaction-derived no_od field. Null when the statement does not report a count.
-          type:
-          - integer
-          - 'null'
-        average_balance:
-          allOf:
-          - $ref: '#/components/schemas/Money'
-          description: Average balance
-        average_balance_to_revenue_ratio:
-          description: Average balance divided by total revenue
-          type: number
-        business_day_average_balance:
-          allOf:
-          - $ref: '#/components/schemas/Money'
-          description: Average balance over weekdays excluding public holidays
-        dd_reversals:
-          description: Number of DD Reversals
-          type: integer
-        ending_balance:
-          allOf:
-          - $ref: '#/components/schemas/Money'
-          description: Ending balance
-        expected_mca_debits:
-          allOf:
-          - $ref: '#/components/schemas/Money'
-          description: Expected MCA debits amount
-        holdback_percentage:
-          description: Expected MCA payments to revenue as % (with frequency multiplier)
-          type:
-          - number
-          - 'null'
-        is_mtd:
-          description: Whether this row represents a month-to-date (MTD) partial statement
-          type: boolean
-        is_unreconcilable:
-          description: True when the statement period has no usable balance data for reconciliation (e.g. an unreconciled partial-month statement)
-          type:
-          - boolean
-          - 'null'
-        low_balance_days:
-          description: Number of days where end of day balance falls below low balance threshold
-          type: integer
-        mca_credits:
-          allOf:
-          - $ref: '#/components/schemas/Money'
-          description: MCA credits amount
-        mca_debits:
-          allOf:
-          - $ref: '#/components/schemas/Money'
-          description: MCA debits amount
-        negative_balance_days:
-          description: Number of days with negative balance
-          type: integer
-        no_deposits:
-          description: Number of deposit transactions
-          type: integer
-        no_mca_credits:
-          description: Number of MCA credit transactions
-          type: integer
-        no_mca_debits:
-          description: Number of MCA debit transactions
-          type: integer
-        no_nsf:
-          description: Number of NSF transactions (unambiguous NSF-only category labels).
-          type: integer
-        no_od:
-          description: Number of overdraft transactions (unambiguous OD-only category labels).
-          type: integer
-        no_od_nsf:
-          description: 'Total overdraft/NSF fees: overdraft fees + NSF fees + ambiguous fees.'
-          type: integer
-        no_overdraft_transactions:
-          description: Number of transactions where the resulting balance falls below 0
-          type: integer
-        no_revenue:
-          description: Number of revenue transactions
-          type: integer
-        no_withdrawals:
-          description: Number of withdrawals transactions
-          type: integer
-        non_revenue:
-          allOf:
-          - $ref: '#/components/schemas/Money'
-          description: Non-revenue amount
-        period_end_date:
-          description: The last day covered by the statement period (e.g. a partial April statement covering Apr 1–15 has period_end_date=Apr 15, while a full April statement with data only through Apr 15 would still show Apr 30)
-          format: date
-          type:
-          - string
-          - 'null'
-        period_start_date:
-          description: The first day covered by the statement period (e.g. a partial April statement covering Apr 5–15 has period_start_date=Apr 5)
-          format: date
-          type:
-          - string
-          - 'null'
-        starting_balance:
-          allOf:
-          - $ref: '#/components/schemas/Money'
-          description: Starting balance for the period
-        total_deposits:
-          allOf:
-          - $ref: '#/components/schemas/Money'
-          description: Total deposit amount
-        total_revenue:
-          allOf:
-          - $ref: '#/components/schemas/Money'
-          description: Total revenue amount
-        total_withdrawals:
-          allOf:
-          - $ref: '#/components/schemas/Money'
-          description: Total withdrawal amount
-      type: object
-    Money:
-      properties:
-        amount:
-          description: The amount of money
-          example: '1234.56'
-          type: number
-        currency:
-          description: The currency of the money
-          example: USD
-          type: string
-      type: object
-    AccountBalance:
-      properties:
-        closing_amount:
-          allOf:
-          - $ref: '#/components/schemas/Money'
-          description: The closing balance for the day
-          example: 25000.45
-        currency:
-          description: Currency of the balance
-          example: USD
-          type: string
-        date:
-          description: Date of the balance
-          example: '2022-01-01'
+        start_date:
           format: date
           type: string
       required:
-      - closing_amount
-      type: object
-    EndUserTransactionDataCoverageSchema:
-      properties:
-        by_account:
-          additionalProperties:
-            items:
-              $ref: '#/components/schemas/AccountTransactionDataCoverage'
-            type: array
-          type: object
-        duplicate_data_source_accounts_by_account:
-          additionalProperties:
-            example:
-            - dsa_CqgJLToQJVGDECR6hFfABA
-            items:
-              type: string
-            type: array
-          type:
-          - object
-          - 'null'
-        end_user_heron_id:
-          readOnly: true
-        reconciliation_by_account:
-          additionalProperties:
-            $ref: '#/components/schemas/AccountDataSourcesReconciliation'
-          type: object
-      required:
-      - by_account
-      - end_user_heron_id
-      - reconciliation_by_account
-      type: object
-    ProfitAndLossLayoutUpdateSchema:
-      properties:
-        category_labels:
-          description: List of category labels to assign to a different section
-          example:
-          - Postage
-          items:
-            type: string
-          minItems: 1
-          type: array
-        section_slug:
-          description: Slug of section to assign labels to
-          example: operational_expenses
-          type: string
-      required:
-      - category_labels
-      - section_slug
-      type: object
-    EndUserStatsOutputMetricsInstance:
-      properties:
-        amount:
-          description: Aggregate amount of transactions
-          example: 42.42
-          type: number
-        avg_amount:
-          description: Average value of transactions
-          example: 1.01
-          type: number
-        n:
-          description: Number of transactions
-          example: 42
-          type: integer
-      type: object
-    PnlMetric:
-      properties:
-        confidence:
-          description: Amount weighted confidence for the metric, based on the confidene associated with category labels of related transactions
-          type:
-          - number
-          - 'null'
-        indent:
-          description: Indentation level for formatting purposes
-          type: integer
-        is_ratio:
-          description: Whether the metric is a ratio or not
-          type: boolean
-        name:
-          description: Name of metric
-          type: string
-        values:
-          description: The list of values ordered according to date
-          items:
-            type:
-            - number
-            - 'null'
-          type: array
+      - end_date
+      - reconciliation_report_by_date
+      - reconciliation_status
+      - start_date
       type: object
     DataSourceAccountReconciliationMetric:
       properties:
@@ -1724,530 +2012,28 @@ components:
       - metric
       - value
       type: object
-    GroupedTransaction:
-      properties:
-        amount:
-          $ref: '#/components/schemas/Money'
-        category:
-          $ref: '#/components/schemas/GroupedTransactionsCategory'
-        description:
-          type: string
-        heron_id:
-          type: string
-        timestamp:
-          format: date-time
-          type: string
-      type: object
-    AccountDataSourceReconciliationRange:
-      properties:
-        end_date:
-          format: date
-          type: string
-        reconciliation_report_by_date:
-          additionalProperties:
-            items:
-              $ref: '#/components/schemas/DataSourceAccountDateReconciliationMetrics'
-            type: array
-          type: object
-        reconciliation_status:
-          enum:
-          - no_data
-          - single_source
-          - reconciled
-          - unreconciled
-          type: string
-        start_date:
-          format: date
-          type: string
-      required:
-      - end_date
-      - reconciliation_report_by_date
-      - reconciliation_status
-      - start_date
-      type: object
-    EndUserForecastOutputSchema:
+    EndUserStatsOutputSchema:
       properties:
         currency:
           description: ISO 4217 currency code
           example: USD
-          maxLength: 3
-          minLength: 3
           type:
           - string
           - 'null'
-        date:
-          description: Forecast date at specified date granularity
+        dt:
+          description: Date, impacted by input date granularity
           example: '2026-08-14'
           type: string
-        predicted:
-          description: Predicted amount
-          example: 42.42
-          type: number
-        predicted_lower:
-          description: Predict amount lower bound
-          example: 4.24
-          type: number
-        predicted_upper:
-          description: Predicted amount upper bound
-          example: 420.42
-          type: number
-      type: object
-    PnlSection:
-      properties:
-        metrics:
-          description: Ordered list of P&L metrics
-          items:
-            $ref: '#/components/schemas/PnlMetric'
-          type: array
-        name:
-          description: Name of P&L section, e.g,. Operating Expenses
-          type: string
-        slug:
-          description: Slugified version of the name
-          type: string
-      type: object
-    EndUserMerchantSummary:
-      properties:
-        by_merchant_summary:
-          items:
-            $ref: '#/components/schemas/MerchantSummaryRow'
-          type: array
-      type: object
-    MetricBenchmarksSchema:
-      properties:
-        date_range:
-          enum:
-          - latest
-          - last_30_days
-          - last_90_days
-          - last_120_days
-          - last_180_days
-          - last_365_days
-          - next_30_days
-          - next_60_days
-          - next_90_days
-          - next_180_days
-          - last_1_calendar_months
-          - last_3_calendar_months
-          - last_4_calendar_months
-          - last_6_calendar_months
-          - last_12_calendar_months
-          - last_15_calendar_months
-          - last_24_calendar_months
-          - last_1_full_calendar_months
-          - last_2_full_calendar_months
-          - last_3_full_calendar_months
-          - last_6_full_calendar_months
-          - last_12_full_calendar_months
-          - last_60_days
-          - last_45_days
-          - last_2_calendar_months
-          example: last_180_days
+        heron_id:
+          description: Heron ID of either merchant or category, depending on what was specified in group_by
+          example: mrc_Zi5dihJpZfCWyo3kvBBLxp
           type: string
         label:
-          description: Metric label, slugified
-          example: unique_transactions
-          type: string
-        percentile:
-          description: The implied percentile based on ranking and sample size
-          example: 0.75
-          type:
-          - number
-          - 'null'
-        rank:
-          description: Ranking of metric relative to datapoints. 1 is best
-          example: 22
-          type:
-          - integer
-          - 'null'
-        sample_size:
-          description: The number of datapoints to compare to
-          example: 42
-          type: integer
-        scope:
-          default: user
-          description: What end users are included in metric comparisons
-          enum:
-          - user
-          - heron
-          example: user
-          type: string
-      type: object
-    EndUserBalanceOutputSchema:
-      properties:
-        daily_balances:
-          items:
-            $ref: '#/components/schemas/EndUserDailyBalance'
-          type: array
-        forecasted:
-          items:
-            $ref: '#/components/schemas/EndUserAccountBalanceForecast'
-          type: array
-        summary:
-          $ref: '#/components/schemas/EndUserDailyBalance'
-        warnings:
-          description: Empty-balance reason codes. Populated responses return an empty list.
-          items:
-            enum:
-            - no_transactions_present
-            - transactions_present_but_not_enriched
-            - transactions_enriched_but_no_balance_data
-            type: string
-          type: array
-      type: object
-    RuleViolation:
-      properties:
-        metric:
-          $ref: '#/components/schemas/Metric'
-        rule:
-          $ref: '#/components/schemas/Rule'
-      type: object
-    EndUserBalanceForecast:
-      properties:
-        date:
-          description: Forecast date at specified date granularity
-          example: '2026-08-14'
-          type: string
-        predicted:
-          description: Predicted converted balance
-          example: 42.42
-          type: number
-        predicted_lower:
-          description: Predict amount lower bound
-          example: 4.24
-          type: number
-        predicted_upper:
-          description: Predicted amount upper bound
-          example: 420.42
-          type: number
-      type: object
-    GroupedTransactionsCategory:
-      properties:
-        heron_id:
-          type: string
-        label:
-          type: string
-      type: object
-    NamedDateSchema:
-      properties:
-        date:
-          description: The date of the NamedDate
-          example: '2026-08-14'
-          format: date
-          type:
-          - string
-          - 'null'
-        name:
-          description: The name of the NamedDate
-          enum:
-          - end_user_created
-          - end_user_last_updated
-          - last_transaction
-          - end_user_last_enriched
-          - last_data_source_end_date_or_transaction_timestamp
-          - custom_date
-          example: last_transaction
-          type: string
-      type: object
-    EndUserRecurringTransaction:
-      properties:
-        amount:
-          $ref: '#/components/schemas/Money'
-        category_confidence:
-          type: number
-        category_heron_id:
-          type: string
-        category_label:
-          type: string
-        counterparty:
-          type: string
-        description:
-          type: string
-        heron_id:
-          type: string
-        merchant_group_id:
-          type: string
-        merchant_heron_id:
-          type: string
-        merchant_name:
-          type: string
-        timestamp:
-          format: date-time
-          type: string
-      required:
-      - amount
-      - heron_id
-      - timestamp
-      type: object
-    MerchantSummaryRowMetrics:
-      properties:
-        amount:
-          $ref: '#/components/schemas/Money'
-        changed_in_last_90_days:
-          type: boolean
-        count:
-          type: integer
-        duration_days:
-          type: integer
-        estimated_monthly_amount:
-          allOf:
-          - $ref: '#/components/schemas/Money'
-        frequency:
-          enum:
-          - not_enough_data
-          - same_day
-          - irregular
-          - daily
-          - weekly
-          - biweekly
-          - monthly
-          - quarterly
-          - annually
-          - weekday
-          - twice_weekly
-          - null
-          type:
-          - string
-          - 'null'
-        is_active:
-          type: boolean
-        max_amount:
-          $ref: '#/components/schemas/Money'
-        max_timestamp:
-          format: date-time
-          type: string
-        mean_amount:
-          $ref: '#/components/schemas/Money'
-        mean_interval_days:
-          type:
-          - number
-          - 'null'
-        median_amount:
-          allOf:
-          - $ref: '#/components/schemas/Money'
-          description: Deprecated. This field is no longer being populated
-        min_amount:
-          $ref: '#/components/schemas/Money'
-        min_timestamp:
-          format: date-time
-          type: string
-        mode_amount:
-          allOf:
-          - $ref: '#/components/schemas/Money'
-          description: Deprecated. This field is no longer being populated
-        mode_interval_days:
-          type:
-          - integer
-          - 'null'
-        std_dev_amount:
-          allOf:
-          - $ref: '#/components/schemas/Money'
-      type: object
-    EndUserRecurringTransactionsReport:
-      properties:
-        avg_amount:
-          $ref: '#/components/schemas/Money'
-        avg_confidence:
-          type: number
-        counterparty:
-          type: string
-        frequency:
-          enum:
-          - not_enough_data
-          - same_day
-          - irregular
-          - daily
-          - weekly
-          - biweekly
-          - monthly
-          - quarterly
-          - annually
-          - weekday
-          - twice_weekly
-          type: string
-        merchant_group_id:
-          type: string
-        merchant_heron_id:
-          type: string
-        merchant_name:
-          type: string
-        transactions:
-          items:
-            $ref: '#/components/schemas/EndUserRecurringTransaction'
-          type: array
-      type: object
-    PnlMetricFractionTerm:
-      properties:
-        labels:
-          description: List of category labels associated with the fraction term
-          items:
-            type: string
-          type: array
-        sections:
-          description: List of section slugs associated with the fraction term
-          items:
-            type: string
-          type: array
-      type: object
-    DataSourceAccountDateReconciliationMetrics:
-      properties:
-        data_source_account_heron_id:
-          readOnly: true
-        date:
-          format: date
+          description: Label of either merchant or category, depending on what was specified in group_by
+          example: Revenue
           type: string
         metrics:
-          items:
-            $ref: '#/components/schemas/DataSourceAccountReconciliationMetric'
-          type: array
-      required:
-      - data_source_account_heron_id
-      - date
-      - metrics
-      type: object
-    GroupedTransactionMerchant:
-      properties:
-        categories:
-          items:
-            $ref: '#/components/schemas/MerchantCategory'
-          readOnly: true
-          type: array
-        group_id:
-          enum:
-          - Uber
-          - Google
-          - Intuit
-          - debt.mca_or_rbf
-          - debt.non_bank_business
-          - debt.equipment_and_auto_leasing
-          - debt.mortgage
-          - debt.personal_non_mortgage
-          - debt.collections
-          - debt.bank
-          - invoice_factoring
-          - fuel_provider
-          - gambling_and_betting
-          - null
-          type:
-          - string
-          - 'null'
-        heron_id:
-          example: mrc_RTgUcM9od9w9fwU8YG6mjH
-          readOnly: true
-          type: string
-        icon_url:
-          format: url
-          readOnly: true
-          type: string
-        logo_url:
-          format: url
-          readOnly: true
-          type: string
-        name:
-          type: string
-      type: object
-    EndUserAccountBalanceForecast:
-      properties:
-        account_id:
-          type: string
-        balances:
-          items:
-            $ref: '#/components/schemas/EndUserBalanceForecast'
-          type: array
-        currency:
-          type: string
-      type: object
-    PnlSectionLayout:
-      properties:
-        labels:
-          description: The category labels associated with the section
-          items:
-            type: string
-          type: array
-        metrics:
-          description: An ordered list of metric layouts
-          items:
-            $ref: '#/components/schemas/PnlMetricLayout'
-          type: array
-        name:
-          description: Name of P&L section, e.g,. Operating Expenses
-          type: string
-        slug:
-          description: Slugified version of the name
-          type: string
-      type: object
-    EndUserAccountInfo:
-      properties:
-        currency:
-          description: ISO 4217 currency code
-          example: USD
-          maxLength: 3
-          minLength: 3
-          type:
-          - string
-          - 'null'
-        heron_id:
-          description: Heron ID of the data source account
-          example: dsa_czJQZA8PmDYgbjbpX36euj
-          type: string
-        institution_name:
-          description: Name of the institution
-          example: Chase
-          type: string
-        name:
-          description: Name of the account
-          example: Checking Account
-          type: string
-        number:
-          description: Number of the account
-          example: '123456789'
-          type: string
-        owner_name:
-          description: Name of the account owner
-          example: John Doe
-          type: string
-        type:
-          description: Type of the account
-          example: Checking
-          type: string
-      type: object
-    EndUserStatsOutputMetrics:
-      properties:
-        inflow:
-          allOf:
-          - $ref: '#/components/schemas/EndUserStatsOutputMetricsInstance'
-          description: Metrics only counting inflows
-        net:
-          allOf:
-          - $ref: '#/components/schemas/EndUserStatsOutputMetricsInstance'
-          description: Net metrics
-        outflow:
-          allOf:
-          - $ref: '#/components/schemas/EndUserStatsOutputMetricsInstance'
-          description: Metrics only counting outflows
-      type: object
-    AnomalySchema:
-      properties:
-        amount:
-          description: Converted amount of transaction in currency
-          example: 42.42
-          type: number
-        anomaly_score:
-          description: Anomaly score 0-1, where 1 is very anomalous, and 0 is not anomalous
-          example: 0.5
-          type: number
-        currency:
-          description: Currency code for amount that transaction was converted to
-          example: USD
-          type: string
-        heron_id:
-          description: Heron ID of the Transaction
-          example: txn_CKYWWzPubtn4XAZRCk3unb
-          type: string
-        reference_id:
-          description: Customer-provided reference ID for the Transaction
-          example: 1342db06-feb7-4c33-a157-4351d74a98e9
-          type: string
+          $ref: '#/components/schemas/EndUserStatsOutputMetrics'
       type: object
     Rule:
       properties:
@@ -2566,99 +2352,313 @@ components:
           - string
           - 'null'
       type: object
-    EndUserStatsOutputSchema:
+    HeronScoreFeatureGroupContribution:
       properties:
-        currency:
-          description: ISO 4217 currency code
-          example: USD
-          type:
-          - string
-          - 'null'
-        dt:
-          description: Date, impacted by input date granularity
-          example: '2026-08-14'
-          type: string
-        heron_id:
-          description: Heron ID of either merchant or category, depending on what was specified in group_by
-          example: mrc_Zi5dihJpZfCWyo3kvBBLxp
-          type: string
-        label:
-          description: Label of either merchant or category, depending on what was specified in group_by
-          example: Revenue
-          type: string
-        metrics:
-          $ref: '#/components/schemas/EndUserStatsOutputMetrics'
+        relative_contribution:
+          type: number
+        relative_population_avg:
+          type: number
       type: object
-    MerchantCategory:
+    HeronScoreSchema:
       properties:
-        code:
-          example: '7311'
-          readOnly: true
+        data_quality_issues:
+          description: A list of data quality issues that may have impacted the score
+          items:
+            enum:
+            - transactions_without_timestamps
+            - date_range_too_low
+            - confidence_too_low
+            - ctg_coverage_too_low
+            - data_volume_too_low
+            - data_not_fresh
+            type: string
+          type: array
+        feature_groups_contributions:
+          additionalProperties:
+            $ref: '#/components/schemas/HeronScoreFeatureGroupContribution'
+          type: object
+        predicted_at:
+          description: When the Heron Score was predicted
+          format: date-time
+          type: string
+        reference_timestamp:
+          description: When the Heron Score was calculated for; by default the last transaction timestamp for the company
+          format: date-time
+          type: string
+        status:
+          enum:
+          - not_available
+          - partially_available
+          - available
+          type: string
+        value:
+          description: The Heron Score value
+          type: integer
+      type: object
+    EndUserTransactionGroup:
+      properties:
+        frequency:
+          enum:
+          - not_enough_data
+          - same_day
+          - irregular
+          - daily
+          - weekly
+          - biweekly
+          - monthly
+          - quarterly
+          - annually
+          - weekday
+          - twice_weekly
+          type: string
+        transactions:
+          items:
+            $ref: '#/components/schemas/GroupedTransaction'
+          type: array
+      type: object
+    EndUserRecurringTransaction:
+      properties:
+        amount:
+          $ref: '#/components/schemas/Money'
+        category_confidence:
+          type: number
+        category_heron_id:
+          type: string
+        category_label:
+          type: string
+        counterparty:
           type: string
         description:
-          example: Advertising services
-          readOnly: true
-          type:
-          - string
-          - 'null'
-        slug:
-          example: advertising_services
-          readOnly: true
-          type:
-          - string
-          - 'null'
+          type: string
+        heron_id:
+          type: string
+        merchant_group_id:
+          type: string
+        merchant_heron_id:
+          type: string
+        merchant_name:
+          type: string
+        timestamp:
+          format: date-time
+          type: string
       required:
-      - code
+      - amount
+      - heron_id
+      - timestamp
       type: object
-    PnlMetricLayout:
+    MetricBenchmarksSchema:
       properties:
-        denominator:
-          allOf:
-          - $ref: '#/components/schemas/PnlMetricFractionTerm'
-          description: If the metric is a ratio, the denominator of the metric; otherwise this is just 1
-        indent:
-          description: Indentation level for formatting purposes
+        date_range:
+          enum:
+          - latest
+          - last_30_days
+          - last_90_days
+          - last_120_days
+          - last_180_days
+          - last_365_days
+          - next_30_days
+          - next_60_days
+          - next_90_days
+          - next_180_days
+          - last_1_calendar_months
+          - last_3_calendar_months
+          - last_4_calendar_months
+          - last_6_calendar_months
+          - last_12_calendar_months
+          - last_15_calendar_months
+          - last_24_calendar_months
+          - last_1_full_calendar_months
+          - last_2_full_calendar_months
+          - last_3_full_calendar_months
+          - last_6_full_calendar_months
+          - last_12_full_calendar_months
+          - last_60_days
+          - last_45_days
+          - last_2_calendar_months
+          example: last_180_days
+          type: string
+        label:
+          description: Metric label, slugified
+          example: unique_transactions
+          type: string
+        percentile:
+          description: The implied percentile based on ranking and sample size
+          example: 0.75
+          type:
+          - number
+          - 'null'
+        rank:
+          description: Ranking of metric relative to datapoints. 1 is best
+          example: 22
+          type:
+          - integer
+          - 'null'
+        sample_size:
+          description: The number of datapoints to compare to
+          example: 42
           type: integer
-        is_growth:
-          description: If true, calculates the % growth in the metric over time
-          type: boolean
-        name:
-          description: Name of metric
+        scope:
+          default: user
+          description: What end users are included in metric comparisons
+          enum:
+          - user
+          - heron
+          example: user
           type: string
-        numerator:
-          allOf:
-          - $ref: '#/components/schemas/PnlMetricFractionTerm'
-          description: The numerator of the metric
       type: object
-    AccountTransactionDataCoverageRange:
+    ProfitAndLossSchema:
       properties:
-        data_source_account:
-          allOf:
-          - $ref: '#/components/schemas/DataSourceAccount'
-        end_date:
-          format: date
-          type: string
-        has_coverage:
-          type: boolean
-        is_enabled:
-          type:
-          - boolean
-          - 'null'
-        start_date:
-          format: date
-          type: string
-      required:
-      - end_date
-      - has_coverage
-      - start_date
-      type: object
-    ProfitAndLossLayoutSchema:
-      properties:
+        dates:
+          description: Ordered list of dates representing the columns of the P&L table
+          items:
+            format: date
+            type: string
+          type: array
         sections:
           description: Ordered list of P&L sections
           items:
-            $ref: '#/components/schemas/PnlSectionLayout'
+            $ref: '#/components/schemas/PnlSection'
           type: array
+      type: object
+    BankStatementSummaryRow:
+      properties:
+        actual_holdback_percentage:
+          description: Actual MCA payments to revenue as % (raw repayment amounts)
+          type:
+          - number
+          - 'null'
+        additional_no_od:
+          description: Overdraft-item count a bank reports as a statement value for items absent from the transaction list. These items are not included in the transaction-derived no_od field. Null when the statement does not report a count.
+          type:
+          - integer
+          - 'null'
+        average_balance:
+          allOf:
+          - $ref: '#/components/schemas/Money'
+          description: Average balance
+        average_balance_to_revenue_ratio:
+          description: Average balance divided by total revenue
+          type: number
+        business_day_average_balance:
+          allOf:
+          - $ref: '#/components/schemas/Money'
+          description: Average balance over weekdays excluding public holidays
+        dd_reversals:
+          description: Number of DD Reversals
+          type: integer
+        ending_balance:
+          allOf:
+          - $ref: '#/components/schemas/Money'
+          description: Ending balance
+        expected_mca_debits:
+          allOf:
+          - $ref: '#/components/schemas/Money'
+          description: Expected MCA debits amount
+        holdback_percentage:
+          description: Expected MCA payments to revenue as % (with frequency multiplier)
+          type:
+          - number
+          - 'null'
+        is_mtd:
+          description: Whether this row represents a month-to-date (MTD) partial statement
+          type: boolean
+        is_unreconcilable:
+          description: True when the statement period has no usable balance data for reconciliation (e.g. an unreconciled partial-month statement)
+          type:
+          - boolean
+          - 'null'
+        low_balance_days:
+          description: Number of days where end of day balance falls below low balance threshold
+          type: integer
+        mca_credits:
+          allOf:
+          - $ref: '#/components/schemas/Money'
+          description: MCA credits amount
+        mca_debits:
+          allOf:
+          - $ref: '#/components/schemas/Money'
+          description: MCA debits amount
+        negative_balance_days:
+          description: Number of days with negative balance
+          type: integer
+        no_deposits:
+          description: Number of deposit transactions
+          type: integer
+        no_mca_credits:
+          description: Number of MCA credit transactions
+          type: integer
+        no_mca_debits:
+          description: Number of MCA debit transactions
+          type: integer
+        no_nsf:
+          description: Number of NSF transactions (unambiguous NSF-only category labels).
+          type: integer
+        no_od:
+          description: Number of overdraft transactions (unambiguous OD-only category labels).
+          type: integer
+        no_od_nsf:
+          description: 'Total overdraft/NSF fees: overdraft fees + NSF fees + ambiguous fees.'
+          type: integer
+        no_overdraft_transactions:
+          description: Number of transactions where the resulting balance falls below 0
+          type: integer
+        no_revenue:
+          description: Number of revenue transactions
+          type: integer
+        no_withdrawals:
+          description: Number of withdrawals transactions
+          type: integer
+        non_revenue:
+          allOf:
+          - $ref: '#/components/schemas/Money'
+          description: Non-revenue amount
+        period_end_date:
+          description: The last day covered by the statement period (e.g. a partial April statement covering Apr 1–15 has period_end_date=Apr 15, while a full April statement with data only through Apr 15 would still show Apr 30)
+          format: date
+          type:
+          - string
+          - 'null'
+        period_start_date:
+          description: The first day covered by the statement period (e.g. a partial April statement covering Apr 5–15 has period_start_date=Apr 5)
+          format: date
+          type:
+          - string
+          - 'null'
+        starting_balance:
+          allOf:
+          - $ref: '#/components/schemas/Money'
+          description: Starting balance for the period
+        total_deposits:
+          allOf:
+          - $ref: '#/components/schemas/Money'
+          description: Total deposit amount
+        total_revenue:
+          allOf:
+          - $ref: '#/components/schemas/Money'
+          description: Total revenue amount
+        total_withdrawals:
+          allOf:
+          - $ref: '#/components/schemas/Money'
+          description: Total withdrawal amount
+      type: object
+    AccountBalance:
+      properties:
+        closing_amount:
+          allOf:
+          - $ref: '#/components/schemas/Money'
+          description: The closing balance for the day
+          example: 25000.45
+        currency:
+          description: Currency of the balance
+          example: USD
+          type: string
+        date:
+          description: Date of the balance
+          example: '2022-01-01'
+          format: date
+          type: string
+      required:
+      - closing_amount
       type: object
   securitySchemes:
     ApiKeyAuth:
