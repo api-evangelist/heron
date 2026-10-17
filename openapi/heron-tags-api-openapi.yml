@@ -284,32 +284,6 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    EndUserTagsSchema:
-      properties:
-        tags:
-          description: Heron IDs of the tags to apply to this end user.
-          items:
-            type: string
-          type: array
-      required:
-      - tags
-      type: object
-    TagPatchSchema:
-      properties:
-        color:
-          description: 'Optional display color as a six-digit hex code such as #1a2b3c. Pass null to clear.'
-          type:
-          - string
-          - 'null'
-        description:
-          description: Optional human-readable description of the tag. Pass null to clear.
-          type:
-          - string
-          - 'null'
-        name:
-          description: 'Identifier normalized to lowercase: alphanumeric plus ''_'', ''-'', '':'', up to 140 chars. Unique to your account (case-insensitive).'
-          type: string
-      type: object
     TagSchema:
       properties:
         color:
@@ -331,6 +305,32 @@ components:
           type: string
       required:
       - name
+      type: object
+    TagPatchSchema:
+      properties:
+        color:
+          description: 'Optional display color as a six-digit hex code such as #1a2b3c. Pass null to clear.'
+          type:
+          - string
+          - 'null'
+        description:
+          description: Optional human-readable description of the tag. Pass null to clear.
+          type:
+          - string
+          - 'null'
+        name:
+          description: 'Identifier normalized to lowercase: alphanumeric plus ''_'', ''-'', '':'', up to 140 chars. Unique to your account (case-insensitive).'
+          type: string
+      type: object
+    EndUserTagsSchema:
+      properties:
+        tags:
+          description: Heron IDs of the tags to apply to this end user.
+          items:
+            type: string
+          type: array
+      required:
+      - tags
       type: object
   securitySchemes:
     ApiKeyAuth:

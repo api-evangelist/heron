@@ -76,50 +76,16 @@ paths:
       - Positions
 components:
   schemas:
-    EndUserPositions:
-      properties:
-        llm_summary:
-          type:
-          - string
-          - 'null'
-        positions:
-          items:
-            $ref: '#/components/schemas/PositionSummary'
-          type: array
-        total_holdback_percentage:
-          description: Current positions' expected monthly repayments divided by average monthly true revenue, as a percentage
-          type:
-          - number
-          - 'null'
-      type: object
-    PositionTransaction:
+    Money:
       properties:
         amount:
-          $ref: '#/components/schemas/Money'
-        description:
+          description: The amount of money
+          example: '1234.56'
+          type: number
+        currency:
+          description: The currency of the money
+          example: USD
           type: string
-        heron_id:
-          type: string
-        timestamp:
-          format: date-time
-          type: string
-      type: object
-    PositionTransactions:
-      properties:
-        investment_transactions:
-          items:
-            $ref: '#/components/schemas/PositionTransaction'
-          type: array
-        position_heron_id:
-          type: string
-        repayment_transactions:
-          items:
-            $ref: '#/components/schemas/PositionTransaction'
-          type: array
-        reversal_transactions:
-          items:
-            $ref: '#/components/schemas/PositionTransaction'
-          type: array
       type: object
     PositionSummary:
       properties:
@@ -237,41 +203,6 @@ components:
           type:
           - array
           - 'null'
-      type: object
-    Money:
-      properties:
-        amount:
-          description: The amount of money
-          example: '1234.56'
-          type: number
-        currency:
-          description: The currency of the money
-          example: USD
-          type: string
-      type: object
-    PositionInflowMetrics:
-      properties:
-        count:
-          type: integer
-        max_amount:
-          allOf:
-          - $ref: '#/components/schemas/Money'
-        max_timestamp:
-          format: date-time
-          type:
-          - string
-          - 'null'
-        min_amount:
-          allOf:
-          - $ref: '#/components/schemas/Money'
-        min_timestamp:
-          format: date-time
-          type:
-          - string
-          - 'null'
-        total_amount:
-          allOf:
-          - $ref: '#/components/schemas/Money'
       type: object
     RelatedPayment:
       properties:
@@ -415,6 +346,75 @@ components:
           type:
           - integer
           - 'null'
+      type: object
+    PositionInflowMetrics:
+      properties:
+        count:
+          type: integer
+        max_amount:
+          allOf:
+          - $ref: '#/components/schemas/Money'
+        max_timestamp:
+          format: date-time
+          type:
+          - string
+          - 'null'
+        min_amount:
+          allOf:
+          - $ref: '#/components/schemas/Money'
+        min_timestamp:
+          format: date-time
+          type:
+          - string
+          - 'null'
+        total_amount:
+          allOf:
+          - $ref: '#/components/schemas/Money'
+      type: object
+    EndUserPositions:
+      properties:
+        llm_summary:
+          type:
+          - string
+          - 'null'
+        positions:
+          items:
+            $ref: '#/components/schemas/PositionSummary'
+          type: array
+        total_holdback_percentage:
+          description: Current positions' expected monthly repayments divided by average monthly true revenue, as a percentage
+          type:
+          - number
+          - 'null'
+      type: object
+    PositionTransactions:
+      properties:
+        investment_transactions:
+          items:
+            $ref: '#/components/schemas/PositionTransaction'
+          type: array
+        position_heron_id:
+          type: string
+        repayment_transactions:
+          items:
+            $ref: '#/components/schemas/PositionTransaction'
+          type: array
+        reversal_transactions:
+          items:
+            $ref: '#/components/schemas/PositionTransaction'
+          type: array
+      type: object
+    PositionTransaction:
+      properties:
+        amount:
+          $ref: '#/components/schemas/Money'
+        description:
+          type: string
+        heron_id:
+          type: string
+        timestamp:
+          format: date-time
+          type: string
       type: object
   securitySchemes:
     ApiKeyAuth:

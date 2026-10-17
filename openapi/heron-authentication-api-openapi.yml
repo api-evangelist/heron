@@ -34,28 +34,6 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    AvailableEnvironmentsOrganization:
-      properties:
-        environments:
-          description: List of environments available to the user
-          example:
-          - dev
-          - staging
-          - prod
-          items:
-            allOf:
-            - $ref: '#/components/schemas/AvailableEnvironmentsEnvironment'
-            description: List of environments available to the user
-          type: array
-        name:
-          description: Name of the organization
-          example: My Organization
-          type: string
-        slug:
-          description: Slug of the organization
-          example: my-organization
-          type: string
-      type: object
     AvailableEnvironmentsEnvironment:
       properties:
         alias:
@@ -94,6 +72,28 @@ components:
             - $ref: '#/components/schemas/AvailableEnvironmentsOrganization'
             description: List of organizations available to the user
           type: array
+      type: object
+    AvailableEnvironmentsOrganization:
+      properties:
+        environments:
+          description: List of environments available to the user
+          example:
+          - dev
+          - staging
+          - prod
+          items:
+            allOf:
+            - $ref: '#/components/schemas/AvailableEnvironmentsEnvironment'
+            description: List of environments available to the user
+          type: array
+        name:
+          description: Name of the organization
+          example: My Organization
+          type: string
+        slug:
+          description: Slug of the organization
+          example: my-organization
+          type: string
       type: object
   securitySchemes:
     ApiKeyAuth:

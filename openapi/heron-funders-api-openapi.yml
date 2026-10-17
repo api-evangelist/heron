@@ -131,6 +131,21 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
+    FunderSearchResultSchema:
+      additionalProperties: false
+      properties:
+        heron_id:
+          readOnly: true
+          type: string
+        logo_url:
+          readOnly: true
+          type:
+          - string
+          - 'null'
+        name:
+          readOnly: true
+          type: string
+      type: object
     Funder:
       additionalProperties: false
       properties:
@@ -214,21 +229,6 @@ components:
           type:
           - string
           - 'null'
-      type: object
-    FunderSearchResultSchema:
-      additionalProperties: false
-      properties:
-        heron_id:
-          readOnly: true
-          type: string
-        logo_url:
-          readOnly: true
-          type:
-          - string
-          - 'null'
-        name:
-          readOnly: true
-          type: string
       type: object
   securitySchemes:
     ApiKeyAuth:

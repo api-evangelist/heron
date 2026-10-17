@@ -30,13 +30,6 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    AppStoreSchema:
-      properties:
-        applications:
-          items:
-            $ref: '#/components/schemas/Application'
-          type: array
-      type: object
     CTA:
       properties:
         text:
@@ -135,6 +128,13 @@ components:
           type: string
       required:
       - name
+      type: object
+    AppStoreSchema:
+      properties:
+        applications:
+          items:
+            $ref: '#/components/schemas/Application'
+          type: array
       type: object
   securitySchemes:
     ApiKeyAuth:

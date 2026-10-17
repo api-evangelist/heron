@@ -591,6 +591,112 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
+    PdfPatchTransaction:
+      properties:
+        amount:
+          type:
+          - number
+          - 'null'
+        balance:
+          type:
+          - number
+          - 'null'
+        bounds:
+          allOf:
+          - $ref: '#/components/schemas/MoneyThumbTransactionBounds'
+        currency:
+          type:
+          - string
+          - 'null'
+        description:
+          type:
+          - string
+          - 'null'
+        ocr_suspect:
+          type:
+          - boolean
+          - 'null'
+        reference_id:
+          type:
+          - string
+          - 'null'
+        timestamp:
+          format: date-time
+          type:
+          - string
+          - 'null'
+        transaction_code:
+          type:
+          - string
+          - 'null'
+      type: object
+    PdfPutSchema:
+      properties:
+        filename:
+          description: The filename of the PDF
+          example: my-favourite.pdf
+          type: string
+        fraud_reason:
+          description: 'If fraud reason '
+          type:
+          - string
+          - 'null'
+        is_fraud:
+          description: True if fraud was detected in the PDF
+          type: boolean
+        notes:
+          description: Notes associated with PDF, e.g., rejected reason, failed reason
+          type: string
+        reference_id:
+          description: An optional field for your unique identifier for the PDF
+          example: my-favourite-pdf
+          maxLength: 140
+          type: string
+        status:
+          description: Status of PDF
+          enum:
+          - new
+          - parsing
+          - parsed
+          - processed
+          - human_reviewing
+          - approved
+          - rejected
+          - failed
+          - transactions_loaded
+          - transactions_unloaded
+          example: processed
+          type: string
+      type: object
+    InscribeSchema:
+      properties:
+        customer_name:
+          type:
+          - string
+          - 'null'
+        parsed_details:
+          $ref: '#/components/schemas/InscribeParsedDetails'
+      type: object
+    PlaidAssetsSchema:
+      properties:
+        report:
+          $ref: '#/components/schemas/PlaidAssetReport'
+      required:
+      - report
+      type: object
+    PlaidTransactionsSchema:
+      properties:
+        accounts:
+          items:
+            $ref: '#/components/schemas/PlaidAccountSnapshot'
+          type: array
+        transactions:
+          items:
+            $ref: '#/components/schemas/PlaidTransaction'
+          type: array
+      required:
+      - transactions
+      type: object
     EndUser2:
       properties:
         heron_id:
@@ -599,12 +705,214 @@ components:
           readOnly: true
           type: string
       type: object
-    PlaidAssetsSchema:
+    InscribeTransaction:
       properties:
-        report:
-          $ref: '#/components/schemas/PlaidAssetReport'
+        amount:
+          type: integer
+        date:
+          format: date
+          type: string
+        description:
+          type: string
+        id:
+          type: string
+      type: object
+    PlaidAccount:
+      properties:
+        account_id:
+          type: string
+        balances:
+          $ref: '#/components/schemas/PlaidAccountSnapshotBalance'
+        historical_balances:
+          items:
+            $ref: '#/components/schemas/PlaidAccountBalance'
+          type: array
+        holder_category:
+          type:
+          - string
+          - 'null'
+        mask:
+          type:
+          - string
+          - 'null'
+        name:
+          type:
+          - string
+          - 'null'
+        official_name:
+          type:
+          - string
+          - 'null'
+        owners:
+          items:
+            $ref: '#/components/schemas/PlaidAccountOwners'
+          type:
+          - array
+          - 'null'
+        subtype:
+          type:
+          - string
+          - 'null'
+        transactions:
+          items:
+            $ref: '#/components/schemas/PlaidTransaction'
+          type: array
+        type:
+          type:
+          - string
+          - 'null'
       required:
-      - report
+      - account_id
+      - balances
+      - historical_balances
+      - transactions
+      type: object
+    PdfDefaultCurrencyUpdateSchema:
+      properties:
+        currency:
+          description: ISO 4217 currency code to update for PDF and all statements
+          enum:
+          - USD
+          - GBP
+          - EUR
+          - SEK
+          - AED
+          - AUD
+          - SGD
+          - CAD
+          - NOK
+          - IDR
+          - CHF
+          - DKK
+          - MXN
+          - PLN
+          - MYR
+          - VND
+          - RON
+          - TRY
+          - CZK
+          - BGN
+          - HKD
+          - PHP
+          - HUF
+          - NZD
+          - BRL
+          - ILS
+          - COP
+          - RUB
+          - INR
+          - ZAR
+          - THB
+          - JPY
+          - CLP
+          - MAD
+          - RSD
+          - SLE
+          example: EUR
+          type: string
+      required:
+      - currency
+      type: object
+    PlaidAssetReportItem:
+      properties:
+        accounts:
+          items:
+            $ref: '#/components/schemas/PlaidAccount'
+          type: array
+        institution_name:
+          type: string
+      required:
+      - accounts
+      - institution_name
+      type: object
+    PdfGetSchema:
+      properties:
+        account_id:
+          description: Unique ID for account associated with PDF
+          example: checking_account_202348
+          type: string
+        created:
+          description: Timestamp when PDF was created in Heron system
+          example: '2026-08-14T12:24:30.801571'
+          format: date-time
+          type: string
+        currency:
+          description: ISO 4217 currency code for transactions in account. We currently only support GBP and USD PDFs
+          enum:
+          - USD
+          - GBP
+          example: USD
+          type: string
+        data_source:
+          allOf:
+          - $ref: '#/components/schemas/DataSourceNested'
+          description: The data source for this PDF. Only available after parsing and enrichment has completed, otherwise null.
+        end_user:
+          $ref: '#/components/schemas/EndUser2'
+        filename:
+          description: The filename of the PDF
+          example: my-favourite.pdf
+          type: string
+        heron_id:
+          description: ID generated by Heron Data
+          example: pdf_TdpNDuBWbCK82yDs4CqSAT
+          type: string
+        is_image_based:
+          description: True if the PDF was processed using image-based OCR. None if not yet processed
+          type:
+          - boolean
+          - 'null'
+        last_updated:
+          description: Timestamp when PDF was last updated in Heron system
+          example: '2026-08-14T12:24:30.801623'
+          format: date-time
+          type: string
+        notes:
+          description: Notes for the PDF, e.g., failed reason
+          example: failed to send to external OCR provider
+          type: string
+        parsing_version:
+          description: Indicates which provider was used to parse this pdf
+          type: string
+        reference_id:
+          description: An optional field for your unique identifier for the PDF
+          example: my-favourite-pdf
+          type: string
+        statements:
+          items:
+            $ref: '#/components/schemas/PdfStatement'
+          type: array
+        status:
+          description: Status of PDF
+          enum:
+          - new
+          - parsing
+          - parsed
+          - processed
+          - human_reviewing
+          - approved
+          - rejected
+          - failed
+          - transactions_loaded
+          - transactions_unloaded
+          example: processed
+          type: string
+      type: object
+    PlaidAssetReport:
+      properties:
+        date_generated:
+          format: date-time
+          type: string
+        days_requested:
+          type: integer
+        items:
+          items:
+            $ref: '#/components/schemas/PlaidAssetReportItem'
+          type: array
+      required:
+      - date_generated
+      - days_requested
+      - items
       type: object
     PdfStatementPatchSchema:
       properties:
@@ -625,12 +933,43 @@ components:
       - index
       - transactions
       type: object
-    YodleeAmount:
+    PlaidAccountOwners:
+      properties:
+        names:
+          items:
+            type: string
+          type: array
+      required:
+      - names
+      type: object
+    PdfTransaction:
       properties:
         amount:
           type: number
+        balance:
+          type: number
+        bounds:
+          allOf:
+          - $ref: '#/components/schemas/MoneyThumbTransactionBounds'
         currency:
+          type:
+          - string
+          - 'null'
+        description:
           type: string
+        ocr_suspect:
+          type: boolean
+        reference_id:
+          type: string
+        timestamp:
+          format: date-time
+          type: string
+        transaction_code:
+          type: string
+      required:
+      - amount
+      - description
+      - timestamp
       type: object
     PdfPatchStatementSummary:
       properties:
@@ -696,76 +1035,72 @@ components:
           format: date-time
           type: string
       type: object
-    InscribeNumberPrediction:
+    MoneyThumbTransactionBounds:
       properties:
-        confidence:
-          type: number
-        normalized:
-          type: integer
-        raw:
-          type: string
+        page:
+          type:
+          - integer
+          - 'null'
+        x_max:
+          type:
+          - integer
+          - 'null'
+        x_min:
+          type:
+          - integer
+          - 'null'
+        y_max:
+          type:
+          - integer
+          - 'null'
+        y_min:
+          type:
+          - integer
+          - 'null'
+      required:
+      - page
+      - x_max
+      - x_min
+      - y_max
+      - y_min
       type: object
-    MoneyThumbStatementSummary:
+    YodleeTransaction:
       properties:
-        account_number:
+        accountId:
+          type: integer
+        amount:
+          $ref: '#/components/schemas/YodleeAmount'
+        baseType:
+          enum:
+          - CREDIT
+          - DEBIT
           type: string
-        account_title:
+        category:
           type: string
-        bank_name:
+        date:
+          example: '2025-07-08'
+          pattern: ^\d{4}-\d{2}-\d{2}$
           type: string
-        company:
-          type: string
+        description:
+          $ref: '#/components/schemas/YodleeTransactionDescription'
+        id:
+          type: integer
+      type: object
+    InscribeParsedDetails:
+      properties:
+        bank_accounts:
+          items:
+            $ref: '#/components/schemas/InscribeAccount'
+          type: array
+        name:
+          $ref: '#/components/schemas/InscribeParsedDetailsName'
+      type: object
+    YodleeAmount:
+      properties:
+        amount:
+          type: number
         currency:
           type: string
-        end_balance:
-          type: number
-        fraud_reasons:
-          items:
-            type: string
-          type: array
-        fraud_score:
-          type: integer
-        is_business_account:
-          type: boolean
-        is_ocr:
-          type: boolean
-        max_resolution:
-          type: integer
-        min_resolution:
-          type: integer
-        num_credits:
-          type: integer
-        num_debits:
-          type: integer
-        num_transactions:
-          type: integer
-        reconciled:
-          type: boolean
-        start_balance:
-          type: number
-        statement_end_date:
-          format: date-time
-          type: string
-        statement_start_date:
-          format: date-time
-          type: string
-        total_credits:
-          type: number
-        total_debits:
-          type: number
-        unreconciled_end_balance:
-          type: number
-        web_report:
-          type: boolean
-      required:
-      - end_balance
-      - num_credits
-      - num_debits
-      - num_transactions
-      - reconciled
-      - start_balance
-      - total_credits
-      - total_debits
       type: object
     PlaidTransaction:
       properties:
@@ -810,6 +1145,108 @@ components:
           - string
           - 'null'
         transaction_id:
+          type: string
+      type: object
+    PdfPostSchema:
+      properties:
+        account_id:
+          description: Unique ID for account associated with PDF
+          example: checking_account_202348
+          type:
+          - string
+          - 'null'
+        currency:
+          description: ISO 4217 currency code for transactions in account. We currently only support GBP and USD PDFs
+          enum:
+          - USD
+          - GBP
+          - null
+          example: USD
+          type:
+          - string
+          - 'null'
+        filename:
+          description: The filename of the PDF
+          example: my-favourite.pdf
+          type:
+          - string
+          - 'null'
+        is_split:
+          description: Whether the file has been manually split
+          example: false
+          type:
+          - boolean
+          - 'null'
+        parent_file_heron_id:
+          description: The Heron ID of the parent file, if this PDF is a split from another file
+          type:
+          - string
+          - 'null'
+        pdf_base64:
+          description: The base64 encoded string of the PDF file. If using Javascript, this is directly the output of the FileReader.readAsDataURL() output.
+          pattern: ^data\:\w+\/\w+\;base64\,
+          type: string
+        read_us_dates:
+          description: 'True if date formats in the statement are US: month/date/year'
+          type:
+          - boolean
+          - 'null'
+        reference_id:
+          description: An optional field for your unique identifier for the PDF
+          example: my-favourite-pdf
+          maxLength: 140
+          type:
+          - string
+          - 'null'
+      required:
+      - pdf_base64
+      type: object
+    YodleeAccount:
+      properties:
+        balance:
+          $ref: '#/components/schemas/YodleeAmount'
+        classification:
+          type:
+          - string
+          - 'null'
+        id:
+          type: integer
+      type: object
+    PlaidAccountSnapshot:
+      properties:
+        account_id:
+          type: string
+        balances:
+          allOf:
+          - $ref: '#/components/schemas/PlaidAccountSnapshotBalance'
+          description: Balance information for the account as an object. This is optional, but if not provided, balance calculations will not be performed for individual transactions.
+        holder_category:
+          type:
+          - string
+          - 'null'
+        institution_name:
+          type:
+          - string
+          - 'null'
+        mask:
+          type:
+          - string
+          - 'null'
+        name:
+          type: string
+        official_name:
+          type:
+          - string
+          - 'null'
+        owners:
+          items:
+            $ref: '#/components/schemas/PlaidAccountOwners'
+          type:
+          - array
+          - 'null'
+        subtype:
+          type: string
+        type:
           type: string
       type: object
     IntegrationLinkSchema:
@@ -884,27 +1321,156 @@ components:
       - end_user_id
       - item_id
       type: object
-    PlaidTransactionsSchema:
+    MoneyThumbStatementSummary:
+      properties:
+        account_number:
+          type: string
+        account_title:
+          type: string
+        bank_name:
+          type: string
+        company:
+          type: string
+        currency:
+          type: string
+        end_balance:
+          type: number
+        fraud_reasons:
+          items:
+            type: string
+          type: array
+        fraud_score:
+          type: integer
+        is_business_account:
+          type: boolean
+        is_ocr:
+          type: boolean
+        max_resolution:
+          type: integer
+        min_resolution:
+          type: integer
+        num_credits:
+          type: integer
+        num_debits:
+          type: integer
+        num_transactions:
+          type: integer
+        reconciled:
+          type: boolean
+        start_balance:
+          type: number
+        statement_end_date:
+          format: date-time
+          type: string
+        statement_start_date:
+          format: date-time
+          type: string
+        total_credits:
+          type: number
+        total_debits:
+          type: number
+        unreconciled_end_balance:
+          type: number
+        web_report:
+          type: boolean
+      required:
+      - end_balance
+      - num_credits
+      - num_debits
+      - num_transactions
+      - reconciled
+      - start_balance
+      - total_credits
+      - total_debits
+      type: object
+    OcrolusSchema:
+      properties:
+        response:
+          $ref: '#/components/schemas/OcrolusResponse'
+      required:
+      - response
+      type: object
+    InscribeAccount:
+      properties:
+        account_type:
+          type:
+          - string
+          - 'null'
+        beginning_balance:
+          allOf:
+          - $ref: '#/components/schemas/InscribeNumberPrediction'
+        ending_balance:
+          allOf:
+          - $ref: '#/components/schemas/InscribeNumberPrediction'
+        institution_name:
+          type:
+          - string
+          - 'null'
+        number:
+          $ref: '#/components/schemas/InscribeStringPrediction'
+        transactions:
+          items:
+            $ref: '#/components/schemas/InscribeTransaction'
+          type: array
+        transactions_match_balances:
+          type:
+          - boolean
+          - 'null'
+      type: object
+    DataSourceNested:
+      properties:
+        heron_id:
+          description: Heron ID of the data source
+          type: string
+        is_enabled:
+          description: Whether this data source is enabled
+          type: boolean
+      type: object
+    PlaidAccountSnapshotBalance:
+      properties:
+        available:
+          type:
+          - number
+          - 'null'
+        current:
+          type:
+          - number
+          - 'null'
+        iso_currency_code:
+          type: string
+        limit:
+          type:
+          - number
+          - 'null'
+      type: object
+    YodleeSchema:
       properties:
         accounts:
           items:
-            $ref: '#/components/schemas/PlaidAccountSnapshot'
+            $ref: '#/components/schemas/YodleeAccount'
           type: array
         transactions:
           items:
-            $ref: '#/components/schemas/PlaidTransaction'
+            $ref: '#/components/schemas/YodleeTransaction'
           type: array
-      required:
-      - transactions
       type: object
-    DataSourceAccountNested:
+    InscribeStringPrediction:
       properties:
-        heron_id:
-          description: Heron ID of the data source account
+        confidence:
+          type: number
+        normalized:
           type: string
-        is_enabled:
-          description: Whether this data source account is enabled
-          type: boolean
+        raw:
+          type: string
+      type: object
+    InscribeNumberPrediction:
+      properties:
+        confidence:
+          type: number
+        normalized:
+          type: integer
+        raw:
+          type: string
       type: object
     OcrolusBankAccount:
       properties:
@@ -1023,438 +1589,31 @@ components:
             - 'null'
           type: object
       type: object
-    PlaidAccountOwners:
-      properties:
-        names:
-          items:
-            type: string
-          type: array
-      required:
-      - names
-      type: object
-    PdfGetSchema:
-      properties:
-        account_id:
-          description: Unique ID for account associated with PDF
-          example: checking_account_202348
-          type: string
-        created:
-          description: Timestamp when PDF was created in Heron system
-          example: '2026-08-14T12:24:30.801571'
-          format: date-time
-          type: string
-        currency:
-          description: ISO 4217 currency code for transactions in account. We currently only support GBP and USD PDFs
-          enum:
-          - USD
-          - GBP
-          example: USD
-          type: string
-        data_source:
-          allOf:
-          - $ref: '#/components/schemas/DataSourceNested'
-          description: The data source for this PDF. Only available after parsing and enrichment has completed, otherwise null.
-        end_user:
-          $ref: '#/components/schemas/EndUser2'
-        filename:
-          description: The filename of the PDF
-          example: my-favourite.pdf
-          type: string
-        heron_id:
-          description: ID generated by Heron Data
-          example: pdf_TdpNDuBWbCK82yDs4CqSAT
-          type: string
-        is_image_based:
-          description: True if the PDF was processed using image-based OCR. None if not yet processed
-          type:
-          - boolean
-          - 'null'
-        last_updated:
-          description: Timestamp when PDF was last updated in Heron system
-          example: '2026-08-14T12:24:30.801623'
-          format: date-time
-          type: string
-        notes:
-          description: Notes for the PDF, e.g., failed reason
-          example: failed to send to external OCR provider
-          type: string
-        parsing_version:
-          description: Indicates which provider was used to parse this pdf
-          type: string
-        reference_id:
-          description: An optional field for your unique identifier for the PDF
-          example: my-favourite-pdf
-          type: string
-        statements:
-          items:
-            $ref: '#/components/schemas/PdfStatement'
-          type: array
-        status:
-          description: Status of PDF
-          enum:
-          - new
-          - parsing
-          - parsed
-          - processed
-          - human_reviewing
-          - approved
-          - rejected
-          - failed
-          - transactions_loaded
-          - transactions_unloaded
-          example: processed
-          type: string
-      type: object
-    PdfPatchTransaction:
+    OcrolusTransaction:
       properties:
         amount:
-          type:
-          - number
-          - 'null'
-        balance:
-          type:
-          - number
-          - 'null'
-        bounds:
-          allOf:
-          - $ref: '#/components/schemas/MoneyThumbTransactionBounds'
-        currency:
-          type:
-          - string
-          - 'null'
+          type: string
         description:
-          type:
-          - string
-          - 'null'
-        ocr_suspect:
-          type:
-          - boolean
-          - 'null'
-        reference_id:
-          type:
-          - string
-          - 'null'
+          type: string
+        pk:
+          type: integer
         timestamp:
           format: date-time
-          type:
-          - string
-          - 'null'
-        transaction_code:
-          type:
-          - string
-          - 'null'
-      type: object
-    MoneyThumbTransactionBounds:
-      properties:
-        page:
-          type:
-          - integer
-          - 'null'
-        x_max:
-          type:
-          - integer
-          - 'null'
-        x_min:
-          type:
-          - integer
-          - 'null'
-        y_max:
-          type:
-          - integer
-          - 'null'
-        y_min:
-          type:
-          - integer
-          - 'null'
-      required:
-      - page
-      - x_max
-      - x_min
-      - y_max
-      - y_min
-      type: object
-    PdfPostSchema:
-      properties:
-        account_id:
-          description: Unique ID for account associated with PDF
-          example: checking_account_202348
-          type:
-          - string
-          - 'null'
-        currency:
-          description: ISO 4217 currency code for transactions in account. We currently only support GBP and USD PDFs
-          enum:
-          - USD
-          - GBP
-          - null
-          example: USD
-          type:
-          - string
-          - 'null'
-        filename:
-          description: The filename of the PDF
-          example: my-favourite.pdf
-          type:
-          - string
-          - 'null'
-        is_split:
-          description: Whether the file has been manually split
-          example: false
-          type:
-          - boolean
-          - 'null'
-        parent_file_heron_id:
-          description: The Heron ID of the parent file, if this PDF is a split from another file
-          type:
-          - string
-          - 'null'
-        pdf_base64:
-          description: The base64 encoded string of the PDF file. If using Javascript, this is directly the output of the FileReader.readAsDataURL() output.
-          pattern: ^data\:\w+\/\w+\;base64\,
           type: string
-        read_us_dates:
-          description: 'True if date formats in the statement are US: month/date/year'
-          type:
-          - boolean
-          - 'null'
-        reference_id:
-          description: An optional field for your unique identifier for the PDF
-          example: my-favourite-pdf
-          maxLength: 140
-          type:
-          - string
-          - 'null'
-      required:
-      - pdf_base64
+        txn_date:
+          example: 07/08/2025
+          format: date
+          pattern: ^\d{2}/\d{2}/\d{4}$
+          type: string
       type: object
-    YodleeTransaction:
+    DataSourceAccountNested:
       properties:
-        accountId:
-          type: integer
-        amount:
-          $ref: '#/components/schemas/YodleeAmount'
-        baseType:
-          enum:
-          - CREDIT
-          - DEBIT
+        heron_id:
+          description: Heron ID of the data source account
           type: string
-        category:
-          type: string
-        date:
-          example: '2025-07-08'
-          pattern: ^\d{4}-\d{2}-\d{2}$
-          type: string
-        description:
-          $ref: '#/components/schemas/YodleeTransactionDescription'
-        id:
-          type: integer
-      type: object
-    OcrolusResponse:
-      properties:
-        bank_accounts:
-          items:
-            $ref: '#/components/schemas/OcrolusBankAccount'
-          type: array
-        name:
-          type: string
-      required:
-      - bank_accounts
-      - name
-      type: object
-    YodleeAccount:
-      properties:
-        balance:
-          $ref: '#/components/schemas/YodleeAmount'
-        classification:
-          type:
-          - string
-          - 'null'
-        id:
-          type: integer
-      type: object
-    PdfPutSchema:
-      properties:
-        filename:
-          description: The filename of the PDF
-          example: my-favourite.pdf
-          type: string
-        fraud_reason:
-          description: 'If fraud reason '
-          type:
-          - string
-          - 'null'
-        is_fraud:
-          description: True if fraud was detected in the PDF
+        is_enabled:
+          description: Whether this data source account is enabled
           type: boolean
-        notes:
-          description: Notes associated with PDF, e.g., rejected reason, failed reason
-          type: string
-        reference_id:
-          description: An optional field for your unique identifier for the PDF
-          example: my-favourite-pdf
-          maxLength: 140
-          type: string
-        status:
-          description: Status of PDF
-          enum:
-          - new
-          - parsing
-          - parsed
-          - processed
-          - human_reviewing
-          - approved
-          - rejected
-          - failed
-          - transactions_loaded
-          - transactions_unloaded
-          example: processed
-          type: string
-      type: object
-    YodleeSchema:
-      properties:
-        accounts:
-          items:
-            $ref: '#/components/schemas/YodleeAccount'
-          type: array
-        transactions:
-          items:
-            $ref: '#/components/schemas/YodleeTransaction'
-          type: array
-      type: object
-    InscribeAccount:
-      properties:
-        account_type:
-          type:
-          - string
-          - 'null'
-        beginning_balance:
-          allOf:
-          - $ref: '#/components/schemas/InscribeNumberPrediction'
-        ending_balance:
-          allOf:
-          - $ref: '#/components/schemas/InscribeNumberPrediction'
-        institution_name:
-          type:
-          - string
-          - 'null'
-        number:
-          $ref: '#/components/schemas/InscribeStringPrediction'
-        transactions:
-          items:
-            $ref: '#/components/schemas/InscribeTransaction'
-          type: array
-        transactions_match_balances:
-          type:
-          - boolean
-          - 'null'
-      type: object
-    InscribeStringPrediction:
-      properties:
-        confidence:
-          type: number
-        normalized:
-          type: string
-        raw:
-          type: string
-      type: object
-    OcrolusSchema:
-      properties:
-        response:
-          $ref: '#/components/schemas/OcrolusResponse'
-      required:
-      - response
-      type: object
-    PdfDefaultCurrencyUpdateSchema:
-      properties:
-        currency:
-          description: ISO 4217 currency code to update for PDF and all statements
-          enum:
-          - USD
-          - GBP
-          - EUR
-          - SEK
-          - AED
-          - AUD
-          - SGD
-          - CAD
-          - NOK
-          - IDR
-          - CHF
-          - DKK
-          - MXN
-          - PLN
-          - MYR
-          - VND
-          - RON
-          - TRY
-          - CZK
-          - BGN
-          - HKD
-          - PHP
-          - HUF
-          - NZD
-          - BRL
-          - ILS
-          - COP
-          - RUB
-          - INR
-          - ZAR
-          - THB
-          - JPY
-          - CLP
-          - MAD
-          - RSD
-          - SLE
-          example: EUR
-          type: string
-      required:
-      - currency
-      type: object
-    InscribeSchema:
-      properties:
-        customer_name:
-          type:
-          - string
-          - 'null'
-        parsed_details:
-          $ref: '#/components/schemas/InscribeParsedDetails'
-      type: object
-    PlaidAccountSnapshot:
-      properties:
-        account_id:
-          type: string
-        balances:
-          allOf:
-          - $ref: '#/components/schemas/PlaidAccountSnapshotBalance'
-          description: Balance information for the account as an object. This is optional, but if not provided, balance calculations will not be performed for individual transactions.
-        holder_category:
-          type:
-          - string
-          - 'null'
-        institution_name:
-          type:
-          - string
-          - 'null'
-        mask:
-          type:
-          - string
-          - 'null'
-        name:
-          type: string
-        official_name:
-          type:
-          - string
-          - 'null'
-        owners:
-          items:
-            $ref: '#/components/schemas/PlaidAccountOwners'
-          type:
-          - array
-          - 'null'
-        subtype:
-          type: string
-        type:
-          type: string
       type: object
     PdfStatement:
       properties:
@@ -1476,30 +1635,6 @@ components:
             $ref: '#/components/schemas/PdfTransaction'
           type: array
       type: object
-    InscribeTransaction:
-      properties:
-        amount:
-          type: integer
-        date:
-          format: date
-          type: string
-        description:
-          type: string
-        id:
-          type: string
-      type: object
-    PlaidAssetReportItem:
-      properties:
-        accounts:
-          items:
-            $ref: '#/components/schemas/PlaidAccount'
-          type: array
-        institution_name:
-          type: string
-      required:
-      - accounts
-      - institution_name
-      type: object
     PlaidAccountBalance:
       properties:
         current:
@@ -1516,143 +1651,10 @@ components:
           - string
           - 'null'
       type: object
-    OcrolusTransaction:
+    InscribeParsedDetailsName:
       properties:
-        amount:
+        raw:
           type: string
-        description:
-          type: string
-        pk:
-          type: integer
-        timestamp:
-          format: date-time
-          type: string
-        txn_date:
-          example: 07/08/2025
-          format: date
-          pattern: ^\d{2}/\d{2}/\d{4}$
-          type: string
-      type: object
-    PlaidAccount:
-      properties:
-        account_id:
-          type: string
-        balances:
-          $ref: '#/components/schemas/PlaidAccountSnapshotBalance'
-        historical_balances:
-          items:
-            $ref: '#/components/schemas/PlaidAccountBalance'
-          type: array
-        holder_category:
-          type:
-          - string
-          - 'null'
-        mask:
-          type:
-          - string
-          - 'null'
-        name:
-          type:
-          - string
-          - 'null'
-        official_name:
-          type:
-          - string
-          - 'null'
-        owners:
-          items:
-            $ref: '#/components/schemas/PlaidAccountOwners'
-          type:
-          - array
-          - 'null'
-        subtype:
-          type:
-          - string
-          - 'null'
-        transactions:
-          items:
-            $ref: '#/components/schemas/PlaidTransaction'
-          type: array
-        type:
-          type:
-          - string
-          - 'null'
-      required:
-      - account_id
-      - balances
-      - historical_balances
-      - transactions
-      type: object
-    PdfTransaction:
-      properties:
-        amount:
-          type: number
-        balance:
-          type: number
-        bounds:
-          allOf:
-          - $ref: '#/components/schemas/MoneyThumbTransactionBounds'
-        currency:
-          type:
-          - string
-          - 'null'
-        description:
-          type: string
-        ocr_suspect:
-          type: boolean
-        reference_id:
-          type: string
-        timestamp:
-          format: date-time
-          type: string
-        transaction_code:
-          type: string
-      required:
-      - amount
-      - description
-      - timestamp
-      type: object
-    PlaidAccountSnapshotBalance:
-      properties:
-        available:
-          type:
-          - number
-          - 'null'
-        current:
-          type:
-          - number
-          - 'null'
-        iso_currency_code:
-          type: string
-        limit:
-          type:
-          - number
-          - 'null'
-      type: object
-    InscribeParsedDetails:
-      properties:
-        bank_accounts:
-          items:
-            $ref: '#/components/schemas/InscribeAccount'
-          type: array
-        name:
-          $ref: '#/components/schemas/InscribeParsedDetailsName'
-      type: object
-    PlaidAssetReport:
-      properties:
-        date_generated:
-          format: date-time
-          type: string
-        days_requested:
-          type: integer
-        items:
-          items:
-            $ref: '#/components/schemas/PlaidAssetReportItem'
-          type: array
-      required:
-      - date_generated
-      - days_requested
-      - items
       type: object
     YodleeTransactionDescription:
       properties:
@@ -1661,19 +1663,17 @@ components:
         simple:
           type: string
       type: object
-    DataSourceNested:
+    OcrolusResponse:
       properties:
-        heron_id:
-          description: Heron ID of the data source
+        bank_accounts:
+          items:
+            $ref: '#/components/schemas/OcrolusBankAccount'
+          type: array
+        name:
           type: string
-        is_enabled:
-          description: Whether this data source is enabled
-          type: boolean
-      type: object
-    InscribeParsedDetailsName:
-      properties:
-        raw:
-          type: string
+      required:
+      - bank_accounts
+      - name
       type: object
   securitySchemes:
     ApiKeyAuth:

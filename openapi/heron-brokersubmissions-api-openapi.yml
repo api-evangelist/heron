@@ -326,14 +326,28 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    CreateBrokerSubmissionSchema:
+    Address:
       properties:
-        name:
-          description: The name of the submission being made, this is purely for user reference.
-          minLength: 10
-          type: string
-      required:
-      - name
+        city:
+          type:
+          - string
+          - 'null'
+        line_1:
+          type:
+          - string
+          - 'null'
+        line_2:
+          type:
+          - string
+          - 'null'
+        state:
+          type:
+          - string
+          - 'null'
+        zip:
+          type:
+          - string
+          - 'null'
       type: object
     EndUserInformationSchema:
       properties:
@@ -435,6 +449,15 @@ components:
           - string
           - 'null'
       type: object
+    CreateBrokerFunderApiKeySchema:
+      properties:
+        email:
+          description: Broker email address
+          format: email
+          type: string
+      required:
+      - email
+      type: object
     Owner:
       properties:
         credit_score:
@@ -505,28 +528,14 @@ components:
           - string
           - 'null'
       type: object
-    Address:
+    CreateBrokerSubmissionSchema:
       properties:
-        city:
-          type:
-          - string
-          - 'null'
-        line_1:
-          type:
-          - string
-          - 'null'
-        line_2:
-          type:
-          - string
-          - 'null'
-        state:
-          type:
-          - string
-          - 'null'
-        zip:
-          type:
-          - string
-          - 'null'
+        name:
+          description: The name of the submission being made, this is purely for user reference.
+          minLength: 10
+          type: string
+      required:
+      - name
       type: object
     EndUserInformationPatchSchema:
       properties:
@@ -616,15 +625,6 @@ components:
           type:
           - string
           - 'null'
-      type: object
-    CreateBrokerFunderApiKeySchema:
-      properties:
-        email:
-          description: Broker email address
-          format: email
-          type: string
-      required:
-      - email
       type: object
   securitySchemes:
     ApiKeyAuth:

@@ -393,49 +393,6 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    FinicityRequestStatementReportsSchema:
-      properties:
-        max_statement_index:
-          default: 24
-          type: integer
-        min_statement_index:
-          default: 1
-          type: integer
-      type: object
-    RefreshAssetsReportsResponseSchema:
-      properties:
-        failed_links:
-          description: Array of item_ids that failed to refresh
-          example:
-          - item_123
-          - item_456
-          items:
-            type: string
-          type: array
-        processed_links:
-          description: Number of links processed for refresh
-          example: 2
-          type: integer
-      required:
-      - failed_links
-      - processed_links
-      type: object
-    FinicityRequestVoeTransactionsReportSchema:
-      properties:
-        from_date:
-          format: date-time
-          type: string
-      type: object
-    IntegrationLinkUpdateSchema:
-      properties:
-        access_token:
-          description: The generated token that grants access to the bank (this is encrypted in transit and at-rest with a custom key)
-          example: access-sandbox-de3ce8ef-33f8-452c-a685-8671031fc0f6
-          type: string
-          writeOnly: true
-      required:
-      - access_token
-      type: object
     IntegrationLinkSchema:
       properties:
         access_token:
@@ -507,6 +464,46 @@ components:
       - access_token
       - end_user_id
       - item_id
+      type: object
+    FinicityRequestCashflowReportSchema:
+      properties:
+        applicant_is_personal_guarantor:
+          type: boolean
+        for_cra_purpose:
+          type: boolean
+        user_type:
+          enum:
+          - personal
+          - business
+          type: string
+      required:
+      - applicant_is_personal_guarantor
+      - for_cra_purpose
+      - user_type
+      type: object
+    FinicityRequestVoeTransactionsReportSchema:
+      properties:
+        from_date:
+          format: date-time
+          type: string
+      type: object
+    RefreshAssetsReportsResponseSchema:
+      properties:
+        failed_links:
+          description: Array of item_ids that failed to refresh
+          example:
+          - item_123
+          - item_456
+          items:
+            type: string
+          type: array
+        processed_links:
+          description: Number of links processed for refresh
+          example: 2
+          type: integer
+      required:
+      - failed_links
+      - processed_links
       type: object
     IntegrationSchema:
       properties:
@@ -638,21 +635,24 @@ components:
       - end_user_id
       - item_id
       type: object
-    FinicityRequestCashflowReportSchema:
+    FinicityRequestStatementReportsSchema:
       properties:
-        applicant_is_personal_guarantor:
-          type: boolean
-        for_cra_purpose:
-          type: boolean
-        user_type:
-          enum:
-          - personal
-          - business
+        max_statement_index:
+          default: 24
+          type: integer
+        min_statement_index:
+          default: 1
+          type: integer
+      type: object
+    IntegrationLinkUpdateSchema:
+      properties:
+        access_token:
+          description: The generated token that grants access to the bank (this is encrypted in transit and at-rest with a custom key)
+          example: access-sandbox-de3ce8ef-33f8-452c-a685-8671031fc0f6
           type: string
+          writeOnly: true
       required:
-      - applicant_is_personal_guarantor
-      - for_cra_purpose
-      - user_type
+      - access_token
       type: object
   securitySchemes:
     ApiKeyAuth:

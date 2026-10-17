@@ -195,46 +195,6 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    EndUserMerchantFeedbackRevert:
-      properties:
-        transaction_heron_ids:
-          description: List of transaction heron IDs to revert merchant feedback
-          items:
-            example: txn_kykFaRW4AduwY9fsHE65S9
-            type: string
-          type: array
-      required:
-      - transaction_heron_ids
-      type: object
-    EndUserBulkMerchantFeedback:
-      properties:
-        merchant:
-          $ref: '#/components/schemas/MerchantFeedback1'
-        transaction_heron_ids:
-          description: List of transaction heron IDs
-          items:
-            example: txn_oNMLQFGrd4gNvYCtUjqr8u
-            type: string
-          type: array
-      required:
-      - merchant
-      - transaction_heron_ids
-      type: object
-    MerchantFeedback:
-      properties:
-        heron_id:
-          description: heron_id of the correct merchant
-          example: mrc_cGt7XxoNoTY8Y2uKYp5Urp
-          type: string
-        is_correct:
-          default: false
-          example: false
-          type: boolean
-        name:
-          description: name of the correct merchant
-          example: Spotify
-          type: string
-      type: object
     TransactionFeedbackSchema:
       properties:
         category:
@@ -295,16 +255,19 @@ components:
           maxLength: 2000
           type: string
       type: object
-    CategoryFeedback:
+    EndUserBulkMerchantFeedback:
       properties:
-        heron_id:
-          description: heron_id of the correct category
-          example: ctg_YkigC43AS8CVDy4bVbdLiF
-          type: string
-        label:
-          description: label of the correct category
-          example: Insurance
-          type: string
+        merchant:
+          $ref: '#/components/schemas/MerchantFeedback1'
+        transaction_heron_ids:
+          description: List of transaction heron IDs
+          items:
+            example: txn_oNMLQFGrd4gNvYCtUjqr8u
+            type: string
+          type: array
+      required:
+      - merchant
+      - transaction_heron_ids
       type: object
     EndUserBulkCategoryFeedback:
       properties:
@@ -332,6 +295,43 @@ components:
           type: array
       required:
       - category
+      type: object
+    EndUserMerchantFeedbackRevert:
+      properties:
+        transaction_heron_ids:
+          description: List of transaction heron IDs to revert merchant feedback
+          items:
+            example: txn_kykFaRW4AduwY9fsHE65S9
+            type: string
+          type: array
+      required:
+      - transaction_heron_ids
+      type: object
+    CategoryFeedback:
+      properties:
+        heron_id:
+          description: heron_id of the correct category
+          example: ctg_YkigC43AS8CVDy4bVbdLiF
+          type: string
+        label:
+          description: label of the correct category
+          example: Insurance
+          type: string
+      type: object
+    MerchantFeedback:
+      properties:
+        heron_id:
+          description: heron_id of the correct merchant
+          example: mrc_cGt7XxoNoTY8Y2uKYp5Urp
+          type: string
+        is_correct:
+          default: false
+          example: false
+          type: boolean
+        name:
+          description: name of the correct merchant
+          example: Spotify
+          type: string
       type: object
   securitySchemes:
     ApiKeyAuth:

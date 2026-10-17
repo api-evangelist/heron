@@ -240,102 +240,39 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    MerchantGroup:
+    PaymentProcessor:
       properties:
-        description:
-          description: Description of merchant group
-          type: string
-        id:
-          description: Unique ID of merchant group
-          type: string
-        name:
-          description: Display name of merchant group
-          type: string
-      type: object
-    Merchant:
-      properties:
-        categories:
-          items:
-            $ref: '#/components/schemas/MerchantCategory'
-          readOnly: true
-          type: array
-        group_id:
-          enum:
-          - Uber
-          - Google
-          - Intuit
-          - debt.mca_or_rbf
-          - debt.non_bank_business
-          - debt.equipment_and_auto_leasing
-          - debt.mortgage
-          - debt.personal_non_mortgage
-          - debt.collections
-          - debt.bank
-          - invoice_factoring
-          - fuel_provider
-          - gambling_and_betting
-          - null
-          type:
-          - string
-          - 'null'
         heron_id:
-          example: mrc_RTgUcM9od9w9fwU8YG6mjH
+          example: mrc_nRYdGU7nYuevb7qem65cEb
           readOnly: true
           type: string
         icon_url:
+          example: https://storage.googleapis.com/heron-merchant-assets/icons/mrc_nRYdGU7nYuevb7qem65cEb.svg
           format: url
+          readOnly: true
           type:
           - string
           - 'null'
-        is_priority:
-          readOnly: true
-          type: boolean
         logo_url:
+          example: https://storage.googleapis.com/heron-merchant-assets/logos/mrc_nRYdGU7nYuevb7qem65cEb.svg
           format: url
+          readOnly: true
           type:
           - string
           - 'null'
         name:
-          type: string
+          example: Paypal
+          readOnly: true
+          type:
+          - string
+          - 'null'
         url:
+          example: https://www.paypal.com
           format: url
-          type: string
-      required:
-      - name
-      - url
-      type: object
-    UserMerchantGroupSchema:
-      properties:
-        group_id:
-          type: string
-        merchant_heron_id:
-          type: string
-        merchant_name:
-          type: string
-      required:
-      - merchant_heron_id
-      - merchant_name
-      type: object
-    MerchantCategory:
-      properties:
-        code:
-          example: '7311'
-          readOnly: true
-          type: string
-        description:
-          example: Advertising services
           readOnly: true
           type:
           - string
           - 'null'
-        slug:
-          example: advertising_services
-          readOnly: true
-          type:
-          - string
-          - 'null'
-      required:
-      - code
       type: object
     MerchantExtract:
       properties:
@@ -466,39 +403,102 @@ components:
       - name
       - url
       type: object
-    PaymentProcessor:
+    MerchantGroup:
       properties:
-        heron_id:
-          example: mrc_nRYdGU7nYuevb7qem65cEb
+        description:
+          description: Description of merchant group
+          type: string
+        id:
+          description: Unique ID of merchant group
+          type: string
+        name:
+          description: Display name of merchant group
+          type: string
+      type: object
+    MerchantCategory:
+      properties:
+        code:
+          example: '7311'
           readOnly: true
           type: string
-        icon_url:
-          example: https://storage.googleapis.com/heron-merchant-assets/icons/mrc_nRYdGU7nYuevb7qem65cEb.svg
-          format: url
+        description:
+          example: Advertising services
           readOnly: true
           type:
           - string
           - 'null'
-        logo_url:
-          example: https://storage.googleapis.com/heron-merchant-assets/logos/mrc_nRYdGU7nYuevb7qem65cEb.svg
-          format: url
+        slug:
+          example: advertising_services
           readOnly: true
+          type:
+          - string
+          - 'null'
+      required:
+      - code
+      type: object
+    Merchant:
+      properties:
+        categories:
+          items:
+            $ref: '#/components/schemas/MerchantCategory'
+          readOnly: true
+          type: array
+        group_id:
+          enum:
+          - Uber
+          - Google
+          - Intuit
+          - debt.mca_or_rbf
+          - debt.non_bank_business
+          - debt.equipment_and_auto_leasing
+          - debt.mortgage
+          - debt.personal_non_mortgage
+          - debt.collections
+          - debt.bank
+          - invoice_factoring
+          - fuel_provider
+          - gambling_and_betting
+          - null
+          type:
+          - string
+          - 'null'
+        heron_id:
+          example: mrc_RTgUcM9od9w9fwU8YG6mjH
+          readOnly: true
+          type: string
+        icon_url:
+          format: url
+          type:
+          - string
+          - 'null'
+        is_priority:
+          readOnly: true
+          type: boolean
+        logo_url:
+          format: url
           type:
           - string
           - 'null'
         name:
-          example: Paypal
-          readOnly: true
-          type:
-          - string
-          - 'null'
+          type: string
         url:
-          example: https://www.paypal.com
           format: url
-          readOnly: true
-          type:
-          - string
-          - 'null'
+          type: string
+      required:
+      - name
+      - url
+      type: object
+    UserMerchantGroupSchema:
+      properties:
+        group_id:
+          type: string
+        merchant_heron_id:
+          type: string
+        merchant_name:
+          type: string
+      required:
+      - merchant_heron_id
+      - merchant_name
       type: object
   securitySchemes:
     ApiKeyAuth:

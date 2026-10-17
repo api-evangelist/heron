@@ -113,6 +113,15 @@ components:
           example: true
           type: boolean
       type: object
+    DataSourceAccountUpdateNumberSchema:
+      properties:
+        source_dsa_heron_id:
+          description: The Heron ID of the data source account containing the number we want to update to
+          example: dsa_8w6V5CuRESc7G5yx3mXF54
+          type: string
+      required:
+      - source_dsa_heron_id
+      type: object
     EndUserDataSourceAccount:
       properties:
         account_id:
@@ -225,15 +234,6 @@ components:
           description: The currency of the money
           example: USD
           type: string
-      type: object
-    DataSourceAccountUpdateNumberSchema:
-      properties:
-        source_dsa_heron_id:
-          description: The Heron ID of the data source account containing the number we want to update to
-          example: dsa_8w6V5CuRESc7G5yx3mXF54
-          type: string
-      required:
-      - source_dsa_heron_id
       type: object
     AccountBalance:
       properties:
